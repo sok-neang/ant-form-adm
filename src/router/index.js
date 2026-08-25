@@ -1,20 +1,156 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '@/views/user/login.vue'
+import LoginView from '@/views/auth/LoginView.vue';
+import ResetPassword from '@/views/auth/ResetPasswordView.vue';
+import TwoFAView from '@/views/auth/TwoFAView.vue';
+import VerifyCodeView from '@/views/auth/VerifyCodeView.vue';
+// Dashboard
+import DefaultLayout from '@/layouts/DefaultLayout.vue';
+import DashboardView from "@/views/pages/dashboard/DashboardView.vue";
+
+import UserView from '@/views/pages/super-admin/users/UserView.vue';
+import ActivityLogView from '@/views/pages/super-admin/activity-logs/ActivityLogView.vue';
+
+import ApplicationView from '@/views/pages/admin/application-review/ApplicationView.vue';
+import ApplicationReview from '@/views/pages/admin/application-review/ApplicationReview.vue';
+import ShortlistView from '@/views/pages/admin/shortlisted/shortlistView.vue';
+import Blacklist from '@/views/pages/admin/blacklisted/Blacklist.vue';
+import FinalResultView from '@/views/pages/admin/final-results/FinalResultView.vue';
+
+
+import StudentView from '@/views/pages/Teacher/studentList/StudentView.vue';
+
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
-  routes: [
-    // User 
-    {
-      path: '/',
-      name: 'home',
-      component: HomeView,
-    },
-    // Admin
-    
+  routes : [
 
-   
-  ],
+  {
+    path: "/auth/login",
+    name: "login",
+    component: LoginView,
+    meta: {
+      title: "ចូលគណនី",
+    },
+  },
+
+  {
+    path: "/auth/2fa",
+    name: "two-factor",
+    component: TwoFAView,
+    meta: {
+      title: "ការផ្ទៀងផ្ទាត់ពីរដំណាក់កាល",
+    },
+  },
+
+  {
+    path: "/auth/verify-code",
+    name: "verify-code",
+    component: VerifyCodeView,
+    meta: {
+      title: "ផ្ទៀងផ្ទាត់កូដ",
+    },
+  },
+
+  {
+    path: "/auth/reset-password",
+    name: "reset-password",
+    component: ResetPassword,
+    meta: {
+      title: "កំណត់ពាក្យសម្ងាត់ឡើងវិញ",
+    },
+  },
+
+  {
+    path: "/",
+    component: DefaultLayout,
+
+    children: [
+      {
+        path: "",
+        name: "dashboard",
+        component: DashboardView,
+        meta: {
+          title: "ផ្ទាំងគ្រប់គ្រង",
+        },
+      },
+
+      {
+        path: "users",
+        name: "users",
+        component: UserView,
+        meta: {
+          title: "អ្នកប្រើប្រាស់",
+        },
+      },
+
+      {
+        path: "activity-logs",
+        name: "activity-logs",
+        component: ActivityLogView,
+        meta: {
+          title: "កំណត់ហេតុសកម្មភាព",
+        },
+      },
+
+      {
+        path: "application",
+        name: "application",
+        component: ApplicationView,
+        meta: {
+          title: "បញ្ជីអ្នកដាក់ពាក្យ",
+        },
+      },
+      {
+        path: "application-review/:id",
+        name: "application-review",
+        component: ApplicationReview,
+        meta: {
+          title: "ពិនិត្យបញ្ជីអ្នកដាក់ពាក្យ",
+        },
+      },
+
+      {
+        path: "shortlisted",
+        name: "shortlisted",
+        component: ShortlistView,
+        meta: {
+          title: "បញ្ជីសម្រាំង",
+        },
+      },
+      {
+        path: "blacklisted",
+        name: "blacklisted",
+        component: Blacklist,
+        meta: {
+          title: "បញ្ជីសម្រាំង",
+        },
+      },
+       {
+        path: "final-results",
+        name: "final-results",
+        component: FinalResultView,
+        meta: {
+          title: "លទ្ធផលចុងក្រោយ",
+        },
+      },
+       {
+        path: "student-lists",
+        name: "student-lists",
+        component: StudentView,
+        meta: {
+          title: "បញ្ជីសិស្ស",
+        },
+      },
+    ],
+  },
+]
 })
+router.afterEach((to) => {
+  const title = to.meta.title;
+
+  document.title = title
+    ? `${title} | ANT Form Management`
+    : "ANT Form Management";
+});
 
 export default router
