@@ -140,6 +140,12 @@ textarea {
 }
 
 /* Logo */
+.logo-login img {
+  width: 200px;
+  height: auto;
+}
+
+/* Logo */
 .logo img {
   width: 140px;
   height: auto;
@@ -590,7 +596,7 @@ textarea {
   align-items: center;
   gap: 12px;
   width: 100%;
-  padding: 10px 12px;
+  padding: 5px 10px;
   border-radius: 7px;
   color: #495057;
   text-decoration: none;
@@ -798,6 +804,52 @@ textarea {
   color: #fff;
   border-color: #357867;
   box-shadow: 0 3px 8px rgba(53, 120, 103, 0.18);
+}
+.status-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.status-option {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  padding: 12px 14px;
+
+  border: 1px solid #dee2e6;
+  border-radius: 10px;
+
+  background: #fff;
+
+  transition: all 0.2s ease;
+
+  cursor: pointer;
+}
+
+.status-option:hover {
+  border-color: #adb5bd;
+  background-color: #f8f9fa;
+}
+
+.status-option.active {
+  border-color: #0d6efd;
+  background-color: rgba(13, 110, 253, 0.04);
+}
+
+.status-icon {
+  width: 40px;
+  height: 40px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  font-size: 18px;
 }
 
 @media (max-width: 991.98px) {

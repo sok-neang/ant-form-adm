@@ -1,20 +1,11 @@
 <template>
-  <BaseModal
-    :show="props.show"
-    size="lg"
-    :showClose="true"
-    :close-on-backdrop="!loading"
-    @close="handleClose"
-  >
+  <BaseModal :show="props.show" size="lg" :showClose="true" :close-on-backdrop="!loading" @close="handleClose">
     <!-- ================= HEADER ================= -->
     <template #header>
       <div class="d-flex align-items-center gap-3">
         <!-- Icon -->
-        <div
-          class="d-flex align-items-center justify-content-center
-                bg-primary-subtle text-primary rounded-3"
-          style="width: 42px; height: 42px;"
-        >
+        <div class="d-flex align-items-center justify-content-center
+                bg-primary-subtle text-primary rounded-3" style="width: 42px; height: 42px;">
           <i class="bi bi-person-plus-fill fs-5"></i>
         </div>
         <!-- Title -->
@@ -30,44 +21,35 @@
     </template>
 
     <!-- ================= BODY ================= -->
-     <UserForm 
-     :form="form"  
-     :genderOptions="genderOptions"
-      :roleOptions="roleOptions"
-      :typeCourseOptions="typeCourseOptions" />
-    
+    <UserForm :form="form" :errors="errors" :genderOptions="genderOptions" :roleOptions="roleOptions"
+      :typeCourseOptions="specializationOptions" @blur="onBlur" @input="onInput" />
+
     <!-- ================= FOOTER ================= -->
     <template #footer>
       <div class="d-flex justify-content-end gap-2 w-100">
-        <BaseButton
-          type="submit"
-          variant=""
-          custom-class="btn-light px-4 bg-secondary-subtle py-2 w-50"
-          @click="handleClose"
-        >
+        <BaseButton type="submit" variant="" custom-class="btn-light px-4 bg-secondary-subtle py-2 w-50"
+          @click="handleClose">
           បោះបង់
         </BaseButton>
-        <BaseButton
-          type="submit"
-          variant="bg-primary"
-          custom-class="w-50 py-2 bg-primary text-light"
-          :is-loading="loading"
-          loading-text="Signing in..."
-        >
+        <BaseButton type="submit" variant="bg-primary" custom-class="w-50 py-2 bg-primary text-light"
+          :is-loading="loading" loading-text="Signing in..." @click="handleCreate">
           បង្កើតគណនី
         </BaseButton>
-
-
       </div>
     </template>
   </BaseModal>
 </template>
-
 <script setup>
-import { reactive, ref, watch } from "vue";
-import BaseModal from "@/components/ui/base/BaseModal.vue";
 import UserForm from "@/components/form/UserForm.vue";
 import BaseButton from "@/components/ui/base/BaseButton.vue";
+import BaseModal from "@/components/ui/base/BaseModal.vue";
+
+import { useUserForm } from "@/composable/user/useUserForm";
+import userService from "@/services/user.service";
+
+import { specializationOptions, roleOptions, genderOptions, } from "@/constants/options";
+
+
 const props = defineProps({
   show: {
     type: Boolean,
@@ -75,137 +57,65 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits([
-  "update:show",
-  "close",
-  "submit",
-]);
-
-const loading = ref(false);
-
-const form = reactive({
-  khmer_name: "",
-  name: "",
-  email: "",
-  gender: null,
-  role: null,
-  type_course: null,
-});
-
-const errors = reactive({
-  khmer_name: "",
-  name: "",
-  email: "",
-  gender: "",
-  role: "",
-});
-
-const genderOptions = [
-  {
-    value: "MALE",
-    label: "ប្រុស",
-  },
-  {
-    value: "FEMALE",
-    label: "ស្រី",
-  },
-];
-
-const roleOptions = [
-  {
-    value: "ADMIN",
-    label: "Admin",
-  },
-  {
-    value: "Teacher",
-    label: "Teacher",
-  },
-];
-const typeCourseOptions = [
-  {
-    value: "Moble App",
-    label: "Moble App",
-  },
-  {
-    value: "Web Development",
-    label: "Web Development",
-  },
-];
-
-const resetForm = () => {
-  form.khmer_name = "";
-  form.name = "";
-  form.email = "";
-  form.gender = null;
-  form.role = null;
-
-  Object.keys(errors).forEach((key) => {
-    errors[key] = "";
-  });
+const emit = defineEmits(["close", "created",]);
+const { form,errors,loading,resetForm, validateForm,onInput,onBlur,resetValidation,applyBackendErrors} = useUserForm("create");
+const handleClose = () => {
+  if (loading.value) return;
+  resetValidation();
+  resetForm()
+  emit("close");
 };
 
-const validate = () => {
-  let valid = true;
-
-  Object.keys(errors).forEach((key) => {
-    errors[key] = "";
-  });
-
-  if (!form.khmer_name.trim()) {
-    errors.khmer_name = "សូមបញ្ចូលឈ្មោះជាភាសាខ្មែរ";
-    valid = false;
+// Create User
+const handleCreate = async () => {
+  // Validate form first
+  if (!validateForm()) {
+    return;
   }
-
-  if (!form.name.trim()) {
-    errors.name = "សូមបញ្ចូលឈ្មោះជាភាសាអង់គ្លេស";
-    valid = false;
-  }
-
-  if (!form.email.trim()) {
-    errors.email = "សូមបញ្ចូលអ៊ីមែល";
-    valid = false;
-  }
-
-  if (!form.gender) {
-    errors.gender = "សូមជ្រើសរើសភេទ";
-    valid = false;
-  }
-
-  if (!form.role) {
-    errors.role = "សូមជ្រើសរើសតួនាទី";
-    valid = false;
-  }
-
-  return valid;
-};
-
-const handleSubmit = async () => {
-  if (!validate()) return;
-
+  if (loading.value) return;
   loading.value = true;
 
   try {
-    emit("submit", {
-      ...form,
-    });
+    // Prepare Payload
+    const payload = {
+      name: form.name,
+      email: form.email,
+      gender: form.gender,
+      role: form.role,
+    };
+
+    if (form.role === "TEACHER") {
+      payload.teachingSubject = form.teachingSubject;
+    }
+
+    const response = await userService.create(payload);
+    if (response.data?.success) {
+      const data = response.data.data;
+
+      const user = {
+        id: data.id,
+        name: data.name || form.name,
+        email: data.email || form.email,
+        role: data.role || form.role,
+        password: data.plainPassword,
+      };
+      emit("created", user);
+      emit("close");
+      resetValidation();
+    }
+  } catch (err) {
+    console.error("Create user error:", err);
+    const response = err.response;
+    if (response?.status === 409 && response?.data?.message === "Email is already registered.") {
+      errors.email = "អ៊ីមែលនេះបានប្រើប្រាស់ររួចម្តងហើយ";
+      return;
+    }
+    const backendErrors = response?.data?.details;
+    if (backendErrors && typeof backendErrors === "object" ) {
+      applyBackendErrors(backendErrors, mapBackendMessage);
+    }
   } finally {
     loading.value = false;
   }
 };
-
-const handleClose = () => {
-  if (loading.value) return;
-  resetForm();
-  emit("close");
-  emit("update:show", false);
-};
-
-watch(
-  () => props.show,
-  (value) => {
-    if (value) {
-      resetForm();
-    }
-  }
-);
 </script>

@@ -642,7 +642,7 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
+  width: 50px;
   min-width: 42px;
   flex-shrink: 0;
   color: var(--bs-icon);

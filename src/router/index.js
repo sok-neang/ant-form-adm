@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { useAuthStore } from '@/stores/useAuthStore';
 import LoginView from '@/views/auth/LoginView.vue';
 import ResetPassword from '@/views/auth/ResetPasswordView.vue';
 import TwoFAView from '@/views/auth/TwoFAView.vue';
@@ -30,6 +31,7 @@ const router = createRouter({
     component: LoginView,
     meta: {
       title: "ចូលគណនី",
+      requiresGuest: true,
     },
   },
 
@@ -39,6 +41,7 @@ const router = createRouter({
     component: TwoFAView,
     meta: {
       title: "ការផ្ទៀងផ្ទាត់ពីរដំណាក់កាល",
+      requiresGuest: true,
     },
   },
 
@@ -48,6 +51,7 @@ const router = createRouter({
     component: VerifyCodeView,
     meta: {
       title: "ផ្ទៀងផ្ទាត់កូដ",
+      requiresGuest: true,
     },
   },
 
@@ -57,6 +61,7 @@ const router = createRouter({
     component: ResetPassword,
     meta: {
       title: "កំណត់ពាក្យសម្ងាត់ឡើងវិញ",
+      requiresGuest: true,
     },
   },
 
@@ -71,6 +76,7 @@ const router = createRouter({
         component: DashboardView,
         meta: {
           title: "ផ្ទាំងគ្រប់គ្រង",
+          requiresAuth: true,
         },
       },
 
@@ -80,6 +86,7 @@ const router = createRouter({
         component: UserView,
         meta: {
           title: "អ្នកប្រើប្រាស់",
+          requiresAuth: true,
         },
       },
 
@@ -89,6 +96,7 @@ const router = createRouter({
         component: ActivityLogView,
         meta: {
           title: "កំណត់ហេតុសកម្មភាព",
+          requiresAuth: true,
         },
       },
 
@@ -98,6 +106,7 @@ const router = createRouter({
         component: ApplicationView,
         meta: {
           title: "បញ្ជីអ្នកដាក់ពាក្យ",
+          requiresAuth: true,
         },
       },
       {
@@ -106,6 +115,7 @@ const router = createRouter({
         component: ApplicationReview,
         meta: {
           title: "ពិនិត្យបញ្ជីអ្នកដាក់ពាក្យ",
+          requiresAuth: true,
         },
       },
 
@@ -115,6 +125,7 @@ const router = createRouter({
         component: ShortlistView,
         meta: {
           title: "បញ្ជីសម្រាំង",
+          requiresAuth: true,
         },
       },
       {
@@ -123,6 +134,7 @@ const router = createRouter({
         component: Blacklist,
         meta: {
           title: "បញ្ជីសម្រាំង",
+          requiresAuth: true,
         },
       },
        {
@@ -131,6 +143,7 @@ const router = createRouter({
         component: FinalResultView,
         meta: {
           title: "លទ្ធផលចុងក្រោយ",
+          requiresAuth: true,
         },
       },
        {
@@ -139,12 +152,34 @@ const router = createRouter({
         component: StudentView,
         meta: {
           title: "បញ្ជីសិស្ស",
+          requiresAuth: true,
         },
       },
     ],
   },
 ]
 })
+router.beforeEach((to) => {
+  const authStore = useAuthStore();
+
+  const isAuthenticated = authStore.isAuthenticated;
+
+  console.log("Route:", to.fullPath);
+  console.log("Authenticated:", isAuthenticated);
+
+  // User is NOT logged in → cannot access protected pages
+  if (to.meta.requiresAuth && !isAuthenticated) {
+    return { name: "login" };
+  }
+
+  // User IS logged in → cannot access auth pages
+  if (to.meta.requiresGuest && isAuthenticated) {
+    return { name: "dashboard" };
+  }
+
+  return true;
+});
+
 router.afterEach((to) => {
   const title = to.meta.title;
 

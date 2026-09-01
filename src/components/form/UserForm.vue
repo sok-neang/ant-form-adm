@@ -1,30 +1,24 @@
 <template>
-    <form @submit.prevent="handleSubmit">
-        <!-- Khmer Name -->
+    <form @submit.prevent>
          <div class="col-md-12 my-3">
              <BaseInput
                class="my-2"
-               v-model="form.khmer_name"
-               label="ឈ្មោះពេញ​(ខ្មែរ) *"
-               placeholder="យឹម ស្រីយ៉ឺ"
-           >
+               v-model="form.name"
+               :error="errors.name"
+               label="ឈ្មោះពេញ​ *"
+               placeholder="បញ្ចូលឈ្មោះពេញ"
+               @blur="$emit('blur', 'name')"
+               @input="$emit('input', 'name')">
            <i class="bi bi-person"></i>
            </BaseInput>
 
          </div>
 
-
-        <!-- English Name -->
-          <!-- <BaseInput
-            v-model="form.name"
-            label="ឈ្មោះជាភាសាអង់គ្លេស"
-            placeholder="បញ្ចូលឈ្មោះជាភាសាអង់គ្លេស"
-          /> -->
-
         <!-- Email -->
           <div class="col-md-12 my-3">
               <BaseInput
                   v-model="form.email"
+                  :error="errors.email"
                   type="email"
                   label="អ៊ីមែល *"
                   placeholder="example@gmail.com"
@@ -40,6 +34,7 @@
                 v-model="form.gender"
                 label="ភេទ *"
                 :options="genderOptions"
+                :error="errors.gender"
                 option-label="label"
                 option-value="value"
                 placeholder="ជ្រើសរើសភេទ"
@@ -57,6 +52,7 @@
                 v-model="form.role"
                 label="តួនាទី *"
                 :options="roleOptions"
+                :error="errors.role"
                 option-label="label"
                 option-value="value"
                 placeholder="ជ្រើសរើសតួនាទី "
@@ -67,11 +63,12 @@
           </div>
 
         <!-- type subject -->
-          <div class="col-md-12 my-3" v-if="form.role == 'Teacher'">
+          <div class="col-md-12 my-3" v-show="form.role == 'TEACHER'">
               <BaseSelect
-                v-model="form.type_course"
+                v-model="form.teachingSubject"
                 label="អាហារូបករណ៍ *"
                 :options="typeCourseOptions"
+                :error="errors.teachingSubject"
                 option-label="label"
                 option-value="value"
                 placeholder="ជ្រើសរើសអាហារូបករណ៍ "
@@ -86,11 +83,15 @@
 <script setup>
 import BaseInput from '../ui/base/BaseInput.vue';
 import BaseSelect from '../ui/base/BaseSelect.vue';
-
+const emit = defineEmits(["input", "blur"]);
 defineProps({
     form: {
         type: Object,
         default: {},
+    },
+    errors:{
+      type:Object,
+      default:{}
     },
     genderOptions:{
         type:Array,

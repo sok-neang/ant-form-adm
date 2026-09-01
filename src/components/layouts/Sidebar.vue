@@ -37,29 +37,6 @@
             <div class="img-sidebar text-center px-3">
                 <img src="/src/assets/images/img/sidebar.png" alt="Sidebar" class="img-fluid rounded-3" />
             </div>
-            <hr class="my-4 text-muted" />
-            <div class="profile px-3">
-                <button type="button"
-                    class="profile-btn btn w-100 d-flex align-items-center gap-3 text-start border-0 rounded-3 p-2">
-                    <div class="profile-avatar position-relative flex-shrink-0">
-                        <img src="/src/assets/logo.png" alt="Profile" class="rounded-circle border" />
-                        <span
-                            class="status-online position-absolute bg-success border border-white rounded-circle"></span>
-                    </div>
-                    <!-- User Info -->
-                    <div class="flex-grow-1 overflow-hidden">
-                        <div class="fw-bold text-dark text-truncate">
-                            យឹម ស្រីយ៉ឺ
-                        </div>
-                        <small class="badge bg-primary-subtle text-primary">
-                            <i class="bi bi-shield-check me-1"></i>
-                            Admin
-                        </small>
-                    </div>
-                    <!-- Arrow -->
-                    <i class="bi bi-chevron-right text-muted"></i>
-                </button>
-            </div>
         </div>
     </aside>
 </template>
@@ -112,11 +89,7 @@ const sidebarMenu = computed(() => {
             to: "student-lists",
             icon: "bi bi-mortarboard-fill",
         },
-        {
-            label: "ការកំណត់",
-            to: "/setting",
-            icon: "bi bi-gear",
-        },
+  
 
 
 
