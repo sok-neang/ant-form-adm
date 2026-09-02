@@ -228,10 +228,6 @@ function buildTomSelect() {
       ...(props.multiple
         ? ["remove_button"]
         : []),
-
-      ...(props.clearable && !props.multiple
-        ? ["clear_button"]
-        : []),
     ],
 
     placeholder: props.placeholder,

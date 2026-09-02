@@ -183,4 +183,48 @@ const handleClick = (event) => {
   background-color: #f8d7da !important;
   color: #dc3545 !important;
 }
+/* --------------------------------------------------- */
+/* ---- btn-bg-primary ---- */
+.btn-bg-primary {
+  background-color: var(--bs-primary) !important;
+  border: 1px solid var(--bs-primary) !important;
+  color: white !important;
+}
+
+.btn-bg-primary:hover {
+  background-color: #F59E0B !important;
+  border: 1px solid #F59E0B !important;
+  color: white !important;
+}
+
+.btn-bg-primary .spinner-border {
+  color: white !important;
+}
+
+.btn-bg-primary.disabled .spinner-border {
+  color: white !important;
+}
+
+/* ---- btn-outline-primary ---- */
+.btn-outline-primary {
+  background-color: white !important;
+  border: 1px solid var(--bs-primary) !important;
+  color: var(--bs-primary) !important;
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--bs-primary) !important;
+  border: 1px solid var(--bs-primary) !important;
+  color: white !important;
+}
+
+.btn-outline-primary .spinner-border {
+  color: var(--bs-primary) !important;
+}
+
+.btn-outline-primary.disabled .spinner-border {
+  color: var(--bs-primary) !important;
+}
+
+/* --------------------------------------------------- */
 </style>

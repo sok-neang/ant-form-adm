@@ -114,7 +114,7 @@ const sidebarMenu = computed(() => {
         },
         {
             label: "ការកំណត់",
-            to: "/setting",
+            to: "/profile",
             icon: "bi bi-gear",
         },
 

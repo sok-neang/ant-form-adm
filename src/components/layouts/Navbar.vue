@@ -15,7 +15,6 @@
                     <span>សូមស្វាគមន៍</span>
                     <span class="welcome-hand">👋</span>
                 </div>
-
             </div>
         </div>
     </header>
