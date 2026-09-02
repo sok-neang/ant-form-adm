@@ -7,58 +7,54 @@
             <!-- Logo -->
             <div class="sidebar-logo">
                 <RouterLink to="/">
-                    <!-- Full Logo -->
                     <img v-if="layoutStore.isAsideOpen" src="/src/assets/logo.png" alt="ANT Logo" class="logo-full" />
-
-                    <!-- Small Logo -->
                     <img v-else src="/src/assets/logo.png" alt="ANT Logo" class="logo-small" />
                 </RouterLink>
             </div>
 
-            <!-- Menu -->
             <nav class="sidebar-menu">
                 <div v-for="item in sidebarMenu" :key="item.label" class="menu-item">
-                    <RouterLink :to="item.to" class="menu-link" exact-active-class="active"
+
+                    <!-- Normal menu -->
+                    <RouterLink v-if="!item.children" :to="item.to" class="menu-link" exact-active-class="active"
                         :title="!layoutStore.isAsideOpen ? item.label : ''">
                         <span class="menu-icon">
                             <i :class="item.icon"></i>
                         </span>
-
-                        <span v-show="layoutStore.isAsideOpen" class="menu-title">
-                            {{ item.label }}
-                        </span>
+                        <span v-show="layoutStore.isAsideOpen" class="menu-title">{{ item.label }}</span>
                     </RouterLink>
+                    <!-- Dropdown menu -->
+                    <div v-else class="menu-dropdown">
+                        <button type="button" class="menu-link dropdown-toggle-btn"
+                            :title="!layoutStore.isAsideOpen ? item.label : ''"
+                            @click="isApplicationOpen = !isApplicationOpen">
+                            <span class="menu-icon">
+                                <i :class="item.icon"></i>
+                            </span>
+                            <span v-show="layoutStore.isAsideOpen" class="menu-title">
+                                {{ item.label }}
+                            </span>
+
+                            <i v-show="layoutStore.isAsideOpen" class="bi ms-auto" :class="isApplicationOpen
+                                ? 'bi-chevron-up'
+                                : 'bi-chevron-down'
+                                "></i>
+                        </button>
+
+                        <div class="submenu" :class="{ 'submenu-open': isApplicationOpen }">
+                            <RouterLink v-for="child in item.children" :key="child.label" :to="child.to"
+                                class="submenu-link" active-class="active">
+                                {{ child.label }}
+                            </RouterLink>
+                        </div>
+                    </div>
                 </div>
             </nav>
         </div>
-
         <div ref="dropdownRef" class="pb-3">
             <!-- images -->
             <div class="img-sidebar text-center px-3">
                 <img src="/src/assets/images/img/sidebar.png" alt="Sidebar" class="img-fluid rounded-3" />
-            </div>
-            <hr class="my-4 text-muted" />
-            <div class="profile px-3">
-                <button type="button"
-                    class="profile-btn btn w-100 d-flex align-items-center gap-3 text-start border-0 rounded-3 p-2">
-                    <div class="profile-avatar position-relative flex-shrink-0">
-                        <img src="/src/assets/logo.png" alt="Profile" class="rounded-circle border" />
-                        <span
-                            class="status-online position-absolute bg-success border border-white rounded-circle"></span>
-                    </div>
-                    <!-- User Info -->
-                    <div class="flex-grow-1 overflow-hidden">
-                        <div class="fw-bold text-dark text-truncate">
-                            យឹម ស្រីយ៉ឺ
-                        </div>
-                        <small class="badge bg-primary-subtle text-primary">
-                            <i class="bi bi-shield-check me-1"></i>
-                            Admin
-                        </small>
-                    </div>
-                    <!-- Arrow -->
-                    <i class="bi bi-chevron-right text-muted"></i>
-                </button>
             </div>
         </div>
     </aside>
@@ -67,6 +63,9 @@
 <script setup>
 import { computed } from "vue";
 import { useLayoutStore } from "@/stores/layout";
+import { ref } from "vue";
+
+const isApplicationOpen = ref(false);
 const layoutStore = useLayoutStore();
 const sidebarMenu = computed(() => {
     return [
@@ -89,8 +88,21 @@ const sidebarMenu = computed(() => {
         },
         {
             label: "បញ្ជីអ្នកដាក់ពាក្យ",
-            to: "application",
             icon: "bi bi-file-earmark-text",
+            children: [
+                {
+                    label: "ទាំងអស់",
+                    to: "/all-application",
+                },
+                {
+                    label: "ជាប់",
+                    to: "/all-application/passed",
+                },
+                {
+                    label: "ធ្លាក់",
+                    to: "/all-application/failed",
+                },
+            ],
         },
         {
             label: "បញ្ជីសម្រាំង",
@@ -112,17 +124,11 @@ const sidebarMenu = computed(() => {
             to: "student-lists",
             icon: "bi bi-mortarboard-fill",
         },
-        {
-            label: "ការកំណត់",
-            to: "/profile",
-            icon: "bi bi-gear",
-        },
-
-
-
     ];
 });
 
 
 </script>
-<style scoped></style>
+<style scoped>
+
+</style>

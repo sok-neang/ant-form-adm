@@ -1,7 +1,7 @@
 <template>
   <Transition name="modal">
     <div
-      v-if="show"
+      v-show="show"
       class="modal-wrapper"
       tabindex="-1"
       role="dialog"
@@ -24,7 +24,7 @@
             <button
               v-if="showClose"
               type="button"
-              class="btn-close bg-secondary-subtle"
+              class="btn-close bg-secondary-subtle p-2"
               aria-label="Close"
               @click="close"
             ></button>

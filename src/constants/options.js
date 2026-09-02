@@ -1,40 +1,44 @@
 export const genderOptions = [
   {
-    value: "male",
+    value: "MALE",
     label: "ប្រុស",
-    enLabel: "Male",
+    enLabel: "MALE",
   },
   {
-    value: "female",
+    value: "FEMALE",
     label: "ស្រី",
-    enLabel: "Female",
   },
 ];
 
 export const roleOptions = [
   {
-    value: "admin",
-    label: "អ្នកគ្រប់គ្រង",
-    enLabel: "Admin",
+    value: "",
+    label: "តួនាទីទាំងអស់",
   },
   {
-    value: "teacher",
+    value: "ADMIN",
+    label: "អ្នកគ្រប់គ្រង",
+  },
+  {
+    value: "TEACHER",
     label: "គ្រូបង្រៀន",
-    enLabel: "Teacher",
   },
 ];
 
 export const statusOptions = [
-  {
-    value: "active",
+   {
+    value: "",
+    label: "ស្ថានភាពទាំងអស់",
+    enLabel: "",
+  },{
+    value: "ACTIVE",
     label: "សកម្ម",
-    enLabel: "Active",
   },
   {
-    value: "inactive",
+    value: "INACTIVE",
     label: "អសកម្ម",
-    enLabel: "Inactive",
   },
+
 ];
 
 export const shiftOptions = [
@@ -43,12 +47,12 @@ export const shiftOptions = [
     label: "វេនទាំងអស់",
   },
   {
-    value: "morning",
+    value: "MORNING",
     label: "វេនព្រឹក",
   },
   {
-    value: "evening",
-    label: "វេនល្ងាច",
+    value: "AFTERNOON",
+    label: "វេនរសៀល",
     
   },
 ];
@@ -59,11 +63,11 @@ export const specializationOptions = [
     label: "ជំនាញទាំងអស់",
   },
   {
-    value: "web",
+    value: "WEB_DEVELOPMENT",
     label: "Web Development",
   },
   {
-    value: "mobile",
+    value: "MOBILE_APP",
     label: "Mobile App",
   },
 ];
