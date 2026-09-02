@@ -1,27 +1,28 @@
 <template>
   <div class="container-fluid">
     <div class="log-tabs">
-      <button v-for="tab in tabs" :key="tab.value" type="button" class="log-tab"
-        :class="{ active: activeTab === tab.value }" @click="activeTab = tab.value">
+      <button v-for="tab in tabOptions" :key="tab.value" class="log-tab" :class="{ active: activeTab === tab.value }"
+        type="button" @click="changeTab(tab.value)">
         <i :class="tab.icon" class="fs-5"></i>
-        <span>{{ tab.label }}</span>
+        {{ tab.label }}
       </button>
     </div>
-    <!-- {{ currentData }} -->
-    <BaseTable :columns="currentColumns" :rows="currentData" :pagination="pagination" :loading="loading"
-      :show-actions="activeTab === 'audit' || activeTab === 'restore'">
-      <!-- ================= SEARCH / FILTER ================= -->
+    <BaseTable :columns="currentColumns" :rows="currentTab.data" :pagination="currentTab.pagination"
+      :loading="currentTab.loading" :show-actions="activeTab === 'audit' || activeTab === 'restore'"
+      @page-change="handlePageChange">
 
+      <!-- ================= SEARCH / FILTER ================= -->
       <template #search-filter>
         <div class="position-relative search-box">
-          <BaseInput v-model="search" type="text" placeholder="ស្វែងរក..." input-class="p-0">
+          <BaseInput v-model="currentTab.search" type="text" placeholder="ស្វែងរក..." input-class="p-0"
+            @input="applySearch">
             <i class="bi bi-search search-icon"></i>
           </BaseInput>
         </div>
 
         <div class="d-flex align-items-center gap-2">
-          <BaseSelect v-model="selectedStatus" :options="statusOptions" option-label="label" option-value="value"
-            placeholder="ជ្រើសរើសសកម្មភាព" :clearable="false" style="width: 150px" />
+          <BaseSelect v-model="currentTab.filters.status" :options="currentStatusOptions"
+            @update:model-value="applyFilter" />
         </div>
       </template>
 
@@ -123,9 +124,9 @@
       <template #actions="{ row }">
         <div class="d-flex align-items-center gap-1">
 
-          <!-- VIEW -->
-          <button v-if="activeTab != 'login'" type="button" class="btn action-btn action-view" title="មើលលម្អិត"
-            @click="handleView(row)">
+          <!-- VIEW DETAIL -->
+          <button v-if="activeTab !== 'login'" type="button" class="btn action-btn action-view" title="មើលលម្អិត"
+            @click="openDetail(row, activeTab)">
             <i class="bi bi-eye-fill"></i>
           </button>
 
@@ -134,15 +135,22 @@
               ? 'action-restored'
               : 'action-restore'
             " :title="row.status === 'Restored'
-                ? 'បានស្ដាររួច'
-                : 'ស្ដារកំណត់ត្រា'
-              " @click="handleRestore(row)">
+          ? 'បានស្ដាររួច'
+          : 'ស្ដារកំណត់ត្រា'
+        " @click="handleRestore(row)">
             <i class="bi bi-arrow-counterclockwise"></i>
           </button>
+
         </div>
       </template>
     </BaseTable>
   </div>
+ <DetailActivityLog
+  :show="showDetail"
+  :log="selectedLog"
+  :type="detailType"
+  @close="showDetail = false"
+/>
 </template>
 
 <script setup>
@@ -150,24 +158,32 @@ import { ref, computed, onMounted } from "vue";
 import BaseTable from "@/components/ui/base/BaseTable.vue";
 import BaseInput from "@/components/ui/base/BaseInput.vue";
 import BaseSelect from "@/components/ui/base/BaseSelect.vue";
+import BaseModal from "@/components/ui/base/BaseModal.vue";
 import { formatDate } from "@/utils/dateFormat.js";
+import DetailActivityLog from "./DetailActivityLog .vue";
 
+const showDetail = ref(false);
+const selectedLog = ref(null);
+const detailType = ref("");
+
+const openDetail = (row, type) => {  
+  selectedLog.value = row;
+  detailType.value = type;
+  showDetail.value = true;
+};
 import { useActivityLogList } from "@/composable/activity-logs/useActivityLogList";
 
-const { auditLog, loginHistory, auditLogRestore, pagination, loading, search, filter, getAuditLog, getLoginHistory, getAuditLogRestore } = useActivityLogList();
+const { tabs: activityTabs, getData } = useActivityLogList();
 
-const selectedStatus = ref("");
 const activeTab = ref("audit");
-onMounted(async () => {
-  await getAuditLog();
-  await getLoginHistory();
-  await getAuditLogRestore();
-});
-const tabs = [
+const currentTab = computed(() => { return activityTabs[activeTab.value]; });
+
+const tabOptions = [
   { value: "audit", label: "កំណត់ហេតុសវនកម្ម", icon: "bi bi-shield-check" },
   { value: "login", label: "ប្រវត្តិចូលប្រព័ន្ធ", icon: "bi bi-box-arrow-in-right" },
   { value: "restore", label: "ស្ដារកំណត់ត្រា", icon: "bi bi-arrow-counterclockwise" }
 ];
+
 
 const auditColumns = [
   { key: "user", label: "អ្នកប្រើប្រាស់" },
@@ -186,9 +202,8 @@ const loginColumns = [
 
 const restoreColumns = [
   { key: "user", label: "អ្នកធ្វើសកម្មភាព" },
-  { key: "restored_by", label: "អ្នកស្តារ" },
   { key: "message", label: "សកម្មភាព" },
-  { key: "restored_at", label: "ពេលវេលា" },
+  { key: "createdAt", label: "ពេលវេលា" },
   { key: "status", label: "ស្ថានភាព" },
 ];
 
@@ -205,24 +220,42 @@ const currentColumns = computed(() => {
       return auditColumns;
   }
 });
-const currentData = computed(() => {
-  console.log(activeTab.value);
-  
+const changeTab = async (tab) => {
+  activeTab.value = tab;
+
+  // Only call API if this tab doesn't have data yet
+  if (!activityTabs[tab].data.length) {
+    await getData(tab);
+  }
+};
+const handlePageChange = (page) => {
+  getData(activeTab.value, page);
+};
+const applyFilter = () => {
+  getData(activeTab.value, 1);
+};
+const applySearch = () => {
+  getData(activeTab.value, 1);
+};
+onMounted(() => {
+  getData("audit");
+});
+
+const currentStatusOptions = computed(() => {
   switch (activeTab.value) {
     case "login":
-      return loginHistory.value;
+      return loginStatusOptions;
 
     case "restore":
-      return auditLogRestore.value;
+      return restoreStatusOptions;
 
     case "audit":
     default:
-      return auditLog.value;
+      return auditStatusOptions;
   }
 });
 
-
-const statusOptions = [
+const auditStatusOptions = [
   {
     value: "",
     label: "សកម្មភាពទាំងអស់",
@@ -245,7 +278,37 @@ const statusOptions = [
   },
 ];
 
-// const loading = ref(false);
+const loginStatusOptions = [
+  {
+    value: "",
+    label: "ស្ថានភាពទាំងអស់",
+  },
+  {
+    value: "SUCCESS",
+    label: "ជោគជ័យ",
+  },
+  {
+    value: "FAILED",
+    label: "បរាជ័យ",
+  },
+];
+
+const restoreStatusOptions = [
+  {
+    value: "",
+    label: "ស្ថានភាពទាំងអស់",
+  },
+  {
+    value: "PENDING",
+    label: "កំពុងរង់ចាំ",
+  },
+  {
+    value: "RESTORED",
+    label: "បានស្ដារ",
+  },
+];
+
+
 </script>
 <style scoped>
 .user-avatar {

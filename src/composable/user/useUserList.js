@@ -32,7 +32,8 @@ export const useUserList = () => {
       const response = await userService.getAll(params);
       if (response.data?.success) {
         users.value = response.data.data.users;
-        pagination.value = response.data.data.meta;
+        // pagination.value = response.data.data.meta;
+        
       }
       return response.data;
     } catch (err) {

@@ -1,108 +1,94 @@
-import { ref, watch } from "vue";
+import { reactive, ref } from "vue";
 import activityLogService from "@/services/activity-log.service";
 
 export const useActivityLogList = () => {
-  const auditLog = ref([]);
-  const loginHistory= ref([]);
-  const auditLogRestore = ref([]);
-  const pagination = ref({});
-  const loading = ref(false);
+  const tabs = reactive({
+    audit: {
+      data: [],
+      pagination: {},
+      loading: false,
+      search: "",
+      filters: {
+        status: "",
+      },
+    },
+
+    login: {
+      data: [],
+      pagination: {},
+      loading: false,
+      search: "",
+      filters: {
+        status: "",
+      },
+    },
+
+    restore: {
+      data: [],
+      pagination: {},
+      loading: false,
+      search: "",
+      filters: {
+        status: "",
+      },
+    },
+  });
+
   const error = ref(null);
-  const search = ref("");
 
-  const filter = ref({
-    role: "",
-    status: "",
-  });
-
-  const getAuditLog = async (page = 1) => {
-    loading.value = true;
-    error.value = null;
-    try {
-      const params = {
-        page,
-      };
-      const response = await activityLogService.auditLog(params);
-      if (response.data?.success) {
-        auditLog.value = response.data.data;
-        pagination.value = response.data.data.meta;
-      }
-      return response.data;
-    } catch (err) {
-      error.value = err.response?.data?.message || "មិនអាចទាញយកទិន្នន័យបានទេ";
-      throw err;
-    } finally {
-      loading.value = false;
-    }
-  };
-  const getLoginHistory = async (page = 1) => {
-    loading.value = true;
-    error.value = null;
-    try {
-      const params = {
-        page,
-      };
-      const response = await activityLogService.loginHistory(params);
-      if (response.data?.success) {
-        loginHistory.value = response.data.data.records;
-        pagination.value = response.data.data.meta;
-      }
-      return response.data;
-    } catch (err) {
-      error.value = err.response?.data?.message || "មិនអាចទាញយកទិន្នន័យបានទេ";
-      throw err;
-    } finally {
-      loading.value = false;
-    }
-  };
-    const getAuditLogRestore = async (page = 1) => {
-    loading.value = true;
-    error.value = null;
-    try {
-      const params = {
-        page,
-      };
-      const response = await activityLogService.auditLogRestore(params);
-      if (response.data?.success) {
-        auditLogRestore.value = response.data.data;
-        pagination.value = response.data.data.meta;
-      }
-      return response.data;
-    } catch (err) {
-      error.value = err.response?.data?.message || "មិនអាចទាញយកទិន្នន័យបានទេ";
-      throw err;
-    } finally {
-      loading.value = false;
-    }
+  const services = {
+    audit: activityLogService.auditLog,
+    login: activityLogService.loginHistory,
+    restore: activityLogService.auditLogRestore,
   };
 
+const getData = async (type, page = 1) => {
+  const tab = tabs[type];
+  tab.loading = true;
 
-  let searchTimeout;
-  watch(search, () => {
-    clearTimeout(searchTimeout);
-    searchTimeout = setTimeout(() => {
-      getUsers(1);
-    }, 500);
-  });
-  watch(
-    () => [filter.value.role, filter.value.status],
-    () => {
-      getUsers(1);
+  try {
+    const params = {
+      page,
+    };
+
+    // Search for current tab
+    if (tab.search?.trim()) {
+      params.search = tab.search.trim();
     }
-  );
+
+    // Status filter
+    if (tab.filters.status) {
+      params.status = tab.filters.status;
+    }
+
+    const response = await services[type](params);
+
+    if (response.data?.success) {
+      if (type === "audit") {
+        tab.data = response.data.data || [];
+        tab.pagination = response.data.meta || {};
+      }
+
+      if (type === "login") {
+        tab.data = response.data.data?.records || [];
+        tab.pagination = response.data.data?.meta || {};
+      }
+
+      if (type === "restore") {
+        tab.data = response.data.data || [];
+        tab.pagination = response.data.meta || {};
+      }
+    }
+
+    return response.data;
+  } finally {
+    tab.loading = false;
+  }
+};
 
   return {
-    auditLog,
-    loginHistory,
-    auditLogRestore,
-    pagination,
-    loading,
+    tabs,
     error,
-    search,
-    filter,
-
-    getAuditLog,
-    getLoginHistory,
-    getAuditLogRestore
+    getData,
   };
 };
