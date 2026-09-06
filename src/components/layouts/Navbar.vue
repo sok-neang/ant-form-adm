@@ -56,12 +56,6 @@
                         គណនីរបស់ខ្ញុំ
                     </RouterLink>
 
-                    <!-- Settings -->
-                    <!-- <RouterLink to="/profile/security" class="dropdown-item fs-6" @click="closeDropdown">
-                        <i class="bi bi-gear "></i>
-                        ការកំណត់
-                    </RouterLink> -->
-
                     <div class="dropdown-divider"></div>
 
                     <!-- Logout -->

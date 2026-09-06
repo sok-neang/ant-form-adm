@@ -167,6 +167,15 @@ const router = createRouter({
             requiresAuth: true,
           },
         },
+        {
+          path: 'profile',
+          name: 'profile',
+          component: ProfileView,
+          meta: {
+            title: "ប្រវត្តិរូប",
+            requiresAuth: true,
+          },
+        },
       ],
     },
   ]
