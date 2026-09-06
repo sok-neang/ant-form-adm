@@ -124,10 +124,6 @@ const sidebarMenu = computed(() => {
             to: "student-lists",
             icon: "bi bi-mortarboard-fill",
         },
-
-
-
-
     ];
 });
 

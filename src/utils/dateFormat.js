@@ -11,3 +11,14 @@ export const formatDate = (date) => {
     hour12: false,
   })
 }
+
+export const normalDate = (date) => {
+  if (!date) return '-'
+
+  return new Date(date).toLocaleString('en-GB', {
+    timeZone: 'Asia/Phnom_Penh',
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  })
+}

@@ -21,7 +21,7 @@ import FinalResultView from '@/views/pages/admin/final-results/FinalResultView.v
 
 
 import StudentView from '@/views/pages/Teacher/studentList/StudentView.vue';
-
+import ProfileView from '@/views/pages/profile/ProfileView.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -164,6 +164,15 @@ const router = createRouter({
           component: StudentView,
           meta: {
             title: "បញ្ជីសិស្ស",
+            requiresAuth: true,
+          },
+        },
+        {
+          path: 'profile',
+          name: 'profile',
+          component: ProfileView,
+          meta: {
+            title: "ប្រវត្តិរូប",
             requiresAuth: true,
           },
         },

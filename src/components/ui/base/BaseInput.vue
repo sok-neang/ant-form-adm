@@ -9,7 +9,7 @@
 
         <!-- INPUT -->
         <div v-if="tag === 'input'" :class="['input-group', { 'has-validation': error }]">
-            <span class="input-group-text px-3">
+            <span v-if="$slots.default" class="input-group-text px-3">
                 <slot></slot>
             </span>
             <input :value="modelValue" :type="type" :min="min" :max="max" :placeholder="placeholder" class="p-2"

@@ -20,6 +20,10 @@ export const useAuthStore = defineStore("auth", () => {
   const accessToken = ref(sessionStorage.getItem("accessToken") || "" );
   const user = ref(null);
   const loading = ref(false);
+  const isUpdateProfileLoading = ref(false);
+  const isUploadAvatarLoading = ref(false);
+  const isDeleteAvatarLoading = ref(false);
+  const isLogoutLoading = ref(false);
 
   const isAuthenticated = computed(() => {return !!accessToken.value;});
 
@@ -114,27 +118,83 @@ export const useAuthStore = defineStore("auth", () => {
   };
 
 
- const getProfile = async () => {
-  loading.value = true;
+  const getProfile = async () => {
+    loading.value = true;
 
-  try {
-    const response = await authService.getProfile();
-    const result = response.data;
-    if (result.success) {
-      user.value = result.data;
-      saveAuthData({
-        accessToken: accessToken.value,
-        user: user.value,
-      });
+    try {
+      const response = await authService.getProfile();
+      const result = response.data;
+      if (result.success) {
+        user.value = result.data;
+        
+        saveAuthData({
+          accessToken: accessToken.value,
+          user: user.value,
+        });
+      }
+      return result;
+    } finally {
+      loading.value = false;
     }
-    return result;
-  } finally {
-    loading.value = false;
-  }
-};
+  };
+
+  const updateProfile = async (data) => {
+    isUpdateProfileLoading.value = true;
+    try {
+      const response = await authService.updateProfile(data);
+      const result = response.data;
+      if (result.success) {
+        user.value = result.data;
+        saveAuthData({
+          accessToken: accessToken.value,
+          user: user.value,
+        });
+      }
+      return result;
+    } finally {
+      isUpdateProfileLoading.value = false;
+    }
+  };
+
+  const uploadAvatar = async (file) => {
+    isUploadAvatarLoading.value = true;
+    try {
+      const response = await authService.uploadAvatar(file);
+      const result = response.data;
+      if (result.success) {
+        user.value = result.data;
+        saveAuthData({
+          accessToken: accessToken.value,
+          user: user.value,
+        });
+      }
+      return result;
+    } finally {
+      isUploadAvatarLoading.value = false;
+    }
+  };
+
+  const deleteAvatar = async () => {
+    isDeleteAvatarLoading.value = true;
+    try {
+      const response = await authService.deleteAvatar();
+      const result = response.data;
+      if (result.success) {
+        user.value = result.data;
+        saveAuthData({
+          accessToken: accessToken.value,
+          user: user.value,
+        });
+      }
+      return result;
+    } finally {
+      isDeleteAvatarLoading.value = false;
+    }
+  };
+
 
   const logout = async () => {
-    loading.value = true;
+    isLogoutLoading.value = true;
     try {
       const response =
         await authService.logout();
@@ -152,7 +212,7 @@ export const useAuthStore = defineStore("auth", () => {
 
       clearTwoFactor();
 
-      loading.value = false;
+      isLogoutLoading.value = false;
     }
   };
 
@@ -207,6 +267,9 @@ export const useAuthStore = defineStore("auth", () => {
     verifyCodeOtp,
     changeDefaultPassword,
     getProfile,
+    updateProfile,
+    uploadAvatar,
+    deleteAvatar,
     logout,
 
     setTwoFactorData,
