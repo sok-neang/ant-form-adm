@@ -87,12 +87,22 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    // Not 401
+    // Do not intercept if no response or not 401
     if (error.response?.status !== 401) {
       return Promise.reject(error);
     }
 
-    // Prevent infinite retry
+    // Do not attempt refresh on auth endpoints (e.g. login, 2fa, refresh)
+    // to allow LoginView to properly display credential validation errors
+    const isAuthEndpoint = originalRequest.url?.includes("/auth/login") ||
+      originalRequest.url?.includes("/auth/2fa") ||
+      originalRequest.url?.includes("/auth/refresh");
+
+    if (isAuthEndpoint) {
+      return Promise.reject(error);
+    }
+
+    // Prevent infinite retry loop
     if (originalRequest._retry) {
       return Promise.reject(error);
     }
@@ -100,16 +110,21 @@ api.interceptors.response.use(
     originalRequest._retry = true;
 
     try {
-      const newAccessToken =
-        await refreshAccessToken();
+      const newAccessToken = await refreshAccessToken();
 
-      originalRequest.headers.Authorization =
-        `Bearer ${newAccessToken}`;
+      // Safely assign new access token to headers
+      if (originalRequest.headers?.set) {
+        originalRequest.headers.set("Authorization", `Bearer ${newAccessToken}`);
+      } else if (originalRequest.headers) {
+        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+      } else {
+        originalRequest.headers = { Authorization: `Bearer ${newAccessToken}` };
+      }
 
       return api(originalRequest);
 
     } catch (refreshError) {
-      // Refresh token expired/invalid
+      // Refresh token is expired or invalid
       sessionStorage.removeItem("accessToken");
       sessionStorage.removeItem("user");
 
