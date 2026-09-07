@@ -23,6 +23,8 @@ export const useUserList = () => {
       if (response.data?.success) {
         summaries.value = response.data.data; 
       }
+      console.log(response.data.data);
+      
       return response.data;
     } catch (err) {
       throw err;
@@ -49,8 +51,7 @@ export const useUserList = () => {
       const response = await userService.getAll(params);
       if (response.data?.success) {
         users.value = response.data.data.users;
-        // pagination.value = response.data.data.meta;
-        
+        pagination.value = response.data.data.meta || response.data.data.pagination;
       }
       return response.data;
     } catch (err) {

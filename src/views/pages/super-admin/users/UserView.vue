@@ -69,9 +69,9 @@
         </span>
       </template>
       <template #cell-status="{ row }">
-        <span class="status-text" :class="row.status === 'ACTIVE' ? 'text-success' : 'text-danger'">
-          <span class="status-dot" :class="row.status === 'ACTIVE' ? 'dot-success' : 'dot-danger'"></span>
-          {{ row.status === 'ACTIVE' ? 'សកម្ម' : 'អសកម្ម' }}
+        <span class="status-text" :class="row.status === 'ACTIVE' ? 'text-success' : (row.status === 'INACTIVE' ? 'text-secondary' : 'text-danger')">
+          <span class="status-dot" :class="row.status === 'ACTIVE' ? 'bg-success' : (row.status === 'INACTIVE' ? 'bg-secondary' : 'bg-danger')"></span>
+          {{ row.status === 'ACTIVE' ? 'សកម្ម' : (row.status === 'INACTIVE' ? 'អសកម្ម' : 'ផ្អាក') }}
         </span>
       </template>
       <template #cell-createdAt="{ row }">
@@ -132,7 +132,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, reactive } from "vue";
+import { ref, onMounted, reactive, computed } from "vue";
 
 import BaseCard from "@/components/ui/base/BaseCard.vue";
 import BaseTable from "@/components/ui/base/BaseTable.vue";
@@ -152,7 +152,14 @@ import { roleOptions, statusOptions } from "@/constants/options.js";
 import { useAppToast } from "@/composable/useAppToast";
 import userService from "@/services/user.service.js";
 
-const { users, pagination, loading, search, filter, error, getUsers, resetPassword } = useUserList();
+const { users, summaries, pagination, loading, search, filter, error, getUsers, getUserSummaries, resetPassword } = useUserList();
+
+onMounted(async() => {
+    await getUsers();
+    await getUserSummaries();
+})
+console.log(summaries.value);
+
 
 const showCreateModal = ref(false);
 const showEditModal = ref(false)
@@ -161,6 +168,37 @@ const selectedUserId = ref(null);
 const showGeneratedPassword = ref(false);
 const toast = useAppToast();
 
+const getRoleCount = (roleName) => {
+    if (!summaries.value?.byRole) return 0;
+    const roleObj = summaries.value.byRole.find(r => r.role === roleName);
+    return roleObj ? roleObj.count : 0;
+};
+
+const userCards = computed(() => {
+    return [
+        {
+            kh_title: "អ្នកប្រើប្រាស់សរុប",
+            en_title: "Total Users",
+            value: summaries.value?.total || 0,
+            icon: "bi bi-people-fill",
+            color: "primary",
+        },
+        {
+            kh_title: "អ្នកគ្រប់គ្រងទាំងអស់",
+            en_title: "Total Admins",
+            value: getRoleCount("ADMIN"),
+            icon: "bi bi-person-gear",
+            color: "success",
+        },
+        {
+            kh_title: "គ្រូបង្រៀនទាំងអស់",
+            en_title: "Total Teachers",
+            value: getRoleCount("TEACHER"),
+            icon: "bi bi-person-workspace",
+            color: "warning",
+        },
+    ];
+});
 
 
 const data = reactive({
@@ -193,9 +231,7 @@ const handleStatusChange = async ({ id, status }) => {
     };
 
 
-onMounted(async () => {
-  await getUsers();
-});
+
 
 
 
@@ -206,29 +242,6 @@ const columns = [
   { key: "status", label: "ស្ថានភាព" },
   { key: "createdAt", label: "ពេលវេលាបានបង្កើត" },
   { key: "updatedAt", label: "ពេលវេលាចូលចុងក្រោយ" },
-];
-const userCards = [
-  {
-    kh_title: "អ្នកប្រើប្រាស់សរុប",
-    en_title: "Total Users",
-    value: 1250,
-    icon: "bi bi-people-fill",
-    color: "primary",
-  },
-  {
-    kh_title: "អ្នកគ្រប់គ្រងទាំងអស់",
-    en_title: "Total Admins",
-    value: 35,
-    icon: "bi bi-person-gear",
-    color: "success",
-  },
-  {
-    kh_title: "គ្រូបង្រៀនទាំងអស់",
-    en_title: "Total Teachers",
-    value: 86,
-    icon: "bi bi-person-workspace",
-    color: "warning",
-  },
 ];
 
 

@@ -30,7 +30,8 @@ export const statusOptions = [
     value: "",
     label: "ស្ថានភាពទាំងអស់",
     enLabel: "",
-  },{
+  },
+  {
     value: "ACTIVE",
     label: "សកម្ម",
   },
@@ -38,7 +39,10 @@ export const statusOptions = [
     value: "INACTIVE",
     label: "អសកម្ម",
   },
-
+  {
+    value: "SUSPENDED",
+    label: "ផ្អាកដំណើរការ",
+  },
 ];
 
 export const shiftOptions = [

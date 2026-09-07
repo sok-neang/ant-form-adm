@@ -66,8 +66,6 @@ const refreshAccessToken = async () => {
           newAccessToken
         );
 
-        console.log("Access token refreshed");
-
         return newAccessToken;
       })
       .finally(() => {
@@ -129,7 +127,6 @@ api.interceptors.response.use(
       sessionStorage.removeItem("user");
 
       window.location.href = "/auth/login";
-      console.log("Refresh token expired/invalid");
 
       return Promise.reject(refreshError);
     }
@@ -137,4 +134,3 @@ api.interceptors.response.use(
 );
 
 export default api;
-

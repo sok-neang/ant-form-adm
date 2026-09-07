@@ -697,6 +697,10 @@ onBeforeUnmount(() => {
 .base-select__group {
   width: 100%;
   min-width: 0;
+  border: 1px solid var(--bs-border);
+  border-radius: var(--bs-radius);
+  background-color: #fff;
+  position: relative;
 }
 
 
@@ -712,7 +716,7 @@ onBeforeUnmount(() => {
   color: var(--bs-text);
   display: flex;
   align-items: center;
-  
+  flex-wrap: nowrap;
 }
 
 .base-select__icon ~ :deep(.ts-wrapper) .ts-control {
@@ -724,6 +728,7 @@ onBeforeUnmount(() => {
   .base-select__group {
   border-color: var(--bs-focus);
   outline: 1px solid var(--bs-focus);
+  box-shadow: 0 0 0 3px var(--bs-focus-ring);
 }
 
 .base-select.is-invalid
@@ -753,6 +758,7 @@ onBeforeUnmount(() => {
   margin-top: 2px;
   font-size: 14px;
   padding: 10px 5px;
+  background: #fff;
 }
 
 .base-select__group
@@ -785,6 +791,7 @@ onBeforeUnmount(() => {
   margin: 0;
   line-height: normal;
   height: auto;
+  min-width: 0 !important;
 }
 
 .base-select__group

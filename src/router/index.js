@@ -7,6 +7,7 @@ import VerifyCodeView from '@/views/auth/VerifyCodeView.vue';
 // Dashboard
 import DefaultLayout from '@/layouts/DefaultLayout.vue';
 import DashboardView from "@/views/pages/dashboard/DashboardView.vue";
+import SuperAdminDashboardView from "@/views/pages/super-admin/SuperAdminDashboardView.vue";
 
 import UserView from '@/views/pages/super-admin/users/UserView.vue';
 import ActivityLogView from '@/views/pages/super-admin/activity-logs/ActivityLogView.vue';
@@ -72,10 +73,20 @@ const router = createRouter({
       component: DefaultLayout,
 
       children: [
+        // {
+        //   path: "",
+        //   name: "dashboard",
+        //   component: DashboardView,
+        //   meta: {
+        //     title: "ផ្ទាំងគ្រប់គ្រង",
+        //     requiresAuth: true,
+        //   },
+        // },
+
         {
           path: "",
           name: "dashboard",
-          component: DashboardView,
+          component: SuperAdminDashboardView,
           meta: {
             title: "ផ្ទាំងគ្រប់គ្រង",
             requiresAuth: true,
