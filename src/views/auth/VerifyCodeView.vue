@@ -100,6 +100,14 @@ const handleInput = (event, index) => {
   }
 };
 
+const handleBackspace = (event, index) => {
+  if (!otp.value[index] && index > 0) {
+    otpRefs.value[index - 1]?.focus();
+  } else {
+    otp.value[index] = "";
+  }
+};
+
 const handleVerifyOTP = async () => {
    if (otpValue.value.length !== 6) {
     toast.warning("សូមបញ្ចូលលេខកូដ 6 ខ្ទង់");

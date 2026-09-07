@@ -92,16 +92,36 @@ export const resultStatusOptions = [
 ];
 
 export const scoreLevelOptions = [
-       {
+  {
     value: "",
     label: "ពិន្ទុទាំងអស់",
   },
   {
-    value: "high",
+    value: "highest",
     label: "ពិន្ទុខ្ពស់ជាងគេ",
   },
   {
-    value: "low",
+    value: "lowest",
     label: "ពិន្ទុទាបជាងគេ",
   },
 ];
+
+export const subjectOptions = [
+  {
+    value: "",
+    label: "មុខវិជ្ជាទាំងអស់",
+  },
+  {
+    value: "CPP",
+    label: "C++",
+  },
+  {
+    value: "DART",
+    label: "Dart",
+  },
+  {
+    value: "HTML_CSS",
+    label: "HTML & CSS",
+  },
+];
+

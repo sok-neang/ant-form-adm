@@ -152,6 +152,14 @@ export const useToastStore = defineStore("toast", () => {
         });
     };
 
+    const info = (message, options = {}) => {
+        return addToast({
+            message,
+            variant: "info",
+            ...options,
+        });
+    };
+
     return {
         toasts,
         addToast,
@@ -162,5 +170,6 @@ export const useToastStore = defineStore("toast", () => {
         success,
         error,
         warning,
+        info,
     };
 });

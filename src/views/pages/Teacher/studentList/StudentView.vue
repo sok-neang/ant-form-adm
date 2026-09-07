@@ -1,267 +1,511 @@
 <template>
-  <div class="container-fluid">
+  <div class="container-fluid student-list-container pt-0 px-0">
+    <!-- TOP SUMMARY CARDS (3 CARDS) -->
     <div class="row g-3 mb-4">
-      <BaseCard v-for="card in studentCards">
-        <div class="d-flex align-items-center justify-content-between mb-3">
-          <div class="info-icon" :class="`bg-${card.color}-subtle text-${card.color}`">
-            <i :class="card.icon"></i>
+      <div v-for="card in cards" :key="card.title" class="col-md-4">
+        <div class="stat-card py-3 px-4 rounded-4 bg-white d-flex align-items-center gap-3 shadow-sm h-100">
+          <div class="stat-icon-box rounded-4 d-flex align-items-center justify-content-center"
+            :class="`stat-icon-${card.color}`">
+            <i :class="card.icon" class="fs-4"></i>
           </div>
-          <!-- Value -->
-          <h2 class="fw-bold mb-0 text-success fw-bold">{{ card.value }}</h2>
+          <div class="d-flex flex-column">
+            <h2 class="stat-value fw-bold mb-1" :class="`text-${card.color}`">
+              {{ card.value }}
+            </h2>
+            <span class="stat-title text-muted fw-semibold">{{ card.title }}</span>
+          </div>
         </div>
-        <!-- Title -->
-        <p class="text-muted mb-1 fw-bold">
-          {{ card.en_title }}
-        </p>
-        <p class="text-muted mb-1">
-          {{ card.kh_title }}
-        </p>
-      </BaseCard>
+      </div>
     </div>
-    <BaseTable :columns="columns" :rows="students" :pagination="pagination" :loading="loading" :show-actions="true">
-      <template #search-filter>
-        <!-- Filters / Dropdown -->
-        <div class="d-flex align-items-center gap-2 mb-4">
-          <button v-for="tab in studentTabs" :key="tab.key" type="button"
-            class="btn student-tab d-flex align-items-center gap-2" :class="{ active: activeTab === tab.key }"
-            @click="activeTab = tab.key">
-            <i :class="tab.icon"></i>
-            <span>{{ tab.label }}</span>
 
-            <span class="badge rounded-pill"
-              :class="activeTab === tab.key ? 'bg-white text-primary' : 'bg-light text-muted'">
-            </span>
-          </button>
-        </div>
-        <div class="d-flex align-items-center gap-2">
-          <BaseSelect v-model="selectedRole" :options="scoreLevelOptions" option-label="label" option-value="value"
-            placeholder="ជ្រើសរើសពេល" :clearable="false" style="width: 150px" />
-          <BaseSelect v-model="selectedRole" :options="shiftOptions" option-label="label" option-value="value"
-            placeholder="ជ្រើសរើសពេល" :clearable="false" style="width: 150px" />
+    <!-- SEARCH & FILTER ROW (SINGLE ROW) -->
+    <div class="filter-row d-flex align-items-center justify-content-between gap-3 mb-4 position-relative">
+      <!-- Search Input -->
+      <div class="search-pill-box d-flex align-items-center px-3 py-2 rounded-pill bg-white flex-shrink-0">
+        <i class="bi bi-search text-muted me-2"></i>
+        <input v-model="search" type="text" class="form-control border-0 bg-transparent shadow-none p-0"
+          placeholder="Search" />
+      </div>
 
-        </div>
-      </template>
-      <template #cell-skill="{ row }">
-        <span class="badge rounded-pill px-3 py-2" :style="{
-          color: row.skill === 'Web Development' ? '#357867' : '#6f42c1',
-          backgroundColor:
-            row.skill === 'Web Development'
-              ? 'rgba(53, 120, 103, 0.12)'
-              : 'rgba(111, 66, 193, 0.12)',
-        }">
-          {{ row.skill }}
-        </span>
-      </template>
-      <!-- Technology Score -->
+      <!-- BaseSelect Filters (Strictly 1 Row) -->
+      <div class="filter-selects-container d-flex align-items-center gap-2 flex-nowrap flex-shrink-0">
+        <!-- Subject Filter -->
+        <BaseSelect v-model="filters.subject" :options="subjectOptions" option-label="label" option-value="value"
+          placeholder="ជ្រើសរើសមុខវិជ្ជា" :clearable="false" style="width: 140px;" @change="() => getEvaluations(1)" />
 
-      <template #cell-score_technology="{ row }">
-        <span class="badge rounded-pill px-3 py-2" :class="row.score_technology < 50
-            ? 'score-fail'
-            : row.score_technology < 70
-              ? 'score-medium'
-              : 'score-good'
-          ">
-          {{ row.score_technology }}
-        </span>
-      </template>
+        <!-- Specialization Filter -->
+        <BaseSelect v-model="filters.skill" :options="specializationOptions" option-label="label" option-value="value"
+          placeholder="ជ្រើសរើសជំនាញ" :clearable="false" style="width: 175px;" @change="() => getEvaluations(1)" />
 
-      <!-- Attendance Score -->
-      <template #cell-score_attendance="{ row }">
+        <!-- Score Filter -->
+        <BaseSelect v-model="filters.score" :options="scoreLevelOptions" option-label="label" option-value="value"
+          placeholder="ជ្រើសរើសពិន្ទុ" :clearable="false" style="width: 155px;" @change="() => getEvaluations(1)" />
 
-        <span class="badge rounded-pill px-3 py-2" :class="row.score_attendance < 50
-            ? 'score-fail'
-            : row.score_attendance < 70
-              ? 'score-medium'
-              : 'score-good'
-          ">
-          {{ row.score_attendance }}
-        </span>
-      </template>
-      <!-- Total score  -->
-      <template #cell-total_score="{ row }">
-        <span class="badge rounded-pill px-3 py-2 fw-bold" :class="row.total_score < 50
-            ? 'score-fail'
-            : row.total_score < 70
-              ? 'score-medium'
-              : 'score-good'
-          ">
-          {{ row.total_score }}
-        </span>
-      </template>
-      <template #actions>
-        <div class="d-flex justify-content-start align-items-center gap-2">
-          <!-- VIEW -->
-          <button v-if="activeTab != 'login'" type="button" class="btn action-btn action-view" title="មើលលម្អិត"
-            @click="handleView(row)">
-            <i class="bi bi-eye-fill"></i>
-          </button>
-        </div>
-      </template>
-    </BaseTable>
+        <!-- Shift Filter -->
+        <BaseSelect v-model="filters.shift" :options="shiftOptions" option-label="label" option-value="value"
+          placeholder="ជ្រើសរើសវេន" :clearable="false" style="width: 140px;" @change="() => getEvaluations(1)" />
+      </div>
+    </div>
+
+    <!-- TABLE CONTAINER -->
+    <div class="card border-0 rounded-4 shadow-sm overflow-hidden mb-4 position-relative" style="z-index: 1;">
+      <div class="table-responsive">
+        <table class="table align-middle custom-student-table mb-0">
+          <thead>
+            <tr>
+              <th class="text-center" style="width: 60px;">#</th>
+              <th>ឈ្មោះសិស្ស</th>
+              <th>ភេទ</th>
+              <th>ជំនាញ</th>
+              <th>វេនសិក្សា</th>
+              <th>ស្ថានភាពមុខវិជ្ជា</th>
+              <th class="text-center">ពិន្ទុសរុប</th>
+              <th class="text-center" style="width: 110px;">ការកំណត់</th>
+            </tr>
+          </thead>
+
+          <tbody v-if="loading">
+            <tr v-for="n in 6" :key="n">
+              <td colspan="8" class="p-3">
+                <BaseSkeleton width="100%" height="24px" radius="6px" />
+              </td>
+            </tr>
+          </tbody>
+
+          <tbody v-else-if="students.length === 0">
+            <tr>
+              <td colspan="8" class="text-center py-5 text-muted">
+                <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                មិនមានទិន្នន័យសិស្សទេ
+              </td>
+            </tr>
+          </tbody>
+
+          <tbody v-else>
+            <tr v-for="(student, index) in students" :key="student.id">
+              <!-- ID -->
+              <td class="text-center fw-semibold text-muted">
+                {{ ((pagination.current_page - 1) * pagination.per_page) + index + 1 }}
+              </td>
+
+              <!-- Name -->
+              <td class="fw-semibold text-dark">
+                {{ student.name }}
+              </td>
+
+              <!-- Gender -->
+              <td class="text-secondary">
+                {{ student.gender }}
+              </td>
+
+              <!-- Specialization -->
+              <td>
+                <span class="badge-pill px-3 py-1 rounded-pill fw-medium"
+                  :class="student.skill === 'Web Development' ? 'badge-web' : 'badge-mobile'">
+                  {{ student.skill }}
+                </span>
+              </td>
+
+              <!-- Study Shift -->
+              <td class="text-secondary">
+                {{ student.study_shift }}
+              </td>
+
+              <!-- Subject Status Badges -->
+              <td>
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                  <span v-for="sub in student.subjects" :key="sub.name"
+                    class="subject-badge px-3 py-1 rounded-pill d-inline-flex align-items-center gap-1"
+                    :class="sub.evaluated ? `subject-badge-${sub.color}` : 'subject-badge-pending'">
+                    <!-- Evaluated Checkmark -->
+                    <span v-if="sub.evaluated" class="badge-icon">✓</span>
+                    <!-- Pending Circle -->
+                    <span v-else class="badge-icon badge-icon-circle">○</span>
+                    <span>{{ sub.name }}</span>
+                  </span>
+                </div>
+              </td>
+
+              <!-- Total Score -->
+              <td class="text-center fw-bold" :class="student.total_score === 'N/A' ? 'text-muted' : 'text-score'">
+                {{ student.total_score }}
+              </td>
+
+              <!-- Actions -->
+              <td class="text-center">
+                <div class="d-flex align-items-center justify-content-center gap-2">
+                  <!-- View Button -->
+                  <button type="button" class="btn btn-action-outline" title="មើលលម្អិត" @click="handleView(student)">
+                    <i class="bi bi-eye"></i>
+                  </button>
+
+                  <!-- Edit / Evaluate Button -->
+                  <button v-if="student.is_evaluated" type="button" class="btn btn-action-outline"
+                    title="កែប្រែការវាយតម្លៃ" @click="handleEdit(student)">
+                    <i class="bi bi-pencil-square"></i>
+                  </button>
+
+                  <!-- Add / Pending Button -->
+                  <button v-else type="button" class="btn btn-action-outline" title="វាយតម្លៃសិស្ស"
+                    @click="handleAdd(student)">
+                    <i class="bi bi-plus-lg"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PAGINATION (CENTER ALIGNED) -->
+    <div v-if="pagination.totalPages > 1" class="d-flex justify-content-center align-items-center gap-2 mt-4">
+      <button type="button" class="pagination-btn pagination-arrow" :disabled="pagination.current_page === 1"
+        @click="handlePageChange(pagination.current_page - 1)">
+        <i class="bi bi-chevron-left"></i>
+      </button>
+
+      <button v-for="page in visiblePages" :key="page" type="button" class="pagination-btn"
+        :class="{ active: pagination.current_page === page }" @click="handlePageChange(page)">
+        {{ page }}
+      </button>
+
+      <button type="button" class="pagination-btn pagination-arrow"
+        :disabled="pagination.current_page === pagination.totalPages"
+        @click="handlePageChange(pagination.current_page + 1)">
+        <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
   </div>
 </template>
+
 <script setup>
-import { ref } from "vue";
-import BaseTable from "@/components/ui/base/BaseTable.vue";
+import { computed, onMounted } from "vue";
+import { useRouter } from "vue-router";
+import BaseSkeleton from "@/components/ui/base/BaseSkeleton.vue";
 import BaseSelect from "@/components/ui/base/BaseSelect.vue";
-import BaseCard from "@/components/ui/base/BaseCard.vue";
+import {
+  subjectOptions,
+  specializationOptions,
+  scoreLevelOptions,
+  shiftOptions,
+} from "@/constants/options";
+import { useEvaluationList } from "@/composable/evaluation/useEvaluationList";
 
-import BaseButton from "@/components/ui/base/BaseButton.vue";
-import { shiftOptions, specializationOptions, scoreLevelOptions } from "@/constants/options"
-const selectedRole = ref("");
-const selectedStatus = ref("");
-const showCreateModal = ref(false);
+const router = useRouter();
+const { students, loading, search, filters, pagination, cards, getEvaluations } = useEvaluationList();
 
-const columns = [
-  {
-    key: "id",
-    label: "#",
-  },
-
-  {
-    key: "name",
-    label: "ឈ្មោះសិស្ស",
-  },
-  {
-    key: "gender",
-    label: "ភេទ",
-  },
-  {
-    key: "year",
-    label: "និស្សិតឆ្នាំ",
-  },
-  {
-    key: "skill",
-    label: "ជំនាញ",
-  },
-  {
-    key: "study_shift",
-    label: "វេនសិក្សា",
-  },
-  {
-    key: "score_technology",
-    label: "ពិន្ទុបចេ្ចកទេស",
-  },
-  {
-    key: "score_attendance",
-    label: "ពិន្ទុវត្តមាន",
-  },
-  {
-    key: "total_score",
-    label: "ពិន្ទុសរុប",
-  },
-];
-const students = [
-  {
-    id: 1,
-    name: "យឹម ស្រីយ៉ឺ",
-    gender: "ស្រី",
-    year: "ឆ្នាំទី 1",
-    skill: "Web Development",
-    study_shift: "វេនព្រឹក",
-    score_technology: 85,
-    score_attendance: 95,
-    total_score: 90,
-  },
-  {
-    id: 2,
-    name: "សុខ ដារ៉ា",
-    gender: "ប្រុស",
-    year: "ឆ្នាំទី 2",
-    skill: "Mobile App",
-    study_shift: "វេនល្ងាច",
-    score_technology: 48,
-    score_attendance: 28,
-    total_score: 38,
-  },
-  {
-    id: 3,
-    name: "ចាន់ វណ្ណា",
-    gender: "ប្រុស",
-    year: "ឆ្នាំទី 1",
-    skill: "Web Development",
-    study_shift: "វេនព្រឹក",
-    score_technology: 62,
-    score_attendance: 65,
-    total_score: 60,
-  },
-  {
-    id: 4,
-    name: "លី សុភា",
-    gender: "ស្រី",
-    year: "ឆ្នាំទី 3",
-    skill: "Mobile App",
-    study_shift: "វេនល្ងាច",
-    score_technology: 88,
-    score_attendance: 20,
-    total_score: 91,
-  },
-  {
-    id: 5,
-    name: "ហេង វិសាល",
-    gender: "ប្រុស",
-    year: "ឆ្នាំទី 2",
-    skill: "Web Development",
-    study_shift: "វេនព្រឹក",
-    score_technology: 70,
-    score_attendance: 82,
-    total_score: 96,
-  },
-];
-const studentCards = [
-  {
-    kh_title: "សិស្សសរុប",
-    en_title: "Total Students",
-    value: 1250,
-    icon: "bi bi-people-fill",
-    color: "primary",
-  },
-
-  {
-    kh_title: "បានវាយតម្លៃរួច",
-    en_title: "Evaluated Students",
-    value: 35,
-    icon: "bi bi-person-check-fill",
-    color: "success",
-  },
-
-  {
-    kh_title: "មិនទាន់វាយតម្លៃ",
-    en_title: "Pending Evaluation",
-    value: 86,
-    icon: "bi bi-person-exclamation",
-    color: "warning",
-  },
-];
-const activeTab = ref("all");
-const studentTabs = [
-  {
-    key: "all",
-    label: "សិស្សសរុប",
-    icon: "bi bi-people-fill",
-  },
-  {
-    key: "evaluated",
-    label: "បានវាយតម្លៃរួច",
-    icon: "bi bi-person-check-fill",
-  },
-  {
-    key: "pending",
-    label: "មិនទាន់វាយតម្លៃ",
-    icon: "bi bi-person-exclamation",
-  },
-];
-const pagination = ref({
-  current_page: 1,
-  first_item: 1,
-  last_item: 10,
-  from: 1,
-  to: 10,
-  per_page: 10,
-  total: 25,
-  last_page: 3,
-  on_first_page: true,
-  has_more_pages: true,
+const visiblePages = computed(() => {
+  const current = pagination.value.current_page || 1;
+  const total = pagination.value.totalPages || 1;
+  const pages = [];
+  const maxVisible = 5;
+  let start = Math.max(1, current - Math.floor(maxVisible / 2));
+  let end = Math.min(total, start + maxVisible - 1);
+  if (end - start + 1 < maxVisible) {
+    start = Math.max(1, end - maxVisible + 1);
+  }
+  for (let i = start; i <= end; i++) {
+    pages.push(i);
+  }
+  return pages;
 });
-const loading = ref(false);
+
+const handlePageChange = (page) => {
+  if (page >= 1 && page <= pagination.value.totalPages) {
+    getEvaluations(page);
+  }
+};
+
+const handleView = (student) => {
+  const id = student.submissionId || student.id;
+  router.push({ name: "student-detail", params: { submissionId: id } });
+};
+
+const handleEdit = (student) => {
+  const id = student.submissionId || student.id;
+  router.push({ name: "student-evaluation", params: { submissionId: id } });
+};
+
+const handleAdd = (student) => {
+  const id = student.submissionId || student.id;
+  router.push({ name: "student-evaluation", params: { submissionId: id } });
+};
+
+onMounted(() => {
+  getEvaluations();
+});
 </script>
+
+<style scoped>
+.student-list-container {
+  margin-top: -12px;
+}
+
+/* TOP STAT CARDS */
+.stat-card {
+  border: 1px solid #f1f5f9;
+  transition: all 0.2s ease;
+}
+
+.stat-icon-box {
+  width: 52px;
+  height: 52px;
+}
+
+.stat-icon-primary {
+  background-color: #e0f2fe;
+  color: #0284c7;
+}
+
+.stat-icon-success {
+  background-color: #dcfce7;
+  color: #16a34a;
+}
+
+.stat-icon-warning {
+  background-color: #fef3c7;
+  color: #d97706;
+}
+
+.stat-value {
+  font-size: 1.85rem;
+  line-height: 1;
+}
+
+.stat-title {
+  font-size: 0.95rem;
+}
+
+/* SEARCH & FILTER */
+.filter-row {
+  position: relative;
+  z-index: 30;
+  overflow: visible !important;
+}
+
+.filter-selects-container {
+  overflow: visible !important;
+}
+
+/* GREEN FILTER DROPDOWNS */
+.filter-selects-container :deep(.base-select) {
+  --bs-border: #2e7d6b;
+  --bs-focus: #2e7d6b;
+  --bs-focus-ring: rgba(46, 125, 107, 0.15);
+  --bs-icon: #2e7d6b;
+  --bs-radius: 10px;
+}
+
+.filter-selects-container :deep(.base-select__group) {
+  border: 1.5px solid #2e7d6b !important;
+  border-radius: 10px !important;
+  background-color: #ffffff;
+  height: 42px;
+  transition: all 0.2s ease;
+}
+
+.filter-selects-container :deep(.base-select__chevron) {
+  color: #2e7d6b !important;
+}
+
+.filter-selects-container :deep(.base-select__chevron svg) {
+  stroke-width: 2.2;
+}
+
+.filter-selects-container :deep(.ts-control) {
+  min-height: 40px !important;
+  height: 40px !important;
+  padding: 0 28px 0 12px !important;
+  color: #1f2430;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.filter-selects-container :deep(.base-select.is-focused .base-select__group),
+.filter-selects-container :deep(.base-select.is-open .base-select__group) {
+  border-color: #2e7d6b !important;
+  box-shadow: 0 0 0 3px rgba(46, 125, 107, 0.15) !important;
+}
+
+.filter-selects-container :deep(.base-select.has-value .base-select__group) {
+  background-color: #e8f5f1 !important;
+  border-color: #2e7d6b !important;
+}
+
+.filter-selects-container :deep(.base-select.has-value .ts-control .item) {
+  color: #2e7d6b !important;
+  font-weight: 600;
+}
+
+.filter-selects-container :deep(.ts-dropdown) {
+  border: 1.5px solid #2e7d6b !important;
+  border-radius: 10px !important;
+  box-shadow: 0 10px 25px rgba(46, 125, 107, 0.12) !important;
+}
+
+.filter-selects-container :deep(.ts-dropdown .option.active),
+.filter-selects-container :deep(.ts-dropdown .option:hover) {
+  background-color: #e8f5f1 !important;
+  color: #2e7d6b !important;
+  font-weight: 600;
+}
+
+.search-pill-box {
+  border: 1.5px solid #2e7d6b;
+  min-width: 260px;
+  max-width: 320px;
+  height: 42px;
+}
+
+/* TABLE STYLING */
+.custom-student-table {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.custom-student-table thead {
+  background-color: #2e7d6b !important;
+}
+
+.custom-student-table thead th {
+  background-color: #2e7d6b !important;
+  color: #ffffff !important;
+  font-weight: 600;
+  font-size: 0.95rem;
+  padding: 14px 16px;
+  border: none;
+  white-space: nowrap;
+}
+
+.custom-student-table tbody td {
+  padding: 14px 16px;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 0.95rem;
+}
+
+.custom-student-table tbody tr:hover td {
+  background-color: #f8fafc;
+}
+
+/* SPECIALIZATION BADGES */
+.badge-pill {
+  font-size: 0.85rem;
+  display: inline-block;
+}
+
+.badge-web {
+  background-color: #ecfdf5;
+  color: #059669;
+}
+
+.badge-mobile {
+  background-color: #fff7ed;
+  color: #d97706;
+}
+
+/* SUBJECT STATUS BADGES */
+.subject-badge {
+  font-size: 0.8rem;
+  font-weight: 500;
+  border: 1px solid transparent;
+  background-color: #f8fafc;
+}
+
+.subject-badge-green {
+  border-color: #bbf7d0;
+  background-color: #f0fdf4;
+  color: #16a34a;
+}
+
+.subject-badge-blue {
+  border-color: #bfdbfe;
+  background-color: #eff6ff;
+  color: #2563eb;
+}
+
+.subject-badge-orange {
+  border-color: #fed7aa;
+  background-color: #fff7ed;
+  color: #d97706;
+}
+
+.subject-badge-pending {
+  border-color: #e2e8f0;
+  background-color: #f8fafc;
+  color: #94a3b8;
+}
+
+.badge-icon {
+  font-size: 0.8rem;
+  font-weight: bold;
+}
+
+.badge-icon-circle {
+  font-size: 0.75rem;
+}
+
+.text-score {
+  color: #d97706;
+  font-size: 1.05rem;
+}
+
+/* ACTION BUTTONS */
+.btn-action-outline {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid #2e7d6b;
+  border-radius: 8px;
+  background-color: #ffffff;
+  color: #2e7d6b;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+}
+
+.btn-action-outline:hover {
+  border-color: #2e7d6b;
+  color: #2e7d6b;
+  background-color: #e8f5f1;
+  transform: translateY(-1px);
+}
+
+/* PAGINATION */
+.pagination-btn {
+  min-width: 36px;
+  height: 36px;
+  padding: 0 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 8px;
+  background-color: #f1f5f9;
+  color: #475569;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.pagination-btn.active {
+  background-color: #2e7d6b;
+  color: #ffffff;
+}
+
+.pagination-btn:hover:not(.active):not(:disabled) {
+  background-color: #e2e8f0;
+}
+
+.pagination-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.pagination-arrow {
+  background-color: transparent;
+  color: #64748b;
+}
+</style>

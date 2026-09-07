@@ -42,7 +42,10 @@ const variants = {
         alert: "alert-warning",
     },
 
-
+    info: {
+        icon: "bi bi-info-circle-fill text-info",
+        alert: "alert-info",
+    },
 };
 
 const alertClass = (variant) => {

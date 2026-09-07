@@ -154,8 +154,8 @@ const handleLogin = async () => {
     // "Too many login attempts.": "ការព្យាយាមចូលប្រើប្រាស់ច្រើនដងពេក",
   };
 
-  const message = errorMessages[backendData?.message] || "ការចូលប្រើប្រាស់បរាជ័យ"; 
-  toast.error(message);
-}
+    const message = errorMessages[backendData?.message] || backendData?.message || "ការចូលប្រើប្រាស់បរាជ័យ"; 
+    toast.error(message);
   }
+};
 </script>
