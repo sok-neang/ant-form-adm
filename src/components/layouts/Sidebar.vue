@@ -26,8 +26,7 @@
                     <!-- Dropdown menu -->
                     <div v-else class="menu-dropdown">
                         <button type="button" class="menu-link dropdown-toggle-btn"
-                            :title="!layoutStore.isAsideOpen ? item.label : ''"
-                            @click="toggleDropdown(item.label)">
+                            :title="!layoutStore.isAsideOpen ? item.label : ''" @click="toggleDropdown(item.label)">
                             <span class="menu-icon">
                                 <i :class="item.icon"></i>
                             </span>
@@ -166,12 +165,10 @@ const sidebarMenu = computed(() => {
         },
     ];
 
-     return menus.filter(item => {
+    return menus.filter(item => {
         if (!item.roles) return true;
         return item.roles.includes(role);
     });
 });
 </script>
-<style scoped>
-
-</style>
+<style scoped></style>
