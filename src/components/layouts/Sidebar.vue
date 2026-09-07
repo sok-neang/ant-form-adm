@@ -27,7 +27,7 @@
                     <div v-else class="menu-dropdown">
                         <button type="button" class="menu-link dropdown-toggle-btn"
                             :title="!layoutStore.isAsideOpen ? item.label : ''"
-                            @click="isApplicationOpen = !isApplicationOpen">
+                            @click="toggleDropdown(item.label)">
                             <span class="menu-icon">
                                 <i :class="item.icon"></i>
                             </span>
@@ -35,13 +35,13 @@
                                 {{ item.label }}
                             </span>
 
-                            <i v-show="layoutStore.isAsideOpen" class="bi ms-auto" :class="isApplicationOpen
+                            <i v-show="layoutStore.isAsideOpen" class="bi ms-auto" :class="openDropdownMenu === item.label
                                 ? 'bi-chevron-up'
                                 : 'bi-chevron-down'
                                 "></i>
                         </button>
 
-                        <div class="submenu" :class="{ 'submenu-open': isApplicationOpen }">
+                        <div class="submenu" :class="{ 'submenu-open': openDropdownMenu === item.label }">
                             <RouterLink v-for="child in item.children" :key="child.label" :to="child.to"
                                 class="submenu-link" active-class="active">
                                 {{ child.label }}
@@ -61,34 +61,44 @@
 </template>
 
 <script setup>
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import { useLayoutStore } from "@/stores/layout";
-import { ref } from "vue";
 
-const isApplicationOpen = ref(false);
 const layoutStore = useLayoutStore();
+
+const openDropdownMenu = ref(null);
+
+const toggleDropdown = (label) => {
+    openDropdownMenu.value = openDropdownMenu.value === label ? null : label;
+};
+const user = sessionStorage.getItem("user");
+const role = JSON.parse(user).role;
+console.log("Current role:", role);
+
 const sidebarMenu = computed(() => {
-    return [
+    const menus = [
         {
             label: "ផ្ទាំងគ្រប់គ្រង",
             to: "/",
             icon: "bi bi-grid",
+            roles: ["SUPER_ADMIN", "ADMIN", "TEACHER"],
         },
-
         {
             label: "អ្នកប្រើប្រាស់",
-            to: "users",
+            to: "/users",
             icon: "bi bi-people",
+            roles: ["SUPER_ADMIN"],
         },
-
         {
             label: "កំណត់ហេតុ",
             to: "/activity-logs",
             icon: "bi bi-journal-text",
+            roles: ["SUPER_ADMIN"],
         },
         {
             label: "បញ្ជីអ្នកដាក់ពាក្យ",
             icon: "bi bi-file-earmark-text",
+            roles: ["ADMIN"],
             children: [
                 {
                     label: "ទាំងអស់",
@@ -106,28 +116,61 @@ const sidebarMenu = computed(() => {
         },
         {
             label: "បញ្ជីសម្រាំង",
-            to: "shortlisted",
             icon: "bi bi-person-check",
-        },
-        {
-            label: "បញ្ជីខ្មៅ",
-            to: "blacklisted",
-            icon: "bi bi-person-x",
+            roles: ["ADMIN"],
+            children: [
+                {
+                    label: "ទាំងអស់",
+                    to: "/shortlisted",
+                },
+                {
+                    label: "ជាប់",
+                    to: "/shortlisted/passed",
+                },
+                {
+                    label: "ធ្លាក់",
+                    to: "/shortlisted/failed",
+                },
+            ],
         },
         {
             label: "លទ្ធផលចុងក្រោយ",
-            to: "final-results",
             icon: "bi bi-trophy",
+            roles: ["ADMIN"],
+            children: [
+                {
+                    label: "ទាំងអស់",
+                    to: "/final-results",
+                },
+                {
+                    label: "ជាប់",
+                    to: "/final-results/passed",
+                },
+                {
+                    label: "ធ្លាក់",
+                    to: "/final-results/failed",
+                },
+            ],
+        },
+        {
+            label: "បញ្ជីខ្មៅ",
+            to: "/blacklisted",
+            icon: "bi bi-person-x",
+            roles: ["ADMIN", "TEACHER"],
         },
         {
             label: "បញ្ជីសិស្ស",
-            to: "student-lists",
+            to: "/student-lists",
             icon: "bi bi-mortarboard-fill",
+            roles: ["TEACHER"],
         },
     ];
+
+     return menus.filter(item => {
+        if (!item.roles) return true;
+        return item.roles.includes(role);
+    });
 });
-
-
 </script>
 <style scoped>
 

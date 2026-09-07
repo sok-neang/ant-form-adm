@@ -295,11 +295,14 @@ textarea {
 
 .dashboard-sidebar {
   width: 260px;
-  min-height: 100vh;
+  height: 100vh;
+  position: sticky;
+  top: 0;
   flex-shrink: 0;
   background: #ffffff;
   border-right: 1px solid #e9ecef;
   overflow-x: hidden;
+  overflow-y: auto;
   transition: width 0.25s ease;
   display: flex;
   flex-direction: column;

@@ -3,6 +3,9 @@ const userService = {
   getAll(params = {}) {
     return api.get("/users", { params, });
   },
+  getSummaries() {
+    return api.get("/dashboard/users/stats");
+  },
   getById(id) {
     return api.get(`/users/${id}`);
   },

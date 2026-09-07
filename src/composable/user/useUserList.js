@@ -3,8 +3,10 @@ import userService from "@/services/user.service";
 
 export const useUserList = () => {
   const users = ref([]);
+  const summaries = ref([]);
   const pagination = ref({});
   const loading = ref(false);
+  const isUserStatsLoading = ref(false);
   const error = ref(null);
   const search = ref("");
 
@@ -12,7 +14,22 @@ export const useUserList = () => {
     role: "",
     status: "",
   });
-
+  
+  const getUserSummaries = async () => {
+    isUserStatsLoading.value = true;
+    error.value = null;
+    try {
+      const response = await userService.getSummaries();  
+      if (response.data?.success) {
+        summaries.value = response.data.data; 
+      }
+      return response.data;
+    } catch (err) {
+      throw err;
+    } finally {
+      isUserStatsLoading.value = false;
+    }
+  };
   const getUsers = async (page = 1) => {
     loading.value = true;
     error.value = null;
@@ -82,11 +99,13 @@ export const useUserList = () => {
 
   return {
     users,
+    summaries,
     pagination,
     loading,
     error,
     search,
     filter,
+    getUserSummaries,
     resetPassword,
     updateUser,
     getUsers,
