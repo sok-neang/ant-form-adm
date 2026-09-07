@@ -27,55 +27,62 @@
   </div>
   <!-- Information Cards -->
   <div class="row g-3 mb-4">
-    <BaseCard v-for="card in dashboardCards">
+    <BaseCard v-for="card in dashboardCards" :key="card.en_title">
       <div class="d-flex align-items-center justify-content-between mb-3">
-          <div class="info-icon" :class="`bg-${card.color}-subtle text-${card.color}`">
-              <i :class="card.icon"></i>
-          </div>
-          <!-- Value -->
-          <h2 class="fw-bold mb-0 text-success fw-bold">{{ card.value }}</h2>
+        <div class="info-icon" :class="`bg-${card.color}-subtle text-${card.color}`">
+          <i :class="card.icon"></i>
+        </div>
+        <!-- Value -->
+        <BaseSkeleton v-if="isStatsLoading" width="70px" height="32px" radius="8px" />
+        <h2 v-else class="fw-bold mb-0 text-success">{{ card.value }}</h2>
       </div>
-        <!-- Title -->
-        <p class="text-muted mb-1 fw-bold">
-            {{ card.en_title }}
-        </p>
-        <p class="text-muted mb-1">
-            {{ card.kh_title }}
-        </p>
-      </BaseCard>
-      </div>
+      <!-- Title -->
+      <p class="text-muted mb-1 fw-bold">
+        {{ card.en_title }}
+      </p>
+      <p class="text-muted mb-1">
+        {{ card.kh_title }}
+      </p>
+    </BaseCard>
+  </div>
 
   <!-- Graph Information -->
+  <div class="row g-3 mb-4">
+    <div class="col-lg-6">
+      <SpecializationDonutChart
+        :total="stats.totalStudents"
+        :web-count="stats.specialization.webCount"
+        :web-percent="stats.specialization.webPercent"
+        :mobile-count="stats.specialization.mobileCount"
+        :mobile-percent="stats.specialization.mobilePercent"
+        :loading="isStatsLoading"
+      />
+    </div>
+    <div class="col-lg-6">
+      <ShiftBarChart
+        :web-morning="stats.shift.web.morning"
+        :web-afternoon="stats.shift.web.afternoon"
+        :mobile-morning="stats.shift.mobile.morning"
+        :mobile-afternoon="stats.shift.mobile.afternoon"
+        :loading="isStatsLoading"
+      />
+    </div>
+  </div>
 
 </div>
 </template>
 
 <script setup>
+import { onMounted } from 'vue';
 import BaseCard from '@/components/ui/base/BaseCard.vue';
-const dashboardCards = [
-  {
-    kh_title: "សិស្សសរុប",
-    en_title: "Total Students",
-    value: 1250,
-    icon: "bi bi-people-fill",
-    color: "primary",
-    badge: "+12%",
-  },
-  {
-    kh_title: "កម្មវិធីទូរសព្ទ",
-    en_title: "Mobile App",
-    value: 35,
-    icon: "bi bi-phone-fill",
-    color: "success",
-    badge: "+8%",
-  },
-  {
-    kh_title: "អភិវឌ្ឍន៍គេហទំព័រ",
-    en_title: "Web Development",
-    value: 86,
-    icon: "bi bi-globe2",
-    color: "warning",
-    badge: "24",
-  },
-];
+import BaseSkeleton from '@/components/ui/base/BaseSkeleton.vue';
+import SpecializationDonutChart from '@/components/ui/charts/SpecializationDonutChart.vue';
+import ShiftBarChart from '@/components/ui/charts/ShiftBarChart.vue';
+import { useEvaluationStats } from '@/composable/evaluation/useEvaluationStats';
+
+const { stats, dashboardCards, isStatsLoading, getEvaluationStats } = useEvaluationStats();
+
+onMounted(() => {
+  getEvaluationStats();
+});
 </script>
