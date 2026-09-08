@@ -125,3 +125,19 @@ export const subjectOptions = [
   },
 ];
 
+export const evaluationStatusOptions = [
+  {
+    value: "",
+    label: "ស្ថានភាពទាំងអស់",
+  },
+  {
+    value: "EVALUATED",
+    label: "បានវាយតម្លៃ",
+  },
+  {
+    value: "NOT_EVALUATED",
+    label: "មិនទាន់បានវាយតម្លៃ",
+  },
+];
+
+

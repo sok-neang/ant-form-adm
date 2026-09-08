@@ -328,11 +328,13 @@ const studentUniversity = computed(() => {
 
 const studentYear = computed(() => {
   const y = submission.value?.yearOfStudy || student.value?.yearOfStudy;
-  if (y === "YEAR_1") return "១";
-  if (y === "YEAR_2") return "២";
-  if (y === "YEAR_3") return "៣";
-  if (y === "YEAR_4") return "៤";
-  return y || "-";
+  if (!y) return "-";
+  if (y === "YEAR_1" || y === 1 || y === "1") return "១";
+  if (y === "YEAR_2" || y === 2 || y === "2") return "២";
+  if (y === "YEAR_3" || y === 3 || y === "3") return "៣";
+  if (y === "YEAR_4" || y === 4 || y === "4") return "៤";
+  if (y === "YEAR_5" || y === 5 || y === "5") return "៥";
+  return String(y).replace(/^YEAR_?/i, "");
 });
 
 const handleScoreInput = (field, event) => {

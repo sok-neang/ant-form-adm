@@ -321,26 +321,40 @@ const fetchData = async () => {
   if (!submissionId) return;
   loading.value = true;
   try {
-    const [evalRes, subRes] = await Promise.allSettled([
-      evaluationService.getBySubmissionId(submissionId),
+    const [subRes, evalRes] = await Promise.allSettled([
       submissionService.getById(submissionId),
+      evaluationService.getBySubmissionId(submissionId),
     ]);
 
-    if (evalRes.status === "fulfilled" && evalRes.value?.data?.success) {
-      const data = evalRes.value.data.data;
-      submission.value = data;
-      student.value = data.student || {};
-      evaluations.value = data.evaluations || [];
-    }
+    let mergedSubmission = {};
+    let mergedStudent = {};
+    let mergedEvaluations = [];
 
     if (subRes.status === "fulfilled" && subRes.value?.data?.success) {
-      const subData = subRes.value.data.data;
-      if (!submission.value) submission.value = subData;
-      student.value = { ...subData.student, ...student.value };
-      if (evaluations.value.length === 0 && subData.evaluations?.length > 0) {
-        evaluations.value = subData.evaluations;
+      const subData = subRes.value.data.data || {};
+      mergedSubmission = { ...subData };
+      mergedStudent = { ...(subData.student || {}) };
+      if (Array.isArray(subData.evaluations) && subData.evaluations.length > 0) {
+        mergedEvaluations = subData.evaluations;
       }
     }
+
+    if (evalRes.status === "fulfilled" && evalRes.value?.data?.success) {
+      const evalData = evalRes.value.data.data || {};
+      if (Array.isArray(evalData) && evalData.length > 0) {
+        mergedEvaluations = evalData;
+      } else if (Array.isArray(evalData.evaluations) && evalData.evaluations.length > 0) {
+        mergedEvaluations = evalData.evaluations;
+      }
+      if (evalData.student) {
+        mergedStudent = { ...mergedStudent, ...evalData.student };
+      }
+      mergedSubmission = { ...evalData, ...mergedSubmission };
+    }
+
+    submission.value = mergedSubmission;
+    student.value = mergedStudent;
+    evaluations.value = mergedEvaluations;
   } catch (err) {
     console.error("Failed to load student detail:", err);
   } finally {
@@ -439,11 +453,13 @@ const universityText = computed(() => {
 
 const yearOfStudyText = computed(() => {
   const y = submission.value?.yearOfStudy || student.value?.yearOfStudy;
-  if (y === "YEAR_1") return "1";
-  if (y === "YEAR_2") return "2";
-  if (y === "YEAR_3") return "3";
-  if (y === "YEAR_4") return "4";
-  return y || "-";
+  if (!y) return "-";
+  if (y === "YEAR_1" || y === 1 || y === "1") return "1";
+  if (y === "YEAR_2" || y === 2 || y === "2") return "2";
+  if (y === "YEAR_3" || y === 3 || y === "3") return "3";
+  if (y === "YEAR_4" || y === 4 || y === "4") return "4";
+  if (y === "YEAR_5" || y === 5 || y === "5") return "5";
+  return String(y).replace(/^YEAR_?/i, "");
 });
 
 const addressText = computed(() => {

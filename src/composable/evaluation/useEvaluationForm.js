@@ -57,23 +57,41 @@ export const useEvaluationForm = (submissionId) => {
     error.value = null;
 
     try {
-      // 1. Fetch evaluation details
-      const evalRes = await evaluationService.getBySubmissionId(submissionId);
-      if (evalRes.data?.success && evalRes.data?.data) {
-        const data = evalRes.data.data;
-        submission.value = data;
-        student.value = data.student || {};
-        evaluations.value = data.evaluations || [];
-      } else {
-        // Fallback to fetch submission if no evaluation created yet
-        const subRes = await submissionService.getById(submissionId);
-        if (subRes.data?.success && subRes.data?.data) {
-          const sData = subRes.data.data;
-          submission.value = sData;
-          student.value = sData.student || {};
-          evaluations.value = sData.evaluations || [];
+      // Fetch both submission details and evaluation details
+      const [subRes, evalRes] = await Promise.allSettled([
+        submissionService.getById(submissionId),
+        evaluationService.getBySubmissionId(submissionId),
+      ]);
+
+      let mergedSubmission = {};
+      let mergedStudent = {};
+      let mergedEvaluations = [];
+
+      if (subRes.status === "fulfilled" && subRes.value?.data?.success) {
+        const subData = subRes.value.data.data || {};
+        mergedSubmission = { ...subData };
+        mergedStudent = { ...(subData.student || {}) };
+        if (Array.isArray(subData.evaluations) && subData.evaluations.length > 0) {
+          mergedEvaluations = subData.evaluations;
         }
       }
+
+      if (evalRes.status === "fulfilled" && evalRes.value?.data?.success) {
+        const evalData = evalRes.value.data.data || {};
+        if (Array.isArray(evalData) && evalData.length > 0) {
+          mergedEvaluations = evalData;
+        } else if (Array.isArray(evalData.evaluations) && evalData.evaluations.length > 0) {
+          mergedEvaluations = evalData.evaluations;
+        }
+        if (evalData.student) {
+          mergedStudent = { ...mergedStudent, ...evalData.student };
+        }
+        mergedSubmission = { ...evalData, ...mergedSubmission };
+      }
+
+      submission.value = mergedSubmission;
+      student.value = mergedStudent;
+      evaluations.value = mergedEvaluations;
 
       // Populate form data from existing evaluations
       if (evaluations.value.length > 0) {
