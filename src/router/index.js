@@ -8,7 +8,7 @@ import VerifyCodeView from '@/views/auth/VerifyCodeView.vue';
 import DefaultLayout from '@/layouts/DefaultLayout.vue';
 import DashboardView from "@/views/pages/dashboard/DashboardView.vue";
 import SuperAdminDashboardView from "@/views/pages/super-admin/SuperAdminDashboardView.vue";
-
+import AdminDashboardView from "@/views/pages/admin/AdminDashboard.vue";
 import UserView from '@/views/pages/super-admin/users/UserView.vue';
 import ActivityLogView from '@/views/pages/super-admin/activity-logs/ActivityLogView.vue';
 
