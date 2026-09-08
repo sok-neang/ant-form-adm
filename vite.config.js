@@ -18,7 +18,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://localhost:3000',
+        target: 'https://ant-form-backend.g2.ant.com.kh',
         changeOrigin: true,
         secure: false,
       },
