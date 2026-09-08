@@ -37,10 +37,10 @@ export const useAuthStore = defineStore("auth", () => {
         setTwoFactorData(result.data);
       }
       return result;
-    }catch(error){
-      console.error(error.response); 
-    }
-     finally {
+    } catch (error) {
+      console.error("Login error:", error.response?.data || error);
+      throw error;
+    } finally {
       loading.value = false;
     }
   };

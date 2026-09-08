@@ -73,20 +73,10 @@ const router = createRouter({
       component: DefaultLayout,
 
       children: [
-        // {
-        //   path: "",
-        //   name: "dashboard",
-        //   component: DashboardView,
-        //   meta: {
-        //     title: "ផ្ទាំងគ្រប់គ្រង",
-        //     requiresAuth: true,
-        //   },
-        // },
-
         {
           path: "",
           name: "dashboard",
-          component: AdminDashboardView,
+          component: DashboardView,
           meta: {
             title: "ផ្ទាំងគ្រប់គ្រង",
             requiresAuth: true,
@@ -114,21 +104,36 @@ const router = createRouter({
         },
         {
           path: "/all-application",
+          meta: {
+            requiresAuth: true,
+          },
           children: [
             {
               path: "",
               name: "all-application",
               component: AllApplicationView,
+              meta: {
+                title: "បញ្ជីអ្នកដាក់ពាក្យទាំងអស់",
+                requiresAuth: true,
+              },
             },
             {
               path: "passed",
               name: "passed-application",
               component: PassedApplicationView,
+              meta: {
+                title: "បញ្ជីអ្នកដាក់ពាក្យជាប់",
+                requiresAuth: true,
+              },
             },
             {
               path: "failed",
               name: "failed-application",
               component: FailedApplicationView,
+              meta: {
+                title: "បញ្ជីអ្នកដាក់ពាក្យធ្លាក់",
+                requiresAuth: true,
+              },
             },
           ],
         },
@@ -179,6 +184,24 @@ const router = createRouter({
           },
         },
         {
+          path: "student-lists/evaluation/:submissionId",
+          name: "student-evaluation",
+          component: () => import("@/views/pages/Teacher/evaluation/EvaluationView.vue"),
+          meta: {
+            title: "ការវាយតម្លៃ",
+            requiresAuth: true,
+          },
+        },
+        {
+          path: "student-lists/detail/:submissionId",
+          name: "student-detail",
+          component: () => import("@/views/pages/Teacher/studentDetail/StudentDetailView.vue"),
+          meta: {
+            title: "ព័ត៌មានលម្អិត",
+            requiresAuth: true,
+          },
+        },
+        {
           path: 'profile',
           name: 'profile',
           component: ProfileView,
@@ -199,13 +222,16 @@ router.beforeEach((to) => {
   console.log("Route:", to.fullPath);
   console.log("Authenticated:", isAuthenticated);
 
+  const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
+  const requiresGuest = to.matched.some(record => record.meta.requiresGuest);
+
   // User is NOT logged in → cannot access protected pages
-  if (to.meta.requiresAuth && !isAuthenticated) {
+  if (requiresAuth && !isAuthenticated) {
     return { name: "login" };
   }
 
   // User IS logged in → cannot access auth pages
-  if (to.meta.requiresGuest && isAuthenticated) {
+  if (requiresGuest && isAuthenticated) {
     return { name: "dashboard" };
   }
 

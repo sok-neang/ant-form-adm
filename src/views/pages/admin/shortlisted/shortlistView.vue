@@ -12,31 +12,31 @@
         <!-- Filters / Dropdown -->
         <div class="d-flex align-items-center gap-2">
             <BaseSelect
-                v-model="selectedRole"
+                v-model="selectedScoreLevel"
                 :options="scoreLevelOptions"
+                option-label="label"
+                option-value="value"
+                placeholder="ជ្រើសរើសកម្រិតពិន្ទុ"
+                :clearable="false"
+                style="width: 150px"
+            />
+           <BaseSelect
+                v-model="selectedShift"
+                :options="shiftOptions"
                 option-label="label"
                 option-value="value"
                 placeholder="ជ្រើសរើសពេល"
                 :clearable="false"
                 style="width: 150px"
             />
-           <BaseSelect
-           v-model="selectedRole"
-            :options="shiftOptions"
-            option-label="label"
-            option-value="value"
-            placeholder="ជ្រើសរើសពេល"
-            :clearable="false"
-            style="width: 150px"
-            />
           <BaseSelect
-           v-model="selectedStatus"
-            :options="specializationOptions"
-            option-label="label"
-            option-value="value"
-            placeholder="ជ្រើសរើសមុខជំនាញ"
-            :clearable="false"
-            style="width: 190px"
+                v-model="selectedSpecialization"
+                :options="specializationOptions"
+                option-label="label"
+                option-value="value"
+                placeholder="ជ្រើសរើសមុខជំនាញ"
+                :clearable="false"
+                style="width: 190px"
             />
           <BaseButton
             type="submit"
@@ -135,8 +135,9 @@ import BaseTable from "@/components/ui/base/BaseTable.vue";
 import BaseSelect from "@/components/ui/base/BaseSelect.vue";
 import BaseButton from "@/components/ui/base/BaseButton.vue";
 import {shiftOptions, specializationOptions, scoreLevelOptions} from "@/constants/options"
-const selectedRole = ref("");
-const selectedStatus = ref("");
+const selectedScoreLevel = ref("");
+const selectedShift = ref("");
+const selectedSpecialization = ref("");
 const showCreateModal = ref(false);
 
 const columns = [

@@ -1,13 +1,22 @@
 import { reactive, ref, computed, toRaw } from "vue";
 import { normalizeValue, isEmpty } from "@/utils/validationUtils";
 
+function getShape(schema) {
+  let current = schema;
+  while (current && !current.shape && current._def?.schema) {
+    current = current._def.schema;
+  }
+  return current?.shape || {};
+}
+
 export function useValidation(schema, formData) {
   const fieldNames = Object.keys(formData);
+  const shape = getShape(schema);
 
   const fieldSchemas = Object.fromEntries(
     fieldNames.map((field) => [
       field,
-      schema.shape?.[field],
+      shape[field],
     ])
   );
 

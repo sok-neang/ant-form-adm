@@ -146,7 +146,7 @@ function normalizeOutgoing(value) {
   }
 
   return value === ""
-    ? null
+    ? ""
     : findOption(value);
 }
 
@@ -632,7 +632,16 @@ onBeforeUnmount(() => {
   gap: 6px;
   width: 100%;
   font-family: inherit;
-  
+  position: relative;
+}
+
+.base-select.is-open {
+  position: relative;
+  z-index: 1050;
+}
+
+.base-select.is-open .base-select__group {
+  z-index: 1050;
 }
 .base-select__icon {
   display: flex;
@@ -759,6 +768,7 @@ onBeforeUnmount(() => {
   font-size: 14px;
   padding: 10px 5px;
   background: #fff;
+  z-index: 1050;
 }
 
 .base-select__group

@@ -293,6 +293,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import BaseButton from '@/components/ui/base/BaseButton.vue'
 import BaseInput from '@/components/ui/base/BaseInput.vue'
 import BaseSelect from '@/components/ui/base/BaseSelect.vue'
@@ -306,8 +307,13 @@ import { useAuthStore } from '@/stores/useAuthStore'
 import { normalDate } from '@/utils/dateFormat'
 import BaseModal from '@/components/ui/base/BaseModal.vue'
 
+const router = useRouter();
 const toast = useAppToast();
 const authStore = useAuthStore()
+
+const disableFutureDates = (time) => {
+  return time.getTime() > Date.now();
+};
 
 onMounted(async () => {
   await authStore.getProfile();
