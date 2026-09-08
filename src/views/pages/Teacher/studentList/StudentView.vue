@@ -193,7 +193,7 @@ import {
 import { useEvaluationList } from "@/composable/evaluation/useEvaluationList";
 
 const router = useRouter();
-const { students, loading, search, filters, pagination, cards, getEvaluations } = useEvaluationList();
+const { students, loading, search, filters, pagination, cards, getEvaluations, fetchShortlistStats } = useEvaluationList();
 
 const visiblePages = computed(() => {
   const current = pagination.value.current_page || 1;
@@ -234,6 +234,7 @@ const handleAdd = (student) => {
 
 onMounted(() => {
   getEvaluations();
+  fetchShortlistStats();
 });
 </script>
 

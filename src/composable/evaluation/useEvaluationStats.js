@@ -29,8 +29,8 @@ export const useEvaluationStats = () => {
       if (response.data?.success && response.data?.data) {
         const d = response.data.data;
         
-        // Use shortlist.passed or submissions for student stats
-        const source = d.shortlist?.passed || d.submissions || {};
+        // Show all submissions stats on dashboard
+        const source = d.submissions || {};
         const total = source.total ?? d.students?.total ?? 0;
         const web = source.web ?? 0;
         const mobile = source.mobile ?? 0;

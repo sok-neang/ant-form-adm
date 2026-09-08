@@ -1,5 +1,6 @@
 import { ref, watch, computed } from "vue";
 import submissionService from "@/services/submission.service";
+import dashboardService from "@/services/dashboard.service";
 
 export const useEvaluationList = () => {
   const students = ref([]);
@@ -254,14 +255,22 @@ export const useEvaluationList = () => {
           };
         }
 
-        // Compute summary stats
-        const total = pagination.value.total ?? mapped.length;
-        const evaluatedCount = students.value.filter((s) => s.is_evaluated).length;
-        summaryStats.value = {
-          total: total ?? 0,
-          evaluated: evaluatedCount,
-          pending: total ? Math.max(0, total - evaluatedCount) : 0,
-        };
+        // Update summary stats from shortlist & evaluation stats
+        if (rawDashboardStats.value) {
+          updateSummaryStats();
+        } else {
+          await fetchShortlistStats();
+        }
+
+        if (!rawDashboardStats.value) {
+          const total = pagination.value.total ?? mapped.length;
+          const evaluatedCount = students.value.filter((s) => s.is_evaluated).length;
+          summaryStats.value = {
+            total: total ?? 0,
+            evaluated: evaluatedCount,
+            pending: total ? Math.max(0, total - evaluatedCount) : 0,
+          };
+        }
       }
       return response.data;
     } catch (err) {
@@ -270,6 +279,68 @@ export const useEvaluationList = () => {
     } finally {
       loading.value = false;
     }
+  };
+
+  const rawDashboardStats = ref(null);
+
+  const fetchShortlistStats = async () => {
+    try {
+      const response = await dashboardService.getStats();
+      if (response.data?.success && response.data?.data) {
+        rawDashboardStats.value = response.data.data;
+        updateSummaryStats();
+      }
+    } catch (err) {
+      console.warn("Could not load global shortlist stats, using table fallback:", err);
+    }
+  };
+
+  const updateSummaryStats = () => {
+    if (!rawDashboardStats.value) return;
+
+    const d = rawDashboardStats.value;
+    const shortlist = d.shortlist?.passed || {};
+    const evalPassed = d.evaluation?.passed || {};
+    const evalFailed = d.evaluation?.failed || {};
+
+    let total = shortlist.total ?? 0;
+    let evaluated = (evalPassed.total ?? 0) + (evalFailed.total ?? 0);
+
+    // If filtered by skill / program
+    if (filters.value.skill === "WEB_DEVELOPMENT") {
+      total = shortlist.web ?? 0;
+      evaluated = (evalPassed.web ?? 0) + (evalFailed.web ?? 0);
+    } else if (filters.value.skill === "MOBILE_APP") {
+      total = shortlist.mobile ?? 0;
+      evaluated = (evalPassed.mobile ?? 0) + (evalFailed.mobile ?? 0);
+    }
+
+    // If filtered by shift
+    if (filters.value.shift) {
+      const shiftKey = filters.value.shift;
+      const shShortlist = (shortlist.byShift || []).find((s) => s.shift === shiftKey);
+      const shPassed = (evalPassed.byShift || []).find((s) => s.shift === shiftKey);
+      const shFailed = (evalFailed.byShift || []).find((s) => s.shift === shiftKey);
+
+      if (filters.value.skill === "WEB_DEVELOPMENT") {
+        total = shShortlist?.web ?? 0;
+        evaluated = (shPassed?.web ?? 0) + (shFailed?.web ?? 0);
+      } else if (filters.value.skill === "MOBILE_APP") {
+        total = shShortlist?.mobile ?? 0;
+        evaluated = (shPassed?.mobile ?? 0) + (shFailed?.mobile ?? 0);
+      } else {
+        total = shShortlist?.total ?? 0;
+        evaluated = (shPassed?.total ?? 0) + (shFailed?.total ?? 0);
+      }
+    }
+
+    const pending = Math.max(0, total - evaluated);
+
+    summaryStats.value = {
+      total,
+      evaluated,
+      pending,
+    };
   };
 
   const cards = computed(() => [
@@ -330,5 +401,6 @@ export const useEvaluationList = () => {
     pagination,
     cards,
     getEvaluations,
+    fetchShortlistStats,
   };
 };
