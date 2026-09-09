@@ -13,7 +13,7 @@
                 <div class="avatar-wrapper rounded-circle p-1 bg-white shadow-sm">
                   <div class="position-relative w-100 h-100 rounded-circle overflow-hidden">
                     <img
-                      :src="profileData.avatarPath"
+                      :src="authStore.userAvatarUrl"
                       alt="Profile Avatar"
                       class="profile-avatar object-fit-cover w-100"
                     />                    

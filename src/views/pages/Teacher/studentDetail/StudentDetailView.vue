@@ -46,12 +46,21 @@
         <div class="profile-body px-4 px-md-5 pb-4">
           <!-- Avatar + Actions Row -->
           <div class="d-flex flex-wrap justify-content-between align-items-end avatar-action-row mb-3">
-            <div class="avatar-wrapper">
+            <div
+              class="avatar-wrapper position-relative"
+              role="button"
+              @click="openAvatarPreview"
+              title="ចុចដើម្បីមើលរូបភាពធំ"
+            >
               <img
                 :src="studentAvatar"
                 alt="Student Avatar"
                 class="student-avatar rounded-4 shadow-sm object-fit-cover bg-white"
+                @error="onAvatarError"
               />
+              <div class="avatar-hover-overlay rounded-4 d-flex align-items-center justify-content-center">
+                <i class="bi bi-arrows-fullscreen text-white fs-5"></i>
+              </div>
             </div>
 
             <!-- Edit Evaluation Button -->
@@ -215,7 +224,62 @@
         </div>
       </div>
 
-      <!-- 4. SUBJECT EVALUATION CARDS -->
+      <!-- 4. ATTACHED DOCUMENTS CARD -->
+      <div v-if="submissionFiles.length > 0" class="card border-0 rounded-4 shadow-sm bg-white p-4">
+        <div class="d-flex align-items-center gap-2 mb-3">
+          <i class="bi bi-paperclip fs-5 text-theme-green"></i>
+          <h5 class="fw-bold text-dark mb-0">ឯកសារភ្ជាប់</h5>
+        </div>
+
+        <div class="row g-3">
+          <div
+            v-for="file in submissionFiles"
+            :key="file.id"
+            class="col-12 col-md-6"
+          >
+            <div class="d-flex align-items-center justify-content-between p-3 rounded-4 bg-light-soft border">
+              <div class="d-flex align-items-center gap-3 overflow-hidden me-2">
+                <div class="file-icon-badge rounded-3 d-flex align-items-center justify-content-center">
+                  <i :class="getFileIcon(file.fileType)" class="fs-5 text-theme-green"></i>
+                </div>
+                <div class="d-flex flex-column overflow-hidden">
+                  <span class="fw-bold text-dark text-truncate small">
+                    {{ getFileTitle(file.fileType) }}
+                  </span>
+                  <span class="text-muted small text-truncate">
+                    {{ file.originalFilename || file.fileType }} ({{ formatFileSize(file.sizeBytes) }})
+                  </span>
+                </div>
+              </div>
+
+              <div class="d-flex align-items-center gap-2 flex-shrink-0">
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-secondary rounded-pill px-3 d-inline-flex align-items-center gap-1"
+                  @click="viewFile(file)"
+                  :disabled="loadingFileId === file.id"
+                >
+                  <span v-if="loadingFileId === file.id" class="spinner-border spinner-border-sm me-1"></span>
+                  <i v-else class="bi bi-eye"></i>
+                  <span>មើល</span>
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-success-soft rounded-pill px-3 d-inline-flex align-items-center gap-1"
+                  @click="downloadFile(file)"
+                  :disabled="downloadingFileId === file.id"
+                >
+                  <span v-if="downloadingFileId === file.id" class="spinner-border spinner-border-sm me-1"></span>
+                  <i v-else class="bi bi-download"></i>
+                  <span>ទាញយក</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5. SUBJECT EVALUATION CARDS -->
       <div v-for="subject in subjectEvaluationCards" :key="subject.key" class="card border-0 rounded-4 shadow-sm bg-white p-4">
         <!-- Subject Header -->
         <div class="d-flex align-items-center gap-2 mb-4">
@@ -293,6 +357,29 @@
         </div>
       </div>
     </div>
+
+    <!-- Image Preview Modal -->
+    <Teleport to="body">
+      <div
+        v-if="previewImageUrl"
+        class="modal-backdrop-custom d-flex align-items-center justify-content-center p-3"
+        @click="closePreview"
+      >
+        <div class="position-relative bg-white rounded-4 p-2 shadow-lg preview-box" @click.stop>
+          <button
+            type="button"
+            class="btn-close position-absolute top-0 end-0 m-3 z-3 bg-white shadow-sm p-2 rounded-circle"
+            @click="closePreview"
+            aria-label="Close"
+          ></button>
+          <img
+            :src="previewImageUrl"
+            alt="Full Size Student Photo"
+            class="img-fluid rounded-3 preview-img"
+          />
+        </div>
+      </div>
+    </Teleport>
   </div>
 </template>
 
@@ -302,6 +389,9 @@ import { useRoute, useRouter } from "vue-router";
 import BaseSkeleton from "@/components/ui/base/BaseSkeleton.vue";
 import evaluationService from "@/services/evaluation.service";
 import submissionService from "@/services/submission.service";
+import avatarService from "@/services/avatar.service";
+import { getSubmissionFileUrl } from "@/composable/useAvatar";
+import defaultProfileImg from "@/assets/images/img/profile.webp";
 
 import cppLogo from "@/assets/images/teacher/cpp.svg";
 import dartLogo from "@/assets/images/teacher/dart.svg";
@@ -316,6 +406,12 @@ const loading = ref(true);
 const submission = ref(null);
 const student = ref(null);
 const evaluations = ref([]);
+
+// Photo / Avatar state
+const studentAvatar = ref(defaultProfileImg);
+const previewImageUrl = ref(null);
+const loadingFileId = ref(null);
+const downloadingFileId = ref(null);
 
 const fetchData = async () => {
   if (!submissionId) return;
@@ -355,6 +451,23 @@ const fetchData = async () => {
     submission.value = mergedSubmission;
     student.value = mergedStudent;
     evaluations.value = mergedEvaluations;
+
+    // Load student photo from submission files or student profile with Bearer authentication
+    const photoFile = (mergedSubmission.files || []).find(
+      (f) => String(f.fileType).toUpperCase() === "PHOTO"
+    );
+    const photoPath = photoFile?.fileUrl || photoFile?.filePath || mergedStudent?.avatarPath;
+    if (photoPath) {
+      try {
+        const url = await getSubmissionFileUrl(photoPath);
+        studentAvatar.value = url || defaultProfileImg;
+      } catch (err) {
+        console.warn("Failed to load student photo:", err);
+        studentAvatar.value = defaultProfileImg;
+      }
+    } else {
+      studentAvatar.value = defaultProfileImg;
+    }
   } catch (err) {
     console.error("Failed to load student detail:", err);
   } finally {
@@ -362,10 +475,84 @@ const fetchData = async () => {
   }
 };
 
-// Computed display fields
-const studentAvatar = computed(() => {
-  return student.value?.avatarPath || "/src/assets/images/img/profile.webp";
+const submissionFiles = computed(() => {
+  return submission.value?.files || [];
 });
+
+const onAvatarError = (e) => {
+  e.target.src = defaultProfileImg;
+};
+
+const openAvatarPreview = () => {
+  if (studentAvatar.value && studentAvatar.value !== defaultProfileImg) {
+    previewImageUrl.value = studentAvatar.value;
+  }
+};
+
+const closePreview = () => {
+  previewImageUrl.value = null;
+};
+
+const getFileIcon = (fileType) => {
+  const type = String(fileType || "").toUpperCase();
+  if (type === "PHOTO") return "bi bi-image";
+  if (type === "TRANSCRIPT") return "bi bi-file-earmark-text";
+  return "bi bi-file-earmark";
+};
+
+const getFileTitle = (fileType) => {
+  const type = String(fileType || "").toUpperCase();
+  if (type === "PHOTO") return "រូបថត ៤x៦ (Photo)";
+  if (type === "TRANSCRIPT") return "ព្រឹត្តិបត្រពិន្ទុ (Transcript)";
+  return fileType || "ឯកសារ";
+};
+
+const formatFileSize = (bytes) => {
+  if (!bytes) return "0 KB";
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
+};
+
+const viewFile = async (file) => {
+  const path = file.filePath || file.fileUrl;
+  if (!path) return;
+  loadingFileId.value = file.id;
+  try {
+    const isImage = file.mimeType?.startsWith("image/") || /\.(jpe?g|png|webp|gif)$/i.test(path);
+    const url = await getSubmissionFileUrl(path);
+    if (isImage) {
+      previewImageUrl.value = url;
+    } else {
+      window.open(url, "_blank");
+    }
+  } catch (err) {
+    console.error("Failed to view file:", err);
+  } finally {
+    loadingFileId.value = null;
+  }
+};
+
+const downloadFile = async (file) => {
+  const path = file.filePath || file.fileUrl;
+  if (!path) return;
+  downloadingFileId.value = file.id;
+  try {
+    const blob = await avatarService.getSubmissionFileBlob(path);
+    const blobUrl = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = blobUrl;
+    a.download = file.originalFilename || `${file.fileType || "file"}.jpg`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
+  } catch (err) {
+    console.error("Failed to download file:", err);
+  } finally {
+    downloadingFileId.value = null;
+  }
+};
 
 const studentKhName = computed(() => {
   return student.value?.khName || student.value?.enName || submission.value?.name || "-";
@@ -562,6 +749,66 @@ onMounted(() => {
   width: 110px;
   height: 110px;
   border: 4px solid #ffffff;
+}
+
+.avatar-wrapper {
+  cursor: pointer;
+}
+
+.avatar-hover-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 110px;
+  height: 110px;
+  background-color: rgba(0, 0, 0, 0.4);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.avatar-wrapper:hover .avatar-hover-overlay {
+  opacity: 1;
+}
+
+/* MODAL PREVIEW */
+.modal-backdrop-custom {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(4px);
+  z-index: 1050;
+}
+
+.preview-box {
+  max-width: 90vw;
+  max-height: 90vh;
+}
+
+.preview-img {
+  max-height: 80vh;
+  object-fit: contain;
+}
+
+.file-icon-badge {
+  width: 44px;
+  height: 44px;
+  background-color: #ecfdf5;
+  flex-shrink: 0;
+}
+
+.btn-success-soft {
+  background-color: #ecfdf5;
+  color: #059669;
+  border: 1px solid #a7f3d0;
+  transition: all 0.2s ease;
+}
+
+.btn-success-soft:hover {
+  background-color: #059669;
+  color: #ffffff;
 }
 
 .btn-edit-eval {

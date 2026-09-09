@@ -1,4 +1,5 @@
 import api from "@/api/axios";
+import avatarService from "@/services/avatar.service";
 
 const submissionService = {
   getShortlist(params = {}) {
@@ -6,6 +7,9 @@ const submissionService = {
   },
   getById(id) {
     return api.get(`/submissions/${id}`);
+  },
+  getFileBlob(path) {
+    return avatarService.getSubmissionFileBlob(path);
   },
 };
 
