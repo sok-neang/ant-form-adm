@@ -6,9 +6,20 @@
     :pagination="pagination"
     :loading="loading"
     :show-actions="true"
+    @page-change="handlePageChange"
     >
     <template #search-filter>
-      <p class="">ចំនួនសិស្សសម្រាំងសរុប <span class="text-success fw-bold">១០០</span> នាក់</p>
+        <!-- search  -->
+        <div class="search-box position-relative">
+          <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
+          <input 
+            type="text" 
+            v-model="searchQuery" 
+            class="form-control rounded-pill border-success ps-5" 
+            placeholder="Search" 
+            style="width: 250px;"
+          >
+        </div>
         <!-- Filters / Dropdown -->
         <div class="d-flex align-items-center gap-2">
             <BaseSelect
@@ -113,10 +124,10 @@
             {{ row.total_score }}
         </span>
         </template>
-    <template #actions>
+    <template #actions="{ row }">
     <div class="d-flex justify-content-start align-items-center gap-2">
         <!-- VIEW -->
-          <button v-if="activeTab != 'login'"
+          <button
             type="button"
             class="btn action-btn action-view"
             title="មើលលម្អិត"
@@ -130,126 +141,88 @@
   </div>
 </template>
 <script setup>
-import { ref } from "vue";
+import { ref, watch, onMounted } from "vue";
+import { useRouter } from "vue-router";
 import BaseTable from "@/components/ui/base/BaseTable.vue";
 import BaseSelect from "@/components/ui/base/BaseSelect.vue";
 import BaseButton from "@/components/ui/base/BaseButton.vue";
-import {shiftOptions, specializationOptions, scoreLevelOptions} from "@/constants/options"
+import { shiftOptions, specializationOptions, scoreLevelOptions } from "@/constants/options";
+import { useShortlist } from "@/composable/application/short list/useShortlist";
+
+const router = useRouter();
+
+// Filters
 const selectedScoreLevel = ref("");
 const selectedShift = ref("");
 const selectedSpecialization = ref("");
+const searchQuery = ref("");
 const showCreateModal = ref(false);
 
-const columns = [
-  {
-    key: "id",
-    label: "#",
-  },
+const {
+  loading,
+  students,
+  totalSubmissions,
+  pagination,
+  fetchSubmissions,
+} = useShortlist();
 
-  {
-    key: "name",
-    label: "ឈ្មោះសិស្ស",
-  },
-  {
-    key: "gender",
-    label: "ភេទ",
-  },
-  {
-    key: "year",
-    label: "និស្សិតឆ្នាំ",
-  },
-  {
-    key: "skill",
-    label: "ជំនាញ",
-  },
-   {
-    key: "study_shift",
-    label: "វេនសិក្សា",
-  },
-   {
-    key: "score_technology",
-    label: "ពិន្ទុបចេ្ចកទេស",
-  },
-{
-    key: "score_attendance",
-    label: "ពិន្ទុវត្តមាន",
-  },
-  {
-    key: "total_score",
-    label: "ពិន្ទុសរុប",
-  },
+const handleView = (row) => {
+  router.push(`/shortlist-detail/${row.id}`);
+};
+
+const columns = [
+  { key: "seq_num", label: "#" },
+  { key: "name", label: "ឈ្មោះសិស្ស" },
+  { key: "gender", label: "ភេទ" },
+  { key: "year", label: "និស្សិតឆ្នាំ" },
+  { key: "skill", label: "ជំនាញ" },
+  { key: "study_shift", label: "វេនសិក្សា" },
+  { key: "score_technology", label: "C++" },
+  { key: "score_attendance", label: "HMTL / Dart" },
+  { key: "total_score", label: "ពិន្ទុសរុប" },
 ];
-const students = [
-  {
-    id: 1,
-    name: "យឹម ស្រីយ៉ឺ",
-    gender: "ស្រី",
-    year: "ឆ្នាំទី 1",
-    skill: "Web Development",
-    study_shift: "វេនព្រឹក",
-    score_technology: 85,
-    score_attendance: 95,
-    total_score: 90,
-  },
-  {
-    id: 2,
-    name: "សុខ ដារ៉ា",
-    gender: "ប្រុស",
-    year: "ឆ្នាំទី 2",
-    skill: "Mobile App",
-    study_shift: "វេនល្ងាច",
-    score_technology: 48,
-    score_attendance: 28,
-    total_score: 38,
-  },
-  {
-    id: 3,
-    name: "ចាន់ វណ្ណា",
-    gender: "ប្រុស",
-    year: "ឆ្នាំទី 1",
-    skill: "Web Development",
-    study_shift: "វេនព្រឹក",
-    score_technology: 62,
-    score_attendance: 65,
-    total_score: 60,
-  },
-  {
-    id: 4,
-    name: "លី សុភា",
-    gender: "ស្រី",
-    year: "ឆ្នាំទី 3",
-    skill: "Mobile App",
-    study_shift: "វេនល្ងាច",
-    score_technology: 88,
-    score_attendance: 20,
-    total_score: 91,
-  },
-  {
-    id: 5,
-    name: "ហេង វិសាល",
-    gender: "ប្រុស",
-    year: "ឆ្នាំទី 2",
-    skill: "Web Development",
-    study_shift: "វេនព្រឹក",
-    score_technology: 70,
-    score_attendance: 82,
-    total_score: 96,
-  },
-];
-const pagination = ref({
-  current_page: 1,
-  first_item: 1,
-  last_item: 10,
-  from: 1,
-  to: 10,
-  per_page: 10,
-  total: 25,
-  last_page: 3,
-  on_first_page: true,
-  has_more_pages: true,
+
+const loadSubmissions = async (page = 1) => {
+  const params = {
+    page,
+    limit: pagination.value.per_page,
+  };
+  
+  if (selectedShift.value) params.shift = selectedShift.value;
+  if (selectedSpecialization.value) params.program = selectedSpecialization.value;
+  if (selectedScoreLevel.value) {
+      if (selectedScoreLevel.value === "HIGH") {
+          params.scoreSort = "highest";
+          params.score = "highest";
+      } else if (selectedScoreLevel.value === "LOW") {
+          params.scoreSort = "lowest";
+          params.score = "lowest";
+      }
+  }
+  if (searchQuery.value) params.search = searchQuery.value;
+
+  await fetchSubmissions(params);
+};
+
+const handlePageChange = (page) => {
+  loadSubmissions(page);
+};
+
+let searchTimeout;
+watch(searchQuery, () => {
+  clearTimeout(searchTimeout);
+  searchTimeout = setTimeout(() => {
+    loadSubmissions(1);
+  }, 500);
 });
 
-const loading = ref(false);
+watch([selectedShift, selectedSpecialization, selectedScoreLevel], () => {
+  loadSubmissions(1);
+});
+
+onMounted(() => {
+  loadSubmissions();
+});
 </script>
 <style scoped>
 .score-fail {

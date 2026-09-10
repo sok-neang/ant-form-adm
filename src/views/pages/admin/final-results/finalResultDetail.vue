@@ -20,15 +20,24 @@
       <div class="card border-0 rounded-4 shadow-sm bg-white overflow-hidden profile-summary-card">
         <!-- Curved Teal Gradient Banner -->
         <div class="profile-banner position-relative">
-          <img :src="Banner_Detail" alt="" class="w-100 object-fit-cover"/>
+          <svg class="banner-wave" viewBox="0 0 1200 120" preserveAspectRatio="none">
+            <path
+              d="M0,0 C300,90 900,40 1200,80 L1200,120 L0,120 Z"
+              fill="rgba(255,255,255,0.08)"
+            />
+            <path
+              d="M0,0 C400,60 800,90 1200,40 L1200,120 L0,120 Z"
+              fill="rgba(255,255,255,0.05)"
+            />
+          </svg>
         </div>
 
         <div class="profile-body px-4 px-md-5 pb-4">
           <!-- Avatar + Actions Row -->
           <div class="d-flex flex-wrap justify-content-between align-items-end avatar-action-row mb-3">
-            <div class="avatar-wrapper position-relative z-3">
+            <div class="avatar-wrapper">
               <img
-                :src="studentAvatar || defaultAvatar"
+                :src="studentAvatar"
                 alt="Student Avatar"
                 class="student-avatar rounded-4 shadow-sm object-fit-cover bg-white"
               />
@@ -38,7 +47,7 @@
           <!-- Specialization Badge -->
           <div class="mb-4">
             <span class="badge rounded-pill px-3 py-2 fw-semibold" style="background-color: #e0f2f1; color: #009688; font-size: 0.85rem;">
-              ជ្រើសរើសហើយ
+              ជម្រើសចុងក្រោយ
             </span>
           </div>
 
@@ -263,7 +272,8 @@
         </div>
       </div>
     </div>
-        </div>
+    </div> <!-- end shortlist-scroll -->
+
     <!-- ================= FOOTER ACTIONS ================= -->
     <div class="review-actions">
       <!-- Back -->
@@ -288,6 +298,15 @@
         </button>
         <button
           type="button"
+          class="btn reject-btn px-4"
+          @click="openActionModal('FAIL')"
+          :disabled="isUpdating"
+        >
+          <i class="bi bi-person-x-fill me-2"></i>
+          ធ្លាក់
+        </button>
+        <button
+          type="button"
           class="btn blacklist-btn px-4"
           @click="openActionModal('DROPOUT')"
           :disabled="isUpdating"
@@ -297,12 +316,13 @@
         </button>
         <button
           type="button"
-          class="btn reject-btn px-4"
-          @click="openActionModal('FAILED_EVALUATION')"
+          class="btn text-white px-4"
+          style="background-color: #f59e0b; border-color: #f59e0b;"
+          @click="openActionModal('RESERVED')"
           :disabled="isUpdating"
         >
-          <i class="bi bi-person-check-fill me-2"></i>
-          ធ្លាក់
+          <i class="bi bi-person-lines-fill me-2"></i>
+          បម្រុង
         </button>
         <button
           type="button"
@@ -316,7 +336,6 @@
         </button>
       </div>
     </div>
-
 
     <!-- ACTION MODAL -->
     <BaseModal 
@@ -360,8 +379,6 @@ import cppLogo from "@/assets/images/teacher/cpp.svg";
 import dartLogo from "@/assets/images/teacher/dart.svg";
 import html5Logo from "@/assets/images/teacher/html5.svg";
 import css3Logo from "@/assets/images/teacher/css3.svg";
-import Banner_Detail from "@/assets/images/img/banner_detail.png";
-import defaultAvatar from "@/assets/images/img/default_avatar.png";
 
 const route = useRoute();
 const router = useRouter();
@@ -384,6 +401,7 @@ const actionModalTitle = computed(() => {
   if (actionType.value === 'BLACKLIST') return 'បញ្ជាក់បញ្ជីខ្មៅ (Blacklist)';
   if (actionType.value === 'DROPOUT') return 'បញ្ជាក់បោះបង់ (Dropout)';
   if (actionType.value === 'FAIL') return 'បញ្ជាក់ការធ្លាក់ (Fail)';
+  if (actionType.value === 'RESERVED') return 'បញ្ជាក់បម្រុង (Reserve)';
   return 'បញ្ជាក់';
 });
 
@@ -437,8 +455,10 @@ const getFileUrl = (path) => {
   const baseUrl = import.meta.env.VITE_API_BASE_URL || '';
   return `${baseUrl.replace(/\/$/, '')}/${path.replace(/^\//, '')}`;
 };
+
+// Computed display fields
 const studentAvatar = computed(() => {
-  return getFileUrl(student.value?.photoUrl || student.value?.avatarPath);
+  return getFileUrl(student.value?.photoUrl || student.value?.avatarPath) || "/src/assets/images/img/profile.webp";
 });
 
 const studentKhName = computed(() => {
@@ -512,12 +532,12 @@ const dateOfBirthText = computed(() => {
     return dob;
   }
 });
-console.log(student.value?.educationLevel)
-console.log(submission.value?.educationLevel)
+
 const educationLevelText = computed(() => {
-  const lvl = submission.value?.educationLevel;
-  if (lvl == "BACHELOR") return "បរិញ្ញាបត្រ";
-  if (lvl == "MASTER") return "បរិញ្ញាបត្រជាន់ខ្ពស់";
+  const lvl = submission.value?.educationLevel || student.value?.educationLevel;
+  if (lvl === "BACHELOR") return "បរិញ្ញាបត្រ";
+  if (lvl === "ASSOCIATE") return "បរិញ្ញាបត្ររង";
+  if (lvl === "HIGH_SCHOOL") return "មធ្យមសិក្សាទុតិយភូមិ";
   return lvl || "-";
 });
 

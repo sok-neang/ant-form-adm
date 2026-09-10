@@ -13,8 +13,8 @@
                 <button type="button" class="btn p-0 border-0 bg-transparent profile-btn" @click="toggleDropdown">
                     <div class="d-flex align-items-center gap-2">
                         <div class="profile-avatar position-relative">
-                            <img :src="authStore.user?.avatarPath" alt="Profile" width="40" height="40"
-                                class="rounded-circle border border-secondary object-fit-cover" />
+                            <img :src="getAvatarUrl(authStore.user?.avatarPath)" alt="Profile" width="40" height="40"
+                                class="rounded-circle border border-secondary object-fit-cover" @error="handleImageError" />
                             <span class="status-online"></span>
                         </div>
                         <div class="text-start">
@@ -33,8 +33,8 @@
                         <div class="d-flex align-items-center gap-3 px-2 py-2">
                             <!-- Avatar -->
                             <div class="flex-shrink-0">
-                                <img :src="authStore.user?.avatarPath" alt="Avatar" width="50" height="50"
-                                    class="rounded-2 object-fit-cover border" />
+                                <img :src="getAvatarUrl(authStore.user?.avatarPath)" alt="Avatar" width="50" height="50"
+                                    class="rounded-2 object-fit-cover border" @error="handleImageError" />
                             </div>
                             <!-- User Information -->
                             <div class="flex-grow-1 min-w-0">
@@ -75,6 +75,7 @@ import { ref, onMounted, onBeforeUnmount } from "vue";
 import { useLayoutStore } from "@/stores/layout";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useRouter } from "vue-router";
+import default_avatar from "@/assets/images/img/default_avatar.png"
 const router = useRouter()
 const authStore = useAuthStore();
 const layoutStore = useLayoutStore();
@@ -82,6 +83,19 @@ const layoutStore = useLayoutStore();
 const isOpen = ref(false);
 const dropdownRef = ref(null);
 
+
+// Avatar URL resolver
+const getAvatarUrl = (path) => {
+    if (!path) return default_avatar;
+    if (path.startsWith('http')) return path;
+    const baseUrl = import.meta.env.VITE_API_BASE_URL || '';
+    return `${baseUrl.replace(/\/$/, '')}/${path.replace(/^\//, '')}`;
+};
+
+// Fallback if image fails to load
+const handleImageError = (e) => {
+    e.target.src = default_avatar;
+};
 
 // Toggle dropdown
 const toggleDropdown = () => {
@@ -119,8 +133,7 @@ const onLogout = async () => {
 
 onMounted( async ()  => {
     document.addEventListener("click", handleClickOutside);
-    await authStore.getProfile();
-    
+    await authStore.getProfile();   
 });
 
 onBeforeUnmount(() => {

@@ -27,7 +27,6 @@ export const useEvaluationList = () => {
     pending: 0,
   });
 
-  // Helper to map program subjects and evaluation statuses
   const mapSubjects = (program, evaluations = []) => {
     let required = [];
     if (program === "MOBILE_APP") {
@@ -36,7 +35,6 @@ export const useEvaluationList = () => {
         { key: "DART", name: "Dart", color: "blue" },
       ];
     } else {
-      // Default to Web Development subjects
       required = [
         { key: "CPP", name: "C++", color: "green" },
         { key: "HTML_CSS", name: "HTML & CSS", color: "orange" },
@@ -62,12 +60,8 @@ export const useEvaluationList = () => {
     });
   };
 
-  // Transform a single submission record into table row format
   const transformSubmission = (sub, index) => {
     const subjects = mapSubjects(sub.program, sub.evaluations || []);
-
-    // Only if there are two evaluations or both subjects are evaluated -> Edit button
-    // If only one evaluation/subject is evaluated or none -> Add button
     const evaluationCount = Array.isArray(sub.evaluations) ? sub.evaluations.length : 0;
     const evaluatedSubjectsCount = subjects.filter((s) => s.evaluated).length;
     const isBothEvaluated = evaluationCount >= 2 || evaluatedSubjectsCount >= 2;
@@ -89,7 +83,6 @@ export const useEvaluationList = () => {
     const skillText =
       sub.program === "WEB_DEVELOPMENT" ? "Web Development" : "Mobile App";
 
-    // Determine accurate numeric score:
     let numericScore = null;
     if (sub.overallAverageScore != null && Number(sub.overallAverageScore) > 0) {
       numericScore = Number(sub.overallAverageScore);
@@ -172,7 +165,6 @@ export const useEvaluationList = () => {
         console.log("Shortlist submissions response:", response.data);
       } catch (reqErr) {
         console.warn("Shortlist query with params failed, trying fallback:", reqErr);
-        // If remote backend rejected unknown params (e.g. subject or scoreSort), fallback to base query
         const fallbackParams = { page, limit: pagination.value.per_page || 10 };
         if (params.search) fallbackParams.search = params.search;
         if (params.program) {
@@ -191,7 +183,6 @@ export const useEvaluationList = () => {
         
         let mapped = rawList.map((item, idx) => transformSubmission(item, idx));
 
-        // Client-side filtering fallback to ensure filters always take effect
         if (filters.value.skill) {
           mapped = mapped.filter((s) => {
             const prog = s.raw?.program || (s.skill === "Web Development" ? "WEB_DEVELOPMENT" : "MOBILE_APP");

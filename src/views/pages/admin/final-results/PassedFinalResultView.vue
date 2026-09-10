@@ -22,15 +22,6 @@
         <!-- Filters / Dropdown -->
         <div class="d-flex align-items-center gap-2">
             <BaseSelect
-                v-model="selectedResultStatus"
-                :options="resultStatusOptions"
-                option-label="label"
-                option-value="value"
-                placeholder="ជ្រើសរើសស្ថានភាព"
-                :clearable="false"
-                style="width: 150px"
-            />
-            <BaseSelect
                 v-model="selectedScoreLevel"
                 :options="scoreLevelOptions"
                 option-label="label"
@@ -123,12 +114,11 @@ import { useRouter } from "vue-router";
 import BaseTable from "@/components/ui/base/BaseTable.vue";
 import BaseSelect from "@/components/ui/base/BaseSelect.vue";
 import BaseButton from "@/components/ui/base/BaseButton.vue";
-import {shiftOptions, specializationOptions, scoreLevelOptions, resultStatusOptions} from "@/constants/options"
-import { useFinalResult } from "@/composable/application/final result/useFinalResult";
+import {shiftOptions, specializationOptions, scoreLevelOptions} from "@/constants/options"
+import { usePassedFinalResult } from "@/composable/application/final result/usePassedFinalResult";
 
 const router = useRouter();
 
-const selectedResultStatus = ref("");
 const selectedScoreLevel = ref("");
 const selectedShift = ref("");
 const selectedSpecialization = ref("");
@@ -141,7 +131,7 @@ const {
   totalSubmissions,
   pagination,
   fetchSubmissions,
-} = useFinalResult();
+} = usePassedFinalResult();
 
 const handleView = (row) => {
   router.push(`/final-result-detail/${row.id}`);
@@ -165,7 +155,6 @@ const loadSubmissions = async (page = 1) => {
   
   if (selectedShift.value) params.shift = selectedShift.value;
   if (selectedSpecialization.value) params.program = selectedSpecialization.value;
-  if (selectedResultStatus.value) params.status = selectedResultStatus.value;
   if (selectedScoreLevel.value) {
       if (selectedScoreLevel.value === "HIGH") {
           params.scoreSort = "highest";
@@ -192,7 +181,7 @@ watch(searchQuery, () => {
   }, 500);
 });
 
-watch([selectedShift, selectedSpecialization, selectedScoreLevel, selectedResultStatus], () => {
+watch([selectedShift, selectedSpecialization, selectedScoreLevel], () => {
   loadSubmissions(1);
 });
 

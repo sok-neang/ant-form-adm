@@ -34,15 +34,15 @@
                                 {{ item.label }}
                             </span>
 
-                            <i v-show="layoutStore.isAsideOpen" class="bi ms-auto" :class="openDropdownMenu === item.label
-                                ? 'bi-chevron-up'
-                                : 'bi-chevron-down'
-                                "></i>
+                            <i v-show="layoutStore.isAsideOpen" 
+                               class="bi bi-chevron-down ms-auto transition-transform" 
+                               :style="{ transform: openDropdownMenu === item.label ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.3s ease' }"
+                            ></i>
                         </button>
 
                         <div class="submenu" :class="{ 'submenu-open': openDropdownMenu === item.label }">
                             <RouterLink v-for="child in item.children" :key="child.label" :to="child.to"
-                                class="submenu-link" active-class="active">
+                                class="submenu-link" exact-active-class="active">
                                 {{ child.label }}
                             </RouterLink>
                         </div>
@@ -136,15 +136,43 @@ const sidebarMenu = computed(() => {
         },
         {
             label: "បញ្ជីសម្រាំង",
-            to: "/shortlisted",
+            to: "/all-shortlisted",
             icon: "bi bi-person-check",
             roles: ["ADMIN"],
+            children: [
+                {
+                    label: "ទាំងអស់",
+                    to: "/all-shortlist",
+                },
+                {
+                    label: "ជាប់",
+                    to: "/all-shortlist/passed",
+                },
+                {
+                    label: "ធ្លាក់",
+                    to: "/all-shortlist/failed",
+                },
+            ],
         },
         {
             label: "លទ្ធផលចុងក្រោយ",
             to: "/final-results",
             icon: "bi bi-trophy",
             roles: ["ADMIN"],
+            children: [
+                {
+                    label: "ទាំងអស់",
+                    to: "/final-results",
+                },
+                {
+                    label: "ជាប់",
+                    to: "/final-results/passed",
+                },
+                {
+                    label: "បម្រុង",
+                    to: "/final-results/reserve",
+                },
+            ],
         },
         {
             label: "បញ្ជីខ្មៅ",

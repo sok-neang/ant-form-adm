@@ -6,8 +6,8 @@
     <!-- Super Admin Role Dashboard -->
     <SuperAdminDashboardView v-else-if="currentRole === 'SUPER_ADMIN'" />
 
-    <!-- Fallback / Default Dashboard -->
-    <TeacherDashboardView v-else />
+    <!-- Admin Role Dashboard -->
+    <AdminDashboardView v-else-if="currentRole === 'ADMIN'" />
   </div>
 </template>
 
@@ -15,6 +15,7 @@
 import { computed } from "vue";
 import TeacherDashboardView from "@/views/pages/Teacher/dashboard/TeacherDashboardView.vue";
 import SuperAdminDashboardView from "@/views/pages/super-admin/SuperAdminDashboardView.vue";
+import AdminDashboardView from "@/views/pages/admin/AdminDashboard.vue";
 
 const currentRole = computed(() => {
   try {

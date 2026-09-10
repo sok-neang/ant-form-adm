@@ -7,8 +7,6 @@ import VerifyCodeView from '@/views/auth/VerifyCodeView.vue';
 // Dashboard
 import DefaultLayout from '@/layouts/DefaultLayout.vue';
 import DashboardView from "@/views/pages/dashboard/DashboardView.vue";
-import SuperAdminDashboardView from "@/views/pages/super-admin/SuperAdminDashboardView.vue";
-import AdminDashboardView from "@/views/pages/admin/AdminDashboard.vue";
 import UserView from '@/views/pages/super-admin/users/UserView.vue';
 import ActivityLogView from '@/views/pages/super-admin/activity-logs/ActivityLogView.vue';
 
@@ -17,9 +15,12 @@ import PassedApplicationView from '@/views/pages/admin/application-review/Passed
 import FailedApplicationView from '@/views/pages/admin/application-review/FailedApplicationView.vue';
 import ApplicationReview from '@/views/pages/admin/application-review/ApplicationReview.vue';
 import ShortlistView from '@/views/pages/admin/shortlisted/shortlistView.vue';
+import PassedShortlistView from '@/views/pages/admin/shortlisted/PassedShortlistView.vue';
+import FailedShortlistView from '@/views/pages/admin/shortlisted/FailedShortlistView.vue';
+import ShortlistDetail from '@/views/pages/admin/shortlisted/shortlistDetail.vue';
 import Blacklist from '@/views/pages/admin/blacklisted/Blacklist.vue';
 import FinalResultView from '@/views/pages/admin/final-results/FinalResultView.vue';
-
+import FinalResultDetail from '@/views/pages/admin/final-results/finalResultDetail.vue';
 
 import StudentView from '@/views/pages/Teacher/studentList/StudentView.vue';
 import ProfileView from '@/views/pages/profile/ProfileView.vue';
@@ -146,13 +147,56 @@ const router = createRouter({
             requiresAuth: true,
           },
         },
-
         {
-          path: "shortlisted",
-          name: "shortlisted",
-          component: ShortlistView,
+          path: "shortlist-detail/:id",
+          name: "shortlist-detail",
+          component: ShortlistDetail,
           meta: {
-            title: "បញ្ជីសម្រាំង",
+            title: "ព័ត៌មានលម្អិតបញ្ជីសម្រាំង",
+            requiresAuth: true,
+          },
+        },
+        {
+          path: "/all-shortlist",
+          meta: {
+            requiresAuth: true,
+          },
+          children: [
+            {
+              path: "",
+              name: "",
+              component: ShortlistView,
+              meta: {
+                title: "បញ្ជីសម្រាំងទាំងអស់",
+                requiresAuth: true,
+              },
+            },
+            {
+              path: "passed",
+              name: "passed-shortlist",
+              component: PassedShortlistView,
+              meta: {
+                title: "បញ្ជីសម្រាំងជាប់",
+                requiresAuth: true,
+              },
+            },
+            {
+              path: "failed",
+              name: "failed-shortlist",
+              component: FailedShortlistView,
+              meta: {
+                title: "បញ្ជីសម្រាំងធ្លាក់",
+                requiresAuth: true,
+              },
+            },
+          ],
+        },
+        {
+          path: "/final-result-detail/:id",
+          name: "final-result-detail",
+          component: FinalResultDetail,
+          meta: {
+            title: "ព័ត៌មានលម្អិតលទ្ធផលចុងក្រោយ",
             requiresAuth: true,
           },
         },
@@ -166,13 +210,39 @@ const router = createRouter({
           },
         },
         {
-          path: "final-results",
-          name: "final-results",
-          component: FinalResultView,
+          path: "/final-results",
           meta: {
-            title: "លទ្ធផលចុងក្រោយ",
             requiresAuth: true,
           },
+          children: [
+            {
+              path: "",
+              name: "",
+              component: FinalResultView,
+              meta: {
+                title: "លទ្ធផលចុងក្រោយទាំងអស់",
+                requiresAuth: true,
+              },
+            },
+            {
+              path: "passed",
+              name: "passed-final-result",
+              component: () => import('@/views/pages/admin/final-results/PassedFinalResultView.vue'),
+              meta: {
+                title: "លទ្ធផលចុងក្រោយជាប់",
+                requiresAuth: true,
+              },
+            },
+            {
+              path: "reserve",
+              name: "reserved-final-result",
+              component: () => import('@/views/pages/admin/final-results/ReservedFinalResultView.vue'),
+              meta: {
+                title: "លទ្ធផលចុងក្រោយបម្រុង",
+                requiresAuth: true,
+              },
+            },
+          ]
         },
         {
           path: "student-lists",

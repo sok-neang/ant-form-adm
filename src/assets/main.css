@@ -698,13 +698,13 @@ textarea {
 
 
 .action-view {
-  color: #0d6efd;
-  background: #e7f1ff;
+  color: var(--bs-primary);
+  background: #92eed741;
 }
 
 .action-view:hover {
-  color: #0a58ca;
-  background: #d0e4ff;
+  color: #ffffff;
+  background: #51b897;
 }
 
 .action-restore {
@@ -1016,10 +1016,7 @@ textarea {
     text-align: left;
 }
 
-.submenu {
-    margin-left: 45px;
-    margin-top: 4px;
-}
+
 
 .submenu-link {
     display: block;
@@ -1047,13 +1044,13 @@ textarea {
     opacity: 0;
     margin-left: 45px;
     transition:
-        max-height 0.3s ease,
-        opacity 0.2s ease,
-        margin-top 0.3s ease;
+        max-height 0.4s cubic-bezier(0.25, 0.8, 0.25, 1),
+        opacity 0.4s cubic-bezier(0.25, 0.8, 0.25, 1),
+        margin-top 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
 .submenu-open {
-    max-height: 200px;
+    max-height: 400px;
     opacity: 1;
     margin-top: 4px;
 }

@@ -9,6 +9,7 @@
     @page-change="handlePageChange"
     >
     <template #search-filter>
+        <!-- search  -->
         <div class="search-box position-relative">
           <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
           <input 
@@ -21,15 +22,6 @@
         </div>
         <!-- Filters / Dropdown -->
         <div class="d-flex align-items-center gap-2">
-            <BaseSelect
-                v-model="selectedResultStatus"
-                :options="resultStatusOptions"
-                option-label="label"
-                option-value="value"
-                placeholder="ជ្រើសរើសស្ថានភាព"
-                :clearable="false"
-                style="width: 150px"
-            />
             <BaseSelect
                 v-model="selectedScoreLevel"
                 :options="scoreLevelOptions"
@@ -84,8 +76,39 @@
         {{ row.skill }}
       </span>
     </template>
+    <!-- Technology Score -->
      
-   
+    <template #cell-score_technology="{ row }">
+    <span
+        class="badge rounded-pill px-3 py-2"
+        :class="
+        row.score_technology < 50
+            ? 'score-fail'
+            : row.score_technology < 70
+            ? 'score-medium'
+            : 'score-good'
+        "
+    >
+        {{ row.score_technology }}
+    </span>
+    </template>
+
+    <!-- Attendance Score -->
+    <template #cell-score_attendance="{ row }">
+
+    <span
+        class="badge rounded-pill px-3 py-2"
+        :class="
+        row.score_attendance < 50
+            ? 'score-fail'
+            : row.score_attendance < 70
+            ? 'score-medium'
+            : 'score-good'
+        "
+    >
+        {{ row.score_attendance }}
+    </span>
+    </template>
     <!-- Total score  -->
     <template #cell-total_score="{ row }">
         <span
@@ -123,12 +146,12 @@ import { useRouter } from "vue-router";
 import BaseTable from "@/components/ui/base/BaseTable.vue";
 import BaseSelect from "@/components/ui/base/BaseSelect.vue";
 import BaseButton from "@/components/ui/base/BaseButton.vue";
-import {shiftOptions, specializationOptions, scoreLevelOptions, resultStatusOptions} from "@/constants/options"
-import { useFinalResult } from "@/composable/application/final result/useFinalResult";
+import { shiftOptions, specializationOptions, scoreLevelOptions } from "@/constants/options";
+import { usePassedShortlist } from "@/composable/application/short list/usePassedShortlist";
 
 const router = useRouter();
 
-const selectedResultStatus = ref("");
+// Filters
 const selectedScoreLevel = ref("");
 const selectedShift = ref("");
 const selectedSpecialization = ref("");
@@ -141,10 +164,10 @@ const {
   totalSubmissions,
   pagination,
   fetchSubmissions,
-} = useFinalResult();
+} = usePassedShortlist();
 
 const handleView = (row) => {
-  router.push(`/final-result-detail/${row.id}`);
+  router.push(`/shortlist-detail/${row.id}`);
 };
 
 const columns = [
@@ -154,6 +177,8 @@ const columns = [
   { key: "year", label: "និស្សិតឆ្នាំ" },
   { key: "skill", label: "ជំនាញ" },
   { key: "study_shift", label: "វេនសិក្សា" },
+  { key: "score_technology", label: "C++" },
+  { key: "score_attendance", label: "HMTL / Dart" },
   { key: "total_score", label: "ពិន្ទុសរុប" },
 ];
 
@@ -165,7 +190,6 @@ const loadSubmissions = async (page = 1) => {
   
   if (selectedShift.value) params.shift = selectedShift.value;
   if (selectedSpecialization.value) params.program = selectedSpecialization.value;
-  if (selectedResultStatus.value) params.status = selectedResultStatus.value;
   if (selectedScoreLevel.value) {
       if (selectedScoreLevel.value === "HIGH") {
           params.scoreSort = "highest";
@@ -192,7 +216,7 @@ watch(searchQuery, () => {
   }, 500);
 });
 
-watch([selectedShift, selectedSpecialization, selectedScoreLevel, selectedResultStatus], () => {
+watch([selectedShift, selectedSpecialization, selectedScoreLevel], () => {
   loadSubmissions(1);
 });
 

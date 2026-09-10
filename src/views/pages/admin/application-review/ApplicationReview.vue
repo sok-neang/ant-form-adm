@@ -24,7 +24,12 @@
 
 
     <!-- ================= SCROLL AREA ================= -->
-    <div class="review-scroll">
+    <div v-if="loading" class="d-flex justify-content-center align-items-center flex-grow-1" style="height: 400px;">
+      <div class="spinner-border text-success" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+    <div class="review-scroll" v-else-if="application">
 
       <!-- ================= PERSONAL INFORMATION ================= -->
       <div class="form-section">
@@ -36,80 +41,47 @@
 
       <!-- 1 -->
       <div class="question-card">
-        <div class="question">
-          1. លេខទូរសព្ទរបស់អ្នក
-        </div>
-
-        <div class="answer">
-          091 234 567
-        </div>
+        <div class="question">1. លេខទូរសព្ទរបស់អ្នក</div>
+        <div class="answer">{{ application?.student?.phone || application?.phoneNumber || '-' }}</div>
       </div>
 
       <!-- 2 -->
       <div class="question-card">
-        <div class="question">
-          2. Username Telegram
-        </div>
-
-        <div class="answer">
-          @neang_std
-        </div>
+        <div class="question">2. Username Telegram</div>
+        <div class="answer">{{ application?.student?.telegramUsername || application?.telegramUsername || '-' }}</div>
       </div>
 
       <!-- 3 -->
       <div class="question-card">
-        <div class="question">
-          3. អុីម៉ែលរបស់អ្នក
-        </div>
-
-        <div class="answer">
-          laysokneang@gmail.com
-        </div>
+        <div class="question">3. អុីម៉ែលរបស់អ្នក</div>
+        <div class="answer">{{ application?.student?.email || application?.email || '-' }}</div>
       </div>
 
       <!-- 4 -->
       <div class="question-card">
-        <div class="question">
-          4. ឈ្មោះជាភាសាខ្មែរ
-        </div>
-
-        <div class="answer">
-          ឡាយ សុខនាង
-        </div>
+        <div class="question">4. ឈ្មោះជាភាសាខ្មែរ</div>
+        <div class="answer">{{ application?.student?.khName || application?.khName || '-' }}</div>
       </div>
 
       <!-- 5 -->
       <div class="question-card">
-        <div class="question">
-          5. ឈ្មោះជាភាសាឡាតាំង
-        </div>
-
-        <div class="answer">
-          Lay Sokneang
-        </div>
+        <div class="question">5. ឈ្មោះជាភាសាឡាតាំង</div>
+        <div class="answer">{{ application?.student?.enName || application?.enName || '-' }}</div>
       </div>
 
       <!-- 6 -->
       <div class="question-card">
-        <div class="question">
-          6. ភេទ
-        </div>
-
+        <div class="question">6. ភេទ</div>
         <div class="selected-option">
           <i class="bi bi-check-circle-fill"></i>
-          ស្រី
+          {{ application?.student?.gender === 'MALE' ? 'ប្រុស' : (application?.student?.gender === 'FEMALE' ? 'ស្រី' : '-') }}
         </div>
       </div>
 
       <!-- 7 -->
       <div class="question-card">
-        <div class="question">
-          7. ថ្ងៃ ខែ ឆ្នាំកំណើត
-        </div>
-
-        <div class="answer">
-          08/08/2004
-        </div>
+        <div class="question">7. ថ្ងៃ ខែ ឆ្នាំកំណើត</div>
+        <div class="answer">{{ formatDate(application?.student?.dateOfBirth || application?.student?.dob || application?.dateOfBirth) }}</div>
       </div>
 
 
@@ -123,51 +95,33 @@
 
       <!-- 8 -->
       <div class="question-card">
-        <div class="question">
-          8. តើអ្នកកំពុងសិក្សានៅកម្រិតសញ្ញាបត្រណាដែរ?
-        </div>
-
+        <div class="question">8. តើអ្នកកំពុងសិក្សានៅកម្រិតសញ្ញាបត្រណាដែរ?</div>
         <div class="selected-option">
           <i class="bi bi-check-circle-fill"></i>
-          បរិញ្ញាបត្រ
+          {{ getEducationLevel(application?.educationLevel || application?.student?.educationLevel) }}
         </div>
       </div>
 
       <!-- 9 -->
       <div class="question-card">
-        <div class="question">
-          9. តើអ្នកកំពុងសិក្សានៅសាលាណាដែរ?
-        </div>
-
-        <div class="answer">
-          Royal University of Phnom Penh
-        </div>
+        <div class="question">9. តើអ្នកកំពុងសិក្សានៅសាលាណាដែរ?</div>
+        <div class="answer">{{ application?.student?.university?.name || application?.university || application?.student?.university || '-' }}</div>
       </div>
 
       <!-- 10 -->
       <div class="question-card">
-        <div class="question">
-          10. តើអ្នកកំពុងសិក្សាឆ្នាំទីប៉ុន្មាន?
-        </div>
-
-        <div class="answer">
-          ឆ្នាំទី 4
-        </div>
+        <div class="question">10. តើអ្នកកំពុងសិក្សាឆ្នាំទីប៉ុន្មាន?</div>
+        <div class="answer">{{ getYearOfStudy(application?.yearOfStudy || application?.student?.yearOfStudy) }}</div>
       </div>
 
       <!-- 11 -->
       <div class="question-card">
-        <div class="question">
-          11. តើអ្នកកំពុងសិក្សាឆមាសទីប៉ុន្មាន?
-        </div>
-
-        <div class="answer">
-          ឆមាសទី 2
-        </div>
+        <div class="question">11. តើអ្នកកំពុងសិក្សាឆមាសទីប៉ុន្មាន?</div>
+        <div class="answer">{{ getSemester(application?.semester || application?.student?.semester) }}</div>
       </div>
 
       <!-- 12 -->
-      <div class="question-card">
+      <div class="question-card" v-if="application?.studentIdCard || application?.student?.idCardUrl">
         <div class="question">
           12. ប្រសិនបើអ្នកពិតជាសិក្សាចាប់ពីឆ្នាំទី 3
           ឆមាសទី 2 ឡើងទៅ សូម Upload បណ្ណសម្គាល់ខ្លួននិស្សិត
@@ -181,27 +135,30 @@
 
           <div class="flex-grow-1">
             <div class="fw-semibold">
-              My_Photo_card.png
+              Student_Card
             </div>
-
             <small class="text-muted">
               Image file
             </small>
           </div>
 
-          <button
-            type="button"
+          <a
+            v-if="getTranscriptUrl()"
+            :href="getFileUrl(getTranscriptUrl())"
+            target="_blank"
             class="btn btn-sm btn-light"
           >
             <i class="bi bi-eye"></i>
-          </button>
+          </a>
 
-          <button
-            type="button"
+          <a
+            v-if="getTranscriptUrl()"
+            :href="getFileUrl(getTranscriptUrl())"
+            download
             class="btn btn-sm btn-light"
           >
             <i class="bi bi-download"></i>
-          </button>
+          </a>
         </div>
       </div>
 
@@ -216,93 +173,47 @@
 
       <!-- 13 -->
       <div class="question-card">
-        <div class="question">
-          13. សូមបំពេញទីលំនៅបច្ចុប្បន្ន
-        </div>
-
-        <div class="answer long-answer">
-          ភូមិព្រែកថ្មី ឃុំកោះចិន ស្រុកពញាឮ
-          ខេត្តកណ្តាល
-        </div>
+        <div class="question">13. សូមបំពេញទីលំនៅបច្ចុប្បន្ន</div>
+        <div class="answer long-answer">{{ application?.student?.currentAddress || application?.currentAddress || application?.address || '-' }}</div>
       </div>
 
       <!-- 14 -->
       <div class="question-card">
-        <div class="question">
-          14. តើអ្នកទទួលបានព័ត៌មានអាហារូបករណ៍
-          របស់យើងតាមរយៈអ្វីដែរ?
-        </div>
-
+        <div class="question">14. តើអ្នកទទួលបានព័ត៌មានអាហារូបករណ៍របស់យើងតាមរយៈអ្វីដែរ?</div>
         <div class="selected-option">
           <i class="bi bi-check-circle-fill"></i>
-          បណ្តាញសង្គម
+          {{ Array.isArray(application?.referralSource) ? application?.referralSource.join(', ') : application?.referralSource || '-' }}
         </div>
       </div>
 
       <!-- 15 -->
       <div class="question-card">
-        <div class="question">
-          15. តើអ្វីទៅជាភាពខ្លាំងរបស់អ្នក?
-        </div>
-
-        <div class="answer long-answer">
-          ខិតខំប្រឹងប្រែង និងមានការទទួលខុសត្រូវ
-          រៀនសូត្របានលឿន និងចូលចិត្តស្វែងយល់អ្វីថ្មី។
-        </div>
+        <div class="question">15. តើអ្វីទៅជាភាពខ្លាំងរបស់អ្នក?</div>
+        <div class="answer long-answer">{{ application?.narrative?.strengths || '-' }}</div>
       </div>
 
       <!-- 16 -->
       <div class="question-card">
-        <div class="question">
-          16. តើអ្វីទៅជាភាពខ្សោយរបស់អ្នក?
-        </div>
-
-        <div class="answer long-answer">
-          ពេលខ្លះខ្វះទំនុកចិត្តនៅពេលនិយាយមុខមនុស្សច្រើន
-          មានទំនោរចំណាយពេលច្រើនលើការធ្វើឱ្យការងារមានភាពល្អឥតខ្ចោះ
-          និងត្រូវការបង្កើនជំនាញក្នុងការគ្រប់គ្រងពេលវេលា។
-        </div>
+        <div class="question">16. តើអ្វីទៅជាភាពខ្សោយរបស់អ្នក?</div>
+        <div class="answer long-answer">{{ application?.narrative?.weaknesses || '-' }}</div>
       </div>
 
       <!-- 17 -->
       <div class="question-card">
-        <div class="question">
-          17. តើអ្វីដែលជាគោលបំណងក្នុងថ្ងៃអនាគតរបស់អ្នក?
-        </div>
-
-        <div class="answer long-answer">
-          ចង់ក្លាយជា Full Stack Developer
-          និងធ្វើការនៅក្នុងក្រុមហ៊ុនបច្ចេកវិទ្យា។
-        </div>
+        <div class="question">17. តើអ្វីដែលជាគោលបំណងក្នុងថ្ងៃអនាគតរបស់អ្នក?</div>
+        <div class="answer long-answer">{{ application?.narrative?.goals || '-' }}</div>
       </div>
 
       <!-- 18 -->
       <div class="question-card">
-        <div class="question">
-          18. មូលហេតុដែលអ្នកចង់ទទួលបានអាហារូបករណ៍
-          ពីថ្នាក់បណ្តុះបណ្តាលបច្ចេកវិទ្យាអាន-ANT
-        </div>
-
-        <div class="answer long-answer">
-          ខ្ញុំចង់បង្កើនចំណេះដឹង និងជំនាញផ្នែកបច្ចេកវិទ្យា
-          ដើម្បីអភិវឌ្ឍសមត្ថភាព និងមានឱកាសការងារល្អប្រសើរ
-          នាពេលអនាគត។
-        </div>
+        <div class="question">18. មូលហេតុដែលអ្នកចង់ទទួលបានអាហារូបករណ៍ពីថ្នាក់បណ្តុះបណ្តាលបច្ចេកវិទ្យាអាន-ANT</div>
+        <div class="answer long-answer">{{ application?.narrative?.opportunities || '-' }}</div>
       </div>
 
       <!-- 19 -->
       <div class="question-card">
-        <div class="question">
-          19. ចូររៀបរាប់ពីស្ថានភាពបច្ចុប្បន្នរបស់អ្នក
-        </div>
-
-        <div class="answer long-answer">
-          បច្ចុប្បន្ន ខ្ញុំកំពុងសិក្សានៅសាកលវិទ្យាល័យ
-          ផ្នែកវិទ្យាសាស្ត្រកុំព្យូទ័រ ហើយកំពុងខិតខំបង្កើន
-          ចំណេះដឹង និងជំនាញផ្នែកបច្ចេកវិទ្យា ជាពិសេស
-          ការអភិវឌ្ឍគេហទំព័រ។ ខ្ញុំក៏កំពុងស្វែងរកឱកាស
-          ដើម្បីទទួលបានបទពិសោធន៍ជាក់ស្តែង។
-        </div>
+        <div class="question">19. ចូររៀបរាប់ពីស្ថានភាពបច្ចុប្បន្នរបស់អ្នក</div>
+        <div class="answer long-answer">{{ application?.narrative?.familySituation || '-' }}</div>
       </div>
 
 
@@ -316,71 +227,42 @@
 
       <!-- 20 -->
       <div class="question-card">
-        <div class="question">
-          20. សូមជ្រើសរើសអាហារូបករណ៍ដែលអ្នកចង់ស្នើសុំ
-        </div>
-
+        <div class="question">20. សូមជ្រើសរើសអាហារូបករណ៍ដែលអ្នកចង់ស្នើសុំ</div>
         <div class="selected-option">
           <i class="bi bi-check-circle-fill"></i>
-          Web Development
+          {{ getProgram(application?.program) }}
         </div>
       </div>
 
       <!-- 21 -->
       <div class="question-card">
-        <div class="question">
-          21. សូមជ្រើសរើសម៉ោងសិក្សាដែលអ្នកចង់រៀន
-        </div>
-
+        <div class="question">21. សូមជ្រើសរើសម៉ោងសិក្សាដែលអ្នកចង់រៀន</div>
         <div class="selected-option">
           <i class="bi bi-check-circle-fill"></i>
-          វេនព្រឹក
+          {{ getShift(application?.shift) }}
         </div>
-
         <div class="schedule-text">
-          ចន្ទ ដល់ សៅរ៍ · 07:50 ដល់ 10:50
+          {{ application?.shift === 'MORNING' ? 'ចន្ទ ដល់ សៅរ៍ · 07:50 ដល់ 10:50' : 'ចន្ទ ដល់ សៅរ៍ · 14:00 ដល់ 17:00' }}
         </div>
       </div>
 
       <!-- 22 -->
       <div class="question-card">
-        <div class="question">
-          22. ហេតុអ្វីអ្នកចង់ជ្រើសរើសជំនាញខាងលើ?
-        </div>
-
-        <div class="answer long-answer">
-          ខ្ញុំចាប់អារម្មណ៍លើការអភិវឌ្ឍគេហទំព័រ
-          និងចង់រៀនពីការបង្កើត Web Application
-          ពីមូលដ្ឋានរហូតដល់កម្រិតអាចអនុវត្តបាន។
-        </div>
+        <div class="question">22. ហេតុអ្វីអ្នកចង់ជ្រើសរើសជំនាញខាងលើ?</div>
+        <div class="answer long-answer">{{ application?.narrative?.reason || '-' }}</div>
       </div>
 
       <!-- 23 -->
       <div class="question-card">
-        <div class="question">
-          23. Website ឬ App ដែលអ្នកចាប់អារម្មណ៍
-        </div>
-
-        <div class="answer">
-          TikTok, YouTube, Facebook, Instagram, LinkedIn
-        </div>
+        <div class="question">23. Website ឬ App ដែលអ្នកចាប់អារម្មណ៍</div>
+        <div class="answer">{{ application?.narrative?.webAppInterest || '-' }}</div>
       </div>
 
       <!-- 24 -->
       <div class="question-card">
-        <div class="question">
-          24. តើអាហារូបករណ៍នេះនឹងចូលរួមជាប្រយោជន៍
-          អ្វីខ្លះទៅដល់ប្រទេសរបស់យើង?
-        </div>
-
-        <div class="answer long-answer">
-          ខ្ញុំជឿជាក់ថា អាហារូបករណ៍នេះនឹងផ្តល់អត្ថប្រយោជន៍
-          យ៉ាងសំខាន់ដល់ខ្ញុំ និងប្រទេសកម្ពុជា ព្រោះវាផ្តល់
-          ឱកាសឱ្យយុវជនទទួលបានចំណេះដឹង និងជំនាញ
-          ផ្នែកបច្ចេកវិទ្យាឌីជីថល។
-        </div>
+        <div class="question">24. តើអាហារូបករណ៍នេះនឹងចូលរួមជាប្រយោជន៍អ្វីខ្លះទៅដល់ប្រទេសរបស់យើង?</div>
+        <div class="answer long-answer">{{ application?.narrative?.scholarshipVision || '-' }}</div>
       </div>
-
 
       <!-- ================= FILES ================= -->
       <div class="form-section">
@@ -391,11 +273,8 @@
       </div>
 
       <!-- 25 -->
-      <div class="question-card">
-        <div class="question">
-          25. សូម Upload រូបភាពទំហំ ៤x៦ ផ្ទៃពណ៌ខៀវ
-        </div>
-
+      <div class="question-card" v-if="getPhotoUrl()">
+        <div class="question">25. សូម Upload រូបភាពទំហំ ៤x៦ ផ្ទៃពណ៌ខៀវ</div>
         <div class="file-answer">
           <div class="file-icon">
             <i class="bi bi-image"></i>
@@ -403,27 +282,28 @@
 
           <div class="flex-grow-1">
             <div class="fw-semibold">
-              My_photo.png
+              Profile_Photo
             </div>
-
             <small class="text-muted">
               Image file
             </small>
           </div>
 
-          <button
-            type="button"
+          <a
+            :href="getFileUrl(getPhotoUrl())"
+            target="_blank"
             class="btn btn-sm btn-light"
           >
             <i class="bi bi-eye"></i>
-          </button>
+          </a>
 
-          <button
-            type="button"
+          <a
+            :href="getFileUrl(getPhotoUrl())"
+            download
             class="btn btn-sm btn-light"
           >
             <i class="bi bi-download"></i>
-          </button>
+          </a>
         </div>
       </div>
 
@@ -511,47 +391,177 @@
           type="button"
           class="btn blacklist-btn px-4"
           @click="handleBlacklist"
+          :disabled="isUpdating"
         >
           <i class="bi bi-person-x-fill me-2"></i>
           បញ្ជីខ្មៅ
         </button>
 
+        <!-- Reject -->
+        <button
+          type="button"
+          class="btn reject-btn px-4"
+          @click="handleReject"
+          :disabled="isUpdating"
+        >
+          <i class="bi bi-person-check-fill me-2"></i>
+          ធ្លាក់
+        </button>
+        
         <!-- Shortlist -->
         <button
           type="button"
           class="btn shortlist-btn px-4"
           @click="handleShortlist"
+          :disabled="isUpdating"
         >
           <i class="bi bi-person-check-fill me-2"></i>
-          ជ្រើសសម្រាំង
+          ជាប់
         </button>
 
       </div>
 
     </div>
 
+    <!-- ACTION MODAL -->
+    <BaseModal 
+      :show="showActionModal" 
+      :title="actionType === 'BLACKLIST' ? 'បញ្ជាក់បញ្ជីខ្មៅ (Blacklist)' : 'បញ្ជាក់ការធ្លាក់ (Reject)'" 
+      size="md" 
+      @close="showActionModal = false"
+    >
+      <div class="mb-3">
+        <label class="form-label">មូលហេតុ (Reason)</label>
+        <textarea v-model="actionReason" class="form-control shadow-none border-success-subtle" rows="3" placeholder="Optional reason..."></textarea>
+      </div>
+      <div class="mb-4">
+        <label class="form-label">កំណត់សម្គាល់ (Note)</label>
+        <textarea v-model="actionNote" class="form-control shadow-none border-success-subtle" rows="2" placeholder="Optional note..."></textarea>
+      </div>
+      <div class="d-flex justify-content-end gap-2">
+        <button type="button" class="btn btn-light px-4" @click="showActionModal = false">
+          បោះបង់
+        </button>
+        <button type="button" class="btn btn-success px-4" @click="submitActionModal" :disabled="isUpdating">
+          <span v-if="isUpdating" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+          បញ្ជូន
+        </button>
+      </div>
+    </BaseModal>
+
   </div>
 </template>
 
-
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
+import { useApplicationReview } from "@/composable/application/applicationReview/useApplicationReview";
+import BaseModal from "@/components/ui/base/BaseModal.vue";
 
 const router = useRouter();
+const { application, loading, isUpdating, fetchApplication, promoteStatus } = useApplicationReview();
 
-const loading = ref(false);
+const showActionModal = ref(false);
+const actionType = ref("");
+const actionReason = ref("");
+const actionNote = ref("");
+
+onMounted(() => {
+  fetchApplication();
+});
 
 const goBack = () => {
   router.back();
 };
 
 const handleBlacklist = () => {
-  console.log("Blacklist student");
+  actionType.value = "BLACKLIST";
+  actionReason.value = "";
+  actionNote.value = "";
+  showActionModal.value = true;
+};
+
+const handleReject = () => {
+  actionType.value = "FAILED_SHORTLIST";
+};
+
+const submitActionModal = async () => {
+  await promoteStatus(actionType.value, { 
+    reason: actionReason.value || undefined, 
+    note: actionNote.value || undefined 
+  });
+  if (!isUpdating.value) {
+    showActionModal.value = false;
+  }
 };
 
 const handleShortlist = () => {
-  console.log("Shortlist student");
+  promoteStatus("SHORTLIST");
+};
+
+// Helpers
+const getPhotoUrl = () => {
+  if (!application.value?.files) return '';
+  const photo = application.value.files.find(f => f.fileType === 'PHOTO');
+  return photo ? photo.fileUrl : '';
+};
+
+const getTranscriptUrl = () => {
+  if (!application.value?.files) return '';
+  const transcript = application.value.files.find(f => f.fileType === 'TRANSCRIPT' || f.fileType === 'STUDENT_CARD');
+  return transcript ? transcript.fileUrl : '';
+};
+
+const getFileUrl = (path) => {
+  if (!path) return '';
+  if (path.startsWith('http')) return path;
+  const baseUrl = import.meta.env.VITE_API_BASE_URL || '';
+  return `${baseUrl.replace(/\/$/, '')}/${path.replace(/^\//, '')}`;
+};
+
+const formatDate = (dateString) => {
+  if (!dateString) return '-';
+  const d = new Date(dateString);
+  if (isNaN(d.getTime())) return dateString;
+  const day = String(d.getDate()).padStart(2, "0");
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const year = d.getFullYear();
+  return `${day}/${month}/${year}`;
+};
+
+const getEducationLevel = (lvl) => {
+  if (lvl === "BACHELOR") return "បរិញ្ញាបត្រ";
+  if (lvl === "ASSOCIATE") return "បរិញ្ញាបត្ររង";
+  if (lvl === "HIGH_SCHOOL") return "មធ្យមសិក្សាទុតិយភូមិ";
+  if (lvl === "MASTER") return "អនុបណ្ឌិត";
+  return lvl || "-";
+};
+
+const getYearOfStudy = (y) => {
+  if (y === "YEAR_1") return "ឆ្នាំទី 1";
+  if (y === "YEAR_2") return "ឆ្នាំទី 2";
+  if (y === "YEAR_3") return "ឆ្នាំទី 3";
+  if (y === "YEAR_4") return "ឆ្នាំទី 4";
+  if (y === "YEAR_5") return "ឆ្នាំទី 5";
+  return y || "-";
+};
+
+const getSemester = (s) => {
+  if (s === "SEMESTER_1") return "ឆមាសទី 1";
+  if (s === "SEMESTER_2") return "ឆមាសទី 2";
+  return s || "-";
+};
+
+const getProgram = (p) => {
+  if (p === "MOBILE_APP") return "Mobile App";
+  if (p === "WEB_DEVELOPMENT") return "Web Development";
+  return p || "-";
+};
+
+const getShift = (s) => {
+  if (s === "MORNING") return "វេនព្រឹក";
+  if (s === "AFTERNOON") return "វេនរសៀល";
+  return s || "-";
 };
 </script>
 
@@ -892,15 +902,30 @@ const handleShortlist = () => {
 
 .shortlist-btn {
   color: #ffffff;
-
   background: #357867;
-
   border: 1px solid #357867;
 }
 
 .shortlist-btn:hover {
+  color: #ffffff;
   background: #2d6657;
 }
+
+
+/* Reject */
+
+.reject-btn {
+  color: #e53e3e;
+  border: 1px solid #e53e3e;
+  background: rgba(229, 62, 62, 0.05);
+}
+
+.reject-btn:hover {
+  color: #ffffff;
+
+  background: #e53e3e;
+}
+
 
 
 /* =========================================

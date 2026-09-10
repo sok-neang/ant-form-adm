@@ -6,13 +6,23 @@
     :pagination="pagination"
     :loading="loading"
     :show-actions="true"
+    @page-change="handlePageChange"
     >
     <template #search-filter>
-      <p class="">ចំនួនសិស្សក្នុងបញ្ជីខ្មៅសរុប <span class="text-danger fw-bold"> ១០ </span> នាក់</p>
+        <div class="search-box position-relative">
+          <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
+          <input 
+            type="text" 
+            v-model="searchQuery" 
+            class="form-control rounded-pill border-success ps-5" 
+            placeholder="Search" 
+            style="width: 250px;"
+          >
+        </div>
         <!-- Filters / Dropdown -->
         <div class="d-flex align-items-center gap-2">
            <BaseSelect
-           v-model="selectedRole"
+           v-model="selectedShift"
             :options="shiftOptions"
             option-label="label"
             option-value="value"
@@ -21,7 +31,7 @@
             style="width: 150px"
             />
           <BaseSelect
-           v-model="selectedStatus"
+           v-model="selectedSpecialization"
             :options="specializationOptions"
             option-label="label"
             option-value="value"
@@ -45,10 +55,10 @@
         {{ row.skill }}
       </span>
     </template>
-    <template #actions>
+    <template #actions="{ row }">
     <div class="d-flex justify-content-start align-items-center gap-2">
         <!-- VIEW -->
-          <button v-if="activeTab != 'login'"
+          <button
             type="button"
             class="btn action-btn action-view"
             title="មើលលម្អិត"
@@ -62,120 +72,73 @@
   </div>
 </template>
 <script setup>
-import { ref } from "vue";
+import { ref, watch, onMounted } from "vue";
+import { useRouter } from "vue-router";
 import BaseTable from "@/components/ui/base/BaseTable.vue";
 import BaseSelect from "@/components/ui/base/BaseSelect.vue";
 import BaseButton from "@/components/ui/base/BaseButton.vue";
-import {shiftOptions, specializationOptions} from "@/constants/options"
-const selectedRole = ref("");
-const selectedStatus = ref("");
+import { shiftOptions, specializationOptions } from "@/constants/options";
+import { useBlacklist } from "@/composable/application/blacklist/useBlacklist";
+
+const router = useRouter();
+
+const selectedShift = ref("");
+const selectedSpecialization = ref("");
+const searchQuery = ref("");
 const showCreateModal = ref(false);
 
+const {
+  loading,
+  students,
+  totalSubmissions,
+  pagination,
+  fetchSubmissions,
+} = useBlacklist();
+
+const handleView = (row) => {
+  router.push(`/application-review/${row.id}`);
+};
+
 const columns = [
-  {
-    key: "id",
-    label: "#",
-  },
-
-  {
-    key: "name",
-    label: "ឈ្មោះសិស្ស",
-  },
-  {
-    key: "gender",
-    label: "ភេទ",
-  },
-  {
-    key: "year",
-    label: "និស្សិតឆ្នាំ",
-  },
-  {
-    key: "skill",
-    label: "ជំនាញ",
-  },
-   {
-    key: "study_shift",
-    label: "វេនសិក្សា",
-  },
-   {
-    key: "created_at",
-    label: "បរិច្ឆេទ បញ្ជូន",
-  },
+  { key: "seq_num", label: "#" },
+  { key: "name", label: "ឈ្មោះសិស្ស" },
+  { key: "gender", label: "ភេទ" },
+  { key: "year", label: "និស្សិតឆ្នាំ" },
+  { key: "skill", label: "ជំនាញ" },
+  { key: "study_shift", label: "វេនសិក្សា" },
+  { key: "created_at", label: "បរិច្ឆេទ បញ្ជូន" },
 ];
 
-const students = [
-  {
-    id: 1,
-    name: "យឹម ស្រីយ៉ឺ",
-    gender: "ស្រី",
-    year: "ឆ្នាំទី 1",
-    skill: "Web Development",
-    study_shift: "វេនព្រឹក",
-    created_at: "21 សីហា 2026",
-  },
-  {
-    id: 2,
-    name: "សុខ ដារ៉ា",
-    gender: "ប្រុស",
-    year: "ឆ្នាំទី 2",
-    skill: "Mobile App",
-    study_shift: "វេនល្ងាច",
-    created_at: "20 សីហា 2026",
-  },
-  {
-    id: 3,
-    name: "ចាន់ វណ្ណា",
-    gender: "ប្រុស",
-    year: "ឆ្នាំទី 1",
-    skill: "Web Development",
-    study_shift: "វេនព្រឹក",
-    created_at: "19 សីហា 2026",
-  },
-  {
-    id: 4,
-    name: "លី សុភា",
-    gender: "ស្រី",
-    year: "ឆ្នាំទី 3",
-    skill: "Mobile App",
-    study_shift: "វេនល្ងាច",
-    created_at: "18 សីហា 2026",
-  },
-  {
-    id: 5,
-    name: "ហេង វិសាល",
-    gender: "ប្រុស",
-    year: "ឆ្នាំទី 2",
-    skill: "Web Development",
-    study_shift: "វេនព្រឹក",
-    created_at: "17 សីហា 2026",
-  },
-];
-const pagination = ref({
-  current_page: 1,
-  first_item: 1,
-  last_item: 10,
-  from: 1,
-  to: 10,
-  per_page: 10,
-  total: 25,
-  last_page: 3,
-  on_first_page: true,
-  has_more_pages: true,
+const loadSubmissions = async (page = 1) => {
+  const params = {
+    page,
+    limit: pagination.value.per_page,
+  };
+  
+  if (selectedShift.value) params.shift = selectedShift.value;
+  if (selectedSpecialization.value) params.program = selectedSpecialization.value;
+  if (searchQuery.value) params.search = searchQuery.value;
+
+  await fetchSubmissions(params);
+};
+
+const handlePageChange = (page) => {
+  loadSubmissions(page);
+};
+
+let searchTimeout;
+watch(searchQuery, () => {
+  clearTimeout(searchTimeout);
+  searchTimeout = setTimeout(() => {
+    loadSubmissions(1);
+  }, 500);
 });
-const statusOptions = [
-  {
-    value: "",
-    label: "ទាំងអស់",
-  },
-  {
-    value: "active",
-    label: "សកម្ម",
-  },
-  {
-    value: "inactive",
-    label: "អសកម្ម",
-  },
-];
 
-const loading = ref(false);
+watch([selectedShift, selectedSpecialization], () => {
+  loadSubmissions(1);
+});
+
+onMounted(() => {
+  loadSubmissions();
+});
 </script>
