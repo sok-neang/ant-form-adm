@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { ref, computed } from "vue";
+import { ref, computed, watch } from "vue";
 
 import authService from "@/services/auth.service";
 
@@ -8,7 +8,13 @@ import {
   getTwoFactorData,
   clearTwoFactorData,
   saveAuthData,
+  getAuthData,
 } from "@/utils/authStorage";
+import {
+  getAvatarUrl,
+  invalidateAvatarCache,
+  DEFAULT_AVATAR,
+} from "@/composable/useAvatar";
 
 export const useAuthStore = defineStore("auth", () => {
   const storedTwoFactorData = getTwoFactorData();
@@ -17,8 +23,10 @@ export const useAuthStore = defineStore("auth", () => {
   const qrCodeDataUri = ref(storedTwoFactorData.qrCodeDataUri || null);
   const totpSecret = ref(storedTwoFactorData.totpSecret || null);
 
-  const accessToken = ref(sessionStorage.getItem("accessToken") || "" );
-  const user = ref(null);
+  const initialAuth = getAuthData();
+  const accessToken = ref(initialAuth.accessToken || sessionStorage.getItem("accessToken") || "" );
+  const user = ref(initialAuth.user || null);
+  const userAvatarUrl = ref(DEFAULT_AVATAR);
   const loading = ref(false);
   const isUpdateProfileLoading = ref(false);
   const isUploadAvatarLoading = ref(false);
@@ -26,6 +34,22 @@ export const useAuthStore = defineStore("auth", () => {
   const isLogoutLoading = ref(false);
 
   const isAuthenticated = computed(() => {return !!accessToken.value;});
+
+  const loadUserAvatar = async () => {
+    if (user.value?.avatarPath) {
+      userAvatarUrl.value = await getAvatarUrl(user.value.avatarPath);
+    } else {
+      userAvatarUrl.value = DEFAULT_AVATAR;
+    }
+  };
+
+  watch(
+    () => user.value?.avatarPath,
+    () => {
+      loadUserAvatar();
+    },
+    { immediate: true }
+  );
 
   const login = async (credentials) => {
     loading.value = true;
@@ -159,10 +183,14 @@ export const useAuthStore = defineStore("auth", () => {
   const uploadAvatar = async (file) => {
     isUploadAvatarLoading.value = true;
     try {
+      const oldPath = user.value?.avatarPath;
       const response = await authService.uploadAvatar(file);
       const result = response.data;
       if (result.success) {
+        invalidateAvatarCache(oldPath);
+        invalidateAvatarCache(result.data?.avatarPath);
         user.value = result.data;
+        await loadUserAvatar();
         saveAuthData({
           accessToken: accessToken.value,
           user: user.value,
@@ -177,10 +205,13 @@ export const useAuthStore = defineStore("auth", () => {
   const deleteAvatar = async () => {
     isDeleteAvatarLoading.value = true;
     try {
+      const oldPath = user.value?.avatarPath;
       const response = await authService.deleteAvatar();
       const result = response.data;
       if (result.success) {
+        invalidateAvatarCache(oldPath);
         user.value = result.data;
+        await loadUserAvatar();
         saveAuthData({
           accessToken: accessToken.value,
           user: user.value,
@@ -206,6 +237,7 @@ export const useAuthStore = defineStore("auth", () => {
       // Clear frontend authentication state
       accessToken.value = "";
       user.value = null;
+      userAvatarUrl.value = DEFAULT_AVATAR;
 
       sessionStorage.removeItem("accessToken");
       sessionStorage.removeItem("user");
@@ -252,6 +284,7 @@ export const useAuthStore = defineStore("auth", () => {
   return {
     // Auth
     user,
+    userAvatarUrl,
     accessToken,
     isAuthenticated,
     loading,
@@ -270,6 +303,7 @@ export const useAuthStore = defineStore("auth", () => {
     updateProfile,
     uploadAvatar,
     deleteAvatar,
+    loadUserAvatar,
     logout,
 
     setTwoFactorData,

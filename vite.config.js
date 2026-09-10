@@ -22,6 +22,11 @@ export default defineConfig({
         changeOrigin: true,
         secure: false,
       },
+      '/uploads': {
+        target: 'https://ant-form-backend.g2.ant.com.kh',
+        changeOrigin: true,
+        secure: false,
+      },
     },
   },
 })

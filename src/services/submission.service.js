@@ -1,4 +1,5 @@
 import api from "@/api/axios";
+import avatarService from "@/services/avatar.service";
 
 const submissionService = {
 
@@ -49,6 +50,9 @@ const submissionService = {
     return api.get(`/submissions/blacklist`, { params });
   },
 
+  getFileBlob(path) {
+    return avatarService.getSubmissionFileBlob(path);
+  },
 };
 
 export default submissionService;

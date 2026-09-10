@@ -29,9 +29,9 @@
 
       <!-- BaseSelect Filters (Strictly 1 Row) -->
       <div class="filter-selects-container d-flex align-items-center gap-2 flex-nowrap flex-shrink-0">
-        <!-- Subject Filter -->
-        <BaseSelect v-model="filters.subject" :options="subjectOptions" option-label="label" option-value="value"
-          placeholder="ជ្រើសរើសមុខវិជ្ជា" :clearable="false" style="width: 140px;" @change="() => getEvaluations(1)" />
+        <!-- Evaluation Status Filter -->
+        <BaseSelect v-model="filters.evaluationStatus" :options="evaluationStatusOptions" option-label="label" option-value="value"
+          placeholder="ជ្រើសរើសស្ថានភាព" :clearable="false" style="width: 175px;" @change="() => getEvaluations(1)" />
 
         <!-- Specialization Filter -->
         <BaseSelect v-model="filters.skill" :options="specializationOptions" option-label="label" option-value="value"
@@ -185,7 +185,7 @@ import { useRouter } from "vue-router";
 import BaseSkeleton from "@/components/ui/base/BaseSkeleton.vue";
 import BaseSelect from "@/components/ui/base/BaseSelect.vue";
 import {
-  subjectOptions,
+  evaluationStatusOptions,
   specializationOptions,
   scoreLevelOptions,
   shiftOptions,
@@ -233,7 +233,7 @@ const handleAdd = (student) => {
 };
 
 onMounted(() => {
-  getEvaluations();
+  getEvaluations(1, true);
 });
 </script>
 

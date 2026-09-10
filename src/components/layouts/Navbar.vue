@@ -13,8 +13,8 @@
                 <button type="button" class="btn p-0 border-0 bg-transparent profile-btn" @click="toggleDropdown">
                     <div class="d-flex align-items-center gap-2">
                         <div class="profile-avatar position-relative">
-                            <img :src="getAvatarUrl(authStore.user?.avatarPath)" alt="Profile" width="40" height="40"
-                                class="rounded-circle border border-secondary object-fit-cover" @error="handleImageError" />
+                            <img :src="authStore.userAvatarUrl" alt="Profile" width="40" height="40"
+                                class="rounded-circle border border-secondary object-fit-cover" />
                             <span class="status-online"></span>
                         </div>
                         <div class="text-start">
@@ -33,8 +33,8 @@
                         <div class="d-flex align-items-center gap-3 px-2 py-2">
                             <!-- Avatar -->
                             <div class="flex-shrink-0">
-                                <img :src="getAvatarUrl(authStore.user?.avatarPath)" alt="Avatar" width="50" height="50"
-                                    class="rounded-2 object-fit-cover border" @error="handleImageError" />
+                                <img :src="authStore.userAvatarUrl" alt="Avatar" width="50" height="50"
+                                    class="rounded-2 object-fit-cover border" />
                             </div>
                             <!-- User Information -->
                             <div class="flex-grow-1 min-w-0">
