@@ -18,18 +18,9 @@
     <div v-else class="d-flex flex-column gap-4">
       <!-- 1. BANNER & PROFILE SUMMARY CARD -->
       <div class="card border-0 rounded-4 shadow-sm bg-white overflow-hidden profile-summary-card">
-        <!-- Curved Teal Gradient Banner -->
+        <!-- Curved Banner -->
         <div class="profile-banner position-relative">
-          <svg class="banner-wave" viewBox="0 0 1200 120" preserveAspectRatio="none">
-            <path
-              d="M0,0 C300,90 900,40 1200,80 L1200,120 L0,120 Z"
-              fill="rgba(255,255,255,0.08)"
-            />
-            <path
-              d="M0,0 C400,60 800,90 1200,40 L1200,120 L0,120 Z"
-              fill="rgba(255,255,255,0.05)"
-            />
-          </svg>
+          <img :src="Banner_Detail" alt="" class="w-100 object-fit-cover"/>
         </div>
 
         <div class="profile-body px-4 px-md-5 pb-4">
@@ -53,10 +44,10 @@
             </div>
           </div>
 
-          <!-- Specialization Badge -->
+          <!-- Dropout Status Badge -->
           <div class="mb-4">
-            <span class="badge rounded-pill px-3 py-2 fw-semibold" style="background-color: #e0f2f1; color: #009688; font-size: 0.85rem;">
-              ជម្រើសចុងក្រោយ
+            <span class="badge rounded-pill px-3 py-2 fw-semibold" style="background-color: #fef3c7; color: #d97706; font-size: 0.85rem;">
+              បោះបង់
             </span>
           </div>
 
@@ -140,7 +131,37 @@
         </div>
       </div>
 
-      <!-- 2. PERSONAL INFORMATION CARD -->
+      <!-- 2. REASON FOR DROPOUT CARD -->
+      <div class="card border-0 rounded-4 shadow-sm bg-white p-4">
+        <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+          <div class="d-flex align-items-center gap-2">
+            <div class="rounded-3 d-flex align-items-center justify-content-center">
+              <i class="bi bi-person-dash fs-5 text-warning"></i>
+            </div>
+            <h5 class="fw-bold text-dark mb-0">មូលហេតុនៃការបោះបង់</h5>
+          </div>
+          <span v-if="dropoutDate" class="text-muted small">
+            <i class="bi bi-calendar-event me-1"></i>{{ dropoutDate }}
+          </span>
+        </div>
+
+        <div class="rounded-4 p-4 dropout-reason-box">
+          <div class="d-flex align-items-start gap-3">
+            <div class="flex-grow-1">
+              <div class="fw-bold text-warning-emphasis mb-1">មូលហេតុ (Reason)</div>
+              <p class="mb-0 text-dark lh-base fs-6">
+                {{ dropoutReason || "មិនមានការបញ្ជាក់ពីមូលហេតុជាក់លាក់នោះទេ" }}
+              </p>
+              <div v-if="dropoutNote" class="mt-3 pt-3 border-top border-warning-subtle">
+                <span class="fw-semibold text-secondary small d-block mb-1">កំណត់ចំណាំបន្ថែម (Note):</span>
+                <span class="text-muted small">{{ dropoutNote }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. PERSONAL INFORMATION CARD -->
       <div class="card border-0 rounded-4 shadow-sm bg-white p-4">
         <div class="d-flex align-items-center gap-2 mb-3">
           <i class="bi bi-person fs-5 text-theme-green"></i>
@@ -191,7 +212,7 @@
         </div>
       </div>
 
-      <!-- 3. ADDRESS CARD -->
+      <!-- 4. ADDRESS CARD -->
       <div class="card border-0 rounded-4 shadow-sm bg-white p-4">
         <div class="d-flex align-items-center gap-2 mb-3">
           <i class="bi bi-geo-alt fs-5 text-theme-green"></i>
@@ -203,7 +224,7 @@
         </div>
       </div>
 
-      <!-- 4. ATTACHED DOCUMENTS CARD -->
+      <!-- 5. ATTACHED DOCUMENTS CARD -->
       <div v-if="submissionFiles.length > 0" class="card border-0 rounded-4 shadow-sm bg-white p-4">
         <div class="d-flex align-items-center gap-2 mb-3">
           <i class="bi bi-paperclip fs-5 text-theme-green"></i>
@@ -258,80 +279,76 @@
         </div>
       </div>
 
-      <!-- 4. SUBJECT EVALUATION CARDS -->
-      <div v-for="subject in subjectEvaluationCards" :key="subject.key" class="card border-0 rounded-4 shadow-sm bg-white p-4">
-        <!-- Subject Header -->
-        <div class="d-flex align-items-center gap-2 mb-4">
-          <!-- C++ Logo -->
-          <img
-            v-if="subject.logo === 'cpp'"
-            :src="cppLogo"
-            alt="C++ Logo"
-            width="28"
-            height="28"
-            class="object-fit-contain"
-          />
-          <!-- HTML & CSS Logo -->
-          <div v-else-if="subject.logo === 'html_css'" class="d-flex align-items-center gap-1">
-            <img :src="html5Logo" alt="HTML5" width="24" height="24" class="object-fit-contain" />
-            <img :src="css3Logo" alt="CSS3" width="24" height="24" class="object-fit-contain" />
+      <!-- 6. SUBJECT EVALUATION CARDS (IF EVALUATED) -->
+      <div v-if="evaluations.length > 0">
+        <div v-for="subject in subjectEvaluationCards" :key="subject.key" class="card border-0 rounded-4 shadow-sm bg-white p-4 mb-4">
+          <!-- Subject Header -->
+          <div class="d-flex align-items-center gap-2 mb-4">
+            <img
+              v-if="subject.logo === 'cpp'"
+              :src="cppLogo"
+              alt="C++ Logo"
+              width="28"
+              height="28"
+              class="object-fit-contain"
+            />
+            <div v-else-if="subject.logo === 'html_css'" class="d-flex align-items-center gap-1">
+              <img :src="html5Logo" alt="HTML5" width="24" height="24" class="object-fit-contain" />
+              <img :src="css3Logo" alt="CSS3" width="24" height="24" class="object-fit-contain" />
+            </div>
+            <img
+              v-else
+              :src="dartLogo"
+              alt="Dart Logo"
+              width="26"
+              height="26"
+              class="object-fit-contain"
+            />
+
+            <h5 class="fw-bold text-theme-green mb-0 ms-1">
+              លទ្ធផលវាយតម្លៃ
+            </h5>
           </div>
-          <!-- Dart Logo -->
-          <img
-            v-else
-            :src="dartLogo"
-            alt="Dart Logo"
-            width="26"
-            height="26"
-            class="object-fit-contain"
-          />
 
-          <h5 class="fw-bold text-theme-green mb-0 ms-1">
-            លទ្ធផលវាយតម្លៃ
-          </h5>
-        </div>
+          <!-- 3 Score Metric Boxes -->
+          <div class="row g-3 mb-4">
+            <div class="col-md-4">
+              <div class="score-box p-3 rounded-4 bg-light-soft text-center">
+                <span class="text-secondary small fw-medium d-block mb-1">Technical</span>
+                <span class="fs-4 fw-bold text-dark">
+                  {{ subject.eval?.technicalScore != null ? subject.eval.technicalScore : "N/A" }}
+                </span>
+              </div>
+            </div>
 
-        <!-- 3 Score Metric Boxes -->
-        <div class="row g-3 mb-4">
-          <!-- Technical Score -->
-          <div class="col-md-4">
-            <div class="score-box p-3 rounded-4 bg-light-soft text-center">
-              <span class="text-secondary small fw-medium d-block mb-1">Technical</span>
-              <span class="fs-4 fw-bold text-dark">
-                {{ subject.eval?.technicalScore != null ? subject.eval.technicalScore : "N/A" }}
-              </span>
+            <div class="col-md-4">
+              <div class="score-box p-3 rounded-4 bg-light-soft text-center">
+                <span class="text-secondary small fw-medium d-block mb-1">Attendance</span>
+                <span class="fs-4 fw-bold text-dark">
+                  {{ subject.eval?.attendanceScore != null ? subject.eval.attendanceScore : "N/A" }}
+                </span>
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              <div class="score-box p-3 rounded-4 bg-light-soft text-center">
+                <span class="text-secondary small fw-medium d-block mb-1">Average Score</span>
+                <span class="fs-4 fw-bold text-dark">
+                  {{ subject.eval?.averageScore != null ? Math.round(subject.eval.averageScore) : "N/A" }}
+                </span>
+              </div>
             </div>
           </div>
 
-          <!-- Attendance Score -->
-          <div class="col-md-4">
-            <div class="score-box p-3 rounded-4 bg-light-soft text-center">
-              <span class="text-secondary small fw-medium d-block mb-1">Attendance</span>
-              <span class="fs-4 fw-bold text-dark">
-                {{ subject.eval?.attendanceScore != null ? subject.eval.attendanceScore : "N/A" }}
-              </span>
+          <!-- Comment Box -->
+          <div>
+            <div class="d-flex align-items-center gap-2 mb-2">
+              <i class="bi bi-chat-left-text text-secondary"></i>
+              <span class="fw-bold text-dark small">មតិវាយតម្លៃ</span>
             </div>
-          </div>
-
-          <!-- Average Score -->
-          <div class="col-md-4">
-            <div class="score-box p-3 rounded-4 bg-light-soft text-center">
-              <span class="text-secondary small fw-medium d-block mb-1">Average Score</span>
-              <span class="fs-4 fw-bold text-dark">
-                {{ subject.eval?.averageScore != null ? Math.round(subject.eval.averageScore) : "N/A" }}
-              </span>
+            <div class="rounded-4 p-3 bg-light-soft text-muted lh-base small">
+              {{ subject.eval?.comment || "មិនទាន់មានការវាយតម្លៃនៅឡើយទេ" }}
             </div>
-          </div>
-        </div>
-
-        <!-- Comment Box -->
-        <div>
-          <div class="d-flex align-items-center gap-2 mb-2">
-            <i class="bi bi-chat-left-text text-secondary"></i>
-            <span class="fw-bold text-dark small">មតិវាយតម្លៃ</span>
-          </div>
-          <div class="rounded-4 p-3 bg-light-soft text-muted lh-base small">
-            {{ subject.eval?.comment || "មិនទាន់មានការវាយតម្លៃនៅឡើយទេ" }}
           </div>
         </div>
       </div>
@@ -350,94 +367,21 @@
         ត្រឡប់
       </button>
 
-      <div class="d-flex gap-2">
-        <button
-          type="button"
-          class="btn blacklist-btn px-4"
-          @click="openActionModal('BLACKLIST')"
-          :disabled="isUpdating"
-        >
-          <i class="bi bi-person-x-fill me-2"></i>
-          បញ្ជីខ្មៅ
-        </button>
-        <button
-          v-if="!isPassed && !isReserved"
-          type="button"
-          class="btn reject-btn px-4"
-          @click="openActionModal('FAIL')"
-          :disabled="isUpdating"
-        >
-          <i class="bi bi-person-x-fill me-2"></i>
-          ធ្លាក់
-        </button>
-        <button
-          type="button"
-          class="btn blacklist-btn px-4"
-          @click="openActionModal('DROPOUT')"
-          :disabled="isUpdating"
-        >
-          <i class="bi bi-person-x-fill me-2"></i>
-          បោះបង់
-        </button>
-        <button
-          v-if="!isReserved"
-          type="button"
-          class="btn text-white px-4"
-          style="background-color: #f59e0b; border-color: #f59e0b;"
-          @click="openActionModal('RESERVED')"
-          :disabled="isUpdating"
-        >
-          <i class="bi bi-person-lines-fill me-2"></i>
-          បម្រុង
-        </button>
-        <button
-          v-if="!isPassed"
-          type="button"
-          class="btn shortlist-btn px-4 text-white"
-          style="background-color: #357867;"
-          @click="handlePass"
-          :disabled="isUpdating"
-        >
-          <i class="bi bi-person-check-fill me-2"></i>
-          ជាប់
-        </button>
+      <div class="d-flex align-items-center gap-2">
+        <span class="badge bg-warning-subtle text-warning-emphasis px-3 py-2 rounded-pill">
+          <i class="bi bi-person-dash me-1"></i>សិស្សនេះបានបោះបង់
+        </span>
       </div>
     </div>
 
-    <!-- ACTION MODAL -->
-    <BaseModal 
-      :show="showActionModal" 
-      :title="actionModalTitle" 
-      size="md" 
-      @close="showActionModal = false"
-    >
-      <div class="mb-3">
-        <label class="form-label">មូលហេតុ (Reason)</label>
-        <textarea v-model="actionReason" class="form-control shadow-none border-success-subtle" rows="3" placeholder="Optional reason..."></textarea>
-      </div>
-      <div class="mb-4">
-        <label class="form-label">កំណត់សម្គាល់ (Note)</label>
-        <textarea v-model="actionNote" class="form-control shadow-none border-success-subtle" rows="2" placeholder="Optional note..."></textarea>
-      </div>
-      <div class="d-flex justify-content-end gap-2">
-        <button type="button" class="btn btn-light px-4" @click="showActionModal = false">
-          បោះបង់
-        </button>
-        <button type="button" class="btn btn-success px-4" @click="submitActionModal" :disabled="isUpdating">
-          <span v-if="isUpdating" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-          បញ្ជូន
-        </button>
-      </div>
-    </BaseModal>
-
-    <!-- Image Preview Modal -->
+    <!-- Teleport Full Image Preview Modal -->
     <Teleport to="body">
       <div
         v-if="previewImageUrl"
-        class="modal-backdrop-custom d-flex align-items-center justify-content-center p-3"
-        @click="closePreview"
+        class="modal-backdrop-custom d-flex align-items-center justify-content-center"
+        @click.self="closePreview"
       >
-        <div class="position-relative bg-white rounded-4 p-2 shadow-lg preview-box" @click.stop>
+        <div class="position-relative bg-white rounded-4 p-2 shadow-lg preview-box">
           <button
             type="button"
             class="btn-close position-absolute top-0 end-0 m-3 z-3 bg-white shadow-sm p-2 rounded-circle"
@@ -460,26 +404,23 @@
 import { ref, computed, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import BaseSkeleton from "@/components/ui/base/BaseSkeleton.vue";
-import BaseModal from "@/components/ui/base/BaseModal.vue";
 import evaluationService from "@/services/evaluation.service";
 import submissionService from "@/services/submission.service";
 import avatarService from "@/services/avatar.service";
 import { getSubmissionFileUrl } from "@/composable/useAvatar";
-import { useAppToast } from "@/composable/useAppToast";
 
 import cppLogo from "@/assets/images/teacher/cpp.svg";
 import dartLogo from "@/assets/images/teacher/dart.svg";
 import html5Logo from "@/assets/images/teacher/html5.svg";
 import css3Logo from "@/assets/images/teacher/css3.svg";
+import Banner_Detail from "@/assets/images/img/banner_detail.png";
 import defaultAvatar from "@/assets/images/img/default_avatar.png";
 
 const route = useRoute();
 const router = useRouter();
-const toast = useAppToast();
 const submissionId = route.params.id; 
 
 const loading = ref(true);
-const isUpdating = ref(false);
 const submission = ref(null);
 const student = ref(null);
 const evaluations = ref([]);
@@ -489,34 +430,6 @@ const studentAvatar = ref(defaultAvatar);
 const previewImageUrl = ref(null);
 const loadingFileId = ref(null);
 const downloadingFileId = ref(null);
-
-// Modal State
-const showActionModal = ref(false);
-const actionType = ref("");
-const actionReason = ref("");
-const actionNote = ref("");
-
-const actionModalTitle = computed(() => {
-  if (actionType.value === 'BLACKLIST') return 'បញ្ជាក់បញ្ជីខ្មៅ (Blacklist)';
-  if (actionType.value === 'DROPOUT') return 'បញ្ជាក់បោះបង់ (Dropout)';
-  if (actionType.value === 'FAIL') return 'បញ្ជាក់ការធ្លាក់ (Fail)';
-  if (actionType.value === 'RESERVED') return 'បញ្ជាក់បម្រុង (Reserve)';
-  return 'បញ្ជាក់';
-});
-
-const currentStatus = computed(() => {
-  return String(submission.value?.status || student.value?.status || "").toUpperCase();
-});
-
-const isPassed = computed(() => {
-  const s = currentStatus.value;
-  return s === "PASS" || s === "PASSED";
-});
-
-const isReserved = computed(() => {
-  const s = currentStatus.value;
-  return s === "RESERVE" || s === "RESERVED";
-});
 
 const fetchData = async () => {
   if (!submissionId) return;
@@ -565,7 +478,7 @@ const fetchData = async () => {
     student.value = finalStudent;
     evaluations.value = finalEvaluations;
 
-    // Load student photo from submission files or student profile with Bearer authentication
+    // Load student photo
     const photoFile = (finalSubmission.files || []).find(
       (f) => String(f.fileType).toUpperCase() === "PHOTO"
     );
@@ -769,13 +682,11 @@ const universityText = computed(() => {
 
 const yearOfStudyText = computed(() => {
   const y = submission.value?.yearOfStudy || student.value?.yearOfStudy;
-  if (!y) return "-";
-  if (y === "YEAR_1" || y === 1 || y === "1") return "1";
-  if (y === "YEAR_2" || y === 2 || y === "2") return "2";
-  if (y === "YEAR_3" || y === 3 || y === "3") return "3";
-  if (y === "YEAR_4" || y === 4 || y === "4") return "4";
-  if (y === "YEAR_5" || y === 5 || y === "5") return "5";
-  return String(y).replace(/^YEAR_?/i, "");
+  if (y === "YEAR_1") return "1";
+  if (y === "YEAR_2") return "2";
+  if (y === "YEAR_3") return "3";
+  if (y === "YEAR_4") return "4";
+  return y || "-";
 });
 
 const addressText = computed(() => {
@@ -785,6 +696,47 @@ const addressText = computed(() => {
     student.value?.permanentAddress ||
     "-"
   );
+});
+
+// Dropout reason & note
+const dropoutReason = computed(() => {
+  return (
+    submission.value?.dropoutReason ||
+    submission.value?.reason ||
+    submission.value?.statusReason ||
+    submission.value?.rejectReason ||
+    submission.value?.rejectionReason ||
+    submission.value?.dropout?.reason ||
+    submission.value?.narrative?.reason ||
+    submission.value?.comments ||
+    ""
+  );
+});
+
+const dropoutNote = computed(() => {
+  return (
+    submission.value?.dropoutNote ||
+    submission.value?.note ||
+    submission.value?.notes ||
+    submission.value?.dropout?.note ||
+    ""
+  );
+});
+
+const dropoutDate = computed(() => {
+  const d = submission.value?.dropoutAt || submission.value?.updatedAt || submission.value?.createdAt;
+  if (!d) return "";
+  try {
+    const dt = new Date(d);
+    if (isNaN(dt.getTime())) return d;
+    return dt.toLocaleDateString("km-KH", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  } catch {
+    return d;
+  }
 });
 
 // Subject evaluation cards based on program
@@ -824,47 +776,6 @@ const goBack = () => {
   router.back();
 };
 
-const openActionModal = (type) => {
-  actionType.value = type;
-  actionReason.value = "";
-  actionNote.value = "";
-  showActionModal.value = true;
-};
-
-const promoteStatus = async (status, payload = {}) => {
-  if (!submissionId) return;
-  isUpdating.value = true;
-  try {
-    const response = await submissionService.promoteStatus(submissionId, { status, ...payload });
-    if (response.data?.success || response.status === 200) {
-      toast.success("ស្ថានភាពត្រូវបានកែប្រែដោយជោគជ័យ");
-      if (submission.value) {
-        submission.value.status = status;
-      }
-      router.back();
-    }
-  } catch (error) {
-    console.error("Error updating status:", error);
-    toast.error("មានបញ្ហាក្នុងការកែប្រែស្ថានភាព");
-  } finally {
-    isUpdating.value = false;
-  }
-};
-
-const submitActionModal = async () => {
-  await promoteStatus(actionType.value, { 
-    reason: actionReason.value || undefined, 
-    note: actionNote.value || undefined 
-  });
-  if (!isUpdating.value) {
-    showActionModal.value = false;
-  }
-};
-
-const handlePass = () => {
-  promoteStatus("PASS");
-};
-
 onMounted(() => {
   fetchData();
 });
@@ -901,50 +812,12 @@ onMounted(() => {
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
-.blacklist-btn, .reject-btn {
-  color: #e53e3e;
-  border: 1px solid #e53e3e;
-  background: rgba(229, 62, 62, 0.05);
-}
-
-.blacklist-btn:hover, .reject-btn:hover {
-  color: #ffffff;
-  background: #e53e3e;
-}
-
-.shortlist-btn {
-  border: 1px solid #357867;
-}
-
-.shortlist-btn:hover {
-  background-color: #2e6658 !important;
-}
-
-.btn-back {
-  border-color: #e2e8f0;
-  transition: all 0.2s ease;
-  height: 38px;
-}
-
-.btn-back:hover {
-  background-color: #f1f5f9 !important;
-  color: #0f172a !important;
-}
-
 /* BANNER */
 .profile-banner {
   height: 150px;
   background: linear-gradient(135deg, #1b4d42 0%, #2e7d6b 60%, #3ba28b 100%);
   position: relative;
   overflow: hidden;
-}
-
-.banner-wave {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 60px;
 }
 
 /* AVATAR & ACTIONS */
@@ -975,6 +848,11 @@ onMounted(() => {
 
 .avatar-wrapper:hover .avatar-hover-overlay {
   opacity: 1;
+}
+
+.dropout-reason-box {
+  background-color: #fffbeb;
+  border: 1px solid #fef3c7;
 }
 
 /* MODAL PREVIEW */
@@ -1042,21 +920,18 @@ onMounted(() => {
   color: #2e7d6b !important;
 }
 
-.contact-link,
-.telegram-link {
+.contact-link {
   transition: all 0.2s ease;
   border-radius: 8px;
   padding: 2px 4px;
   margin: -2px -4px;
 }
 
-.contact-link:hover,
-.telegram-link:hover {
+.contact-link:hover {
   background-color: #e8f5f1;
 }
 
-.contact-link:hover .contact-val,
-.telegram-link:hover .telegram-username {
+.contact-link:hover .contact-val {
   color: #2e7d6b !important;
   text-decoration: underline;
 }

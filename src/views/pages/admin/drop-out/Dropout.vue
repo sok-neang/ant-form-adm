@@ -1,14 +1,14 @@
 <template>
   <div class="container-fluid">
     <BaseTable
-    :columns="columns"
-    :rows="students"
-    :pagination="pagination"
-    :loading="loading"
-    :show-actions="true"
-    @page-change="handlePageChange"
+      :columns="columns"
+      :rows="students"
+      :pagination="pagination"
+      :loading="loading"
+      :show-actions="true"
+      @page-change="handlePageChange"
     >
-    <template #search-filter>
+      <template #search-filter>
         <div class="search-box position-relative">
           <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
           <input 
@@ -21,43 +21,45 @@
         </div>
         <!-- Filters / Dropdown -->
         <div class="d-flex align-items-center gap-2">
-           <BaseSelect
-           v-model="selectedShift"
+          <BaseSelect
+            v-model="selectedShift"
             :options="shiftOptions"
             option-label="label"
             option-value="value"
             placeholder="ជ្រើសរើសពេល"
             :clearable="false"
             style="width: 150px"
-            />
+          />
           <BaseSelect
-           v-model="selectedSpecialization"
+            v-model="selectedSpecialization"
             :options="specializationOptions"
             option-label="label"
             option-value="value"
             placeholder="ជ្រើសរើសមុខជំនាញ"
             :clearable="false"
             style="width: 190px"
-            />
+          />
         </div>
-    </template>
-    <template #cell-skill="{ row }">
-      <span
-        class="badge rounded-pill px-3 py-2"
-        :style="{
-          color: row.skill === 'Web Development' ? '#357867' : '#6f42c1',
-          backgroundColor:
-            row.skill === 'Web Development'
-              ? 'rgba(53, 120, 103, 0.12)'
-              : 'rgba(111, 66, 193, 0.12)',
-        }"
-      >
-        {{ row.skill }}
-      </span>
-    </template>
-    <template #actions="{ row }">
-    <div class="d-flex justify-content-start align-items-center gap-2">
-        <!-- VIEW -->
+      </template>
+
+      <template #cell-skill="{ row }">
+        <span
+          class="badge rounded-pill px-3 py-2"
+          :style="{
+            color: row.skill === 'Web Development' ? '#357867' : '#6f42c1',
+            backgroundColor:
+              row.skill === 'Web Development'
+                ? 'rgba(53, 120, 103, 0.12)'
+                : 'rgba(111, 66, 193, 0.12)',
+          }"
+        >
+          {{ row.skill }}
+        </span>
+      </template>
+
+      <template #actions="{ row }">
+        <div class="d-flex justify-content-start align-items-center gap-2">
+          <!-- VIEW -->
           <button
             type="button"
             class="btn action-btn action-view"
@@ -66,26 +68,25 @@
           >
             <i class="bi bi-eye-fill"></i>
           </button>
-    </div>
-    </template>
+        </div>
+      </template>
     </BaseTable>
   </div>
 </template>
+
 <script setup>
 import { ref, watch, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import BaseTable from "@/components/ui/base/BaseTable.vue";
 import BaseSelect from "@/components/ui/base/BaseSelect.vue";
-import BaseButton from "@/components/ui/base/BaseButton.vue";
 import { shiftOptions, specializationOptions } from "@/constants/options";
-import { useBlacklist } from "@/composable/application/blacklist/useBlacklist";
+import { useDropout } from "@/composable/application/dropout/useDropout";
 
 const router = useRouter();
 
 const selectedShift = ref("");
 const selectedSpecialization = ref("");
 const searchQuery = ref("");
-const showCreateModal = ref(false);
 
 const {
   loading,
@@ -93,10 +94,10 @@ const {
   totalSubmissions,
   pagination,
   fetchSubmissions,
-} = useBlacklist();
+} = useDropout();
 
 const handleView = (row) => {
-  router.push(`/blacklist-detail/${row.id}`);
+  router.push(`/dropout-detail/${row.id}`);
 };
 
 const columns = [

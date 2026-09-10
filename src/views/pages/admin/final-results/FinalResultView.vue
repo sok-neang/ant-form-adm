@@ -128,8 +128,8 @@ import { useFinalResult } from "@/composable/application/final result/useFinalRe
 
 const router = useRouter();
 
-const selectedResultStatus = ref("");
-const selectedScoreLevel = ref("");
+const selectedResultStatus = ref("all");
+const selectedScoreLevel = ref("all");
 const selectedShift = ref("");
 const selectedSpecialization = ref("");
 const searchQuery = ref("");
@@ -165,15 +165,25 @@ const loadSubmissions = async (page = 1) => {
   
   if (selectedShift.value) params.shift = selectedShift.value;
   if (selectedSpecialization.value) params.program = selectedSpecialization.value;
-  if (selectedResultStatus.value) params.status = selectedResultStatus.value;
+  if (selectedResultStatus.value && selectedResultStatus.value !== "all") {
+    if (selectedResultStatus.value === "passed" || selectedResultStatus.value === "PASS") {
+      params.status = "PASS";
+    } else if (selectedResultStatus.value === "reserve" || selectedResultStatus.value === "RESERVED") {
+      params.status = "RESERVED";
+    } else {
+      params.status = selectedResultStatus.value;
+    }
+  }
   if (selectedScoreLevel.value) {
-      if (selectedScoreLevel.value === "HIGH") {
-          params.scoreSort = "highest";
-          params.score = "highest";
-      } else if (selectedScoreLevel.value === "LOW") {
-          params.scoreSort = "lowest";
-          params.score = "lowest";
-      }
+    if (selectedScoreLevel.value === "highest" || selectedScoreLevel.value === "HIGH") {
+      params.scoreSort = "highest";
+    } else if (selectedScoreLevel.value === "lowest" || selectedScoreLevel.value === "LOW") {
+      params.scoreSort = "lowest";
+    } else if (selectedScoreLevel.value === "all" || selectedScoreLevel.value === "ALL") {
+      params.scoreSort = "all";
+    } else {
+      params.scoreSort = selectedScoreLevel.value;
+    }
   }
   if (searchQuery.value) params.search = searchQuery.value;
 

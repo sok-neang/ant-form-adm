@@ -21,6 +21,9 @@ import ShortlistDetail from '@/views/pages/admin/shortlisted/shortlistDetail.vue
 import Blacklist from '@/views/pages/admin/blacklisted/Blacklist.vue';
 import FinalResultView from '@/views/pages/admin/final-results/FinalResultView.vue';
 import FinalResultDetail from '@/views/pages/admin/final-results/finalResultDetail.vue';
+import BlacklistDetail from '@/views/pages/admin/blacklisted/blacklistDetail.vue';
+import Dropout from '@/views/pages/admin/drop-out/Dropout.vue';
+import DropoutDetail from '@/views/pages/admin/drop-out/dropoutDetail.vue';
 
 import StudentView from '@/views/pages/Teacher/studentList/StudentView.vue';
 import ProfileView from '@/views/pages/profile/ProfileView.vue';
@@ -206,6 +209,33 @@ const router = createRouter({
           component: Blacklist,
           meta: {
             title: "បញ្ជីសម្រាំង",
+            requiresAuth: true,
+          },
+        },
+        {
+          path: "/blacklist-detail/:id",
+          name: "blacklist-detail",
+          component: BlacklistDetail,
+          meta: {
+            title: "ព័ត៌មានលម្អិតបញ្ជីខ្មៅ",
+            requiresAuth: true,
+          },
+        },
+        {
+          path: "/drop-out",
+          name: "drop-out",
+          component: Dropout,
+          meta: {
+            title: "សិស្សដែលបោះបង់",
+            requiresAuth: true,
+          },
+        },
+        {
+          path: "/dropout-detail/:id",
+          name: "dropout-detail",
+          component: DropoutDetail,
+          meta: {
+            title: "ព័ត៌មានលម្អិតសិស្សដែលបោះបង់",
             requiresAuth: true,
           },
         },

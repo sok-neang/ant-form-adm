@@ -119,7 +119,7 @@ import { useReservedFinalResult } from "@/composable/application/final result/us
 
 const router = useRouter();
 
-const selectedScoreLevel = ref("");
+const selectedScoreLevel = ref("all");
 const selectedShift = ref("");
 const selectedSpecialization = ref("");
 const searchQuery = ref("");
@@ -156,13 +156,15 @@ const loadSubmissions = async (page = 1) => {
   if (selectedShift.value) params.shift = selectedShift.value;
   if (selectedSpecialization.value) params.program = selectedSpecialization.value;
   if (selectedScoreLevel.value) {
-      if (selectedScoreLevel.value === "HIGH") {
-          params.scoreSort = "highest";
-          params.score = "highest";
-      } else if (selectedScoreLevel.value === "LOW") {
-          params.scoreSort = "lowest";
-          params.score = "lowest";
-      }
+    if (selectedScoreLevel.value === "highest" || selectedScoreLevel.value === "HIGH") {
+      params.scoreSort = "highest";
+    } else if (selectedScoreLevel.value === "lowest" || selectedScoreLevel.value === "LOW") {
+      params.scoreSort = "lowest";
+    } else if (selectedScoreLevel.value === "all" || selectedScoreLevel.value === "ALL") {
+      params.scoreSort = "all";
+    } else {
+      params.scoreSort = selectedScoreLevel.value;
+    }
   }
   if (searchQuery.value) params.search = searchQuery.value;
 

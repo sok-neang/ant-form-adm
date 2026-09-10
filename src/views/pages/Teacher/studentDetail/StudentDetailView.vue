@@ -476,7 +476,21 @@ const fetchData = async () => {
 };
 
 const submissionFiles = computed(() => {
-  return submission.value?.files || [];
+  return (submission.value?.files || []).filter((file) => {
+    const type = String(file.fileType || "").toUpperCase();
+    const name = String(file.originalFilename || "").toLowerCase();
+    const path = String(file.filePath || file.fileUrl || "").toLowerCase();
+    if (type === "CV" || type.includes("CV") || type === "RESUME" || type.includes("RESUME")) {
+      return false;
+    }
+    if (name.includes("cv") || name.includes("resume")) {
+      return false;
+    }
+    if (path.includes("/cv") || path.includes("_cv") || path.includes("resume")) {
+      return false;
+    }
+    return true;
+  });
 });
 
 const onAvatarError = (e) => {

@@ -12,7 +12,7 @@ export const useEvaluationList = () => {
   const filters = ref({
     evaluationStatus: "",
     skill: "",
-    score: "",
+    score: "all",
     shift: "",
   });
 

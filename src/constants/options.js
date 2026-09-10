@@ -77,23 +77,23 @@ export const specializationOptions = [
 ];
 
 export const resultStatusOptions = [
-    {
-    value: "",
+  {
+    value: "all",
     label: "ស្ថានភាពទាំងអស់",
   },
   {
-    value: "reserve",
+    value: "RESERVED",
     label: "បម្រុង",
   },
   {
-    value: "passed",
+    value: "PASS",
     label: "ជាប់",
   },
 ];
 
 export const scoreLevelOptions = [
   {
-    value: "",
+    value: "all",
     label: "ពិន្ទុទាំងអស់",
   },
   {

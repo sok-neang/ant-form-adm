@@ -181,6 +181,12 @@ const sidebarMenu = computed(() => {
             roles: ["ADMIN"],
         },
         {
+            label: "សិស្សដែលបោះបង់",
+            to: "/drop-out",
+            icon: "bi bi-person-dash",
+            roles: ["ADMIN"],
+        },
+        {
             label: "បញ្ជីសិស្ស",
             to: "/student-lists",
             icon: "bi bi-mortarboard-fill",

@@ -5,10 +5,10 @@ const submissionService = {
 
   //finale result 
   getAllFinalResult(params = {}){
-    return api.get("/submissions/final", { params });
+    return api.get("/submissions/passed", { params });
   },
   getPassFinalResult(params = {}){
-    return api.get("/submissions/passed", { params });
+    return api.get("/submissions/final", { params });
   },
   getReservedFinalResult(params = {}){
     return api.get("/submissions/reserved", { params });
@@ -49,6 +49,12 @@ const submissionService = {
   getAllBlacklist(params = {}){
     return api.get(`/submissions/blacklist`, { params });
   },
+
+  //drop out 
+  getAllDropOut(params = {}){
+    return api.get(`/submissions/dropout`, { params });
+  },
+  
 
   getFileBlob(path) {
     return avatarService.getSubmissionFileBlob(path);
