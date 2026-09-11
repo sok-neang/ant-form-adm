@@ -1029,40 +1029,103 @@ textarea {
     max-height: 0;
     overflow: hidden;
     opacity: 0;
-    margin-left: 45px;
+    margin-left: 20px;
+    padding-left: 10px;
+    border-left: 2px solid #e9ecef;
     transition:
-        max-height 0.4s cubic-bezier(0.25, 0.8, 0.25, 1),
-        opacity 0.4s cubic-bezier(0.25, 0.8, 0.25, 1),
-        margin-top 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+        max-height 0.35s cubic-bezier(0.25, 0.8, 0.25, 1),
+        opacity 0.3s cubic-bezier(0.25, 0.8, 0.25, 1),
+        margin-top 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
 .submenu-open {
     max-height: 400px;
     opacity: 1;
     margin-top: 4px;
+    margin-bottom: 6px;
 }
 
 .submenu-link {
-    display: block;
+    display: flex;
+    align-items: center;
+    gap: 8px;
     padding: 7px 12px;
     color: #6c757d;
     text-decoration: none;
     font-size: 13.5px;
     border-radius: 6px;
-    transition:
-        background-color 0.2s ease,
-        color 0.2s ease;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.submenu-icon {
+    width: 18px;
+    min-width: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    color: #8c98a4;
+    transition: color 0.2s ease;
+}
+
+.submenu-title {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .submenu-link:hover {
-    background: #f8f9fa;
-    color: #006e4c;
+    background: var(--bs-color-hover);
+    color: var(--bs-primary);
+}
+
+.submenu-link:hover .submenu-icon {
+    color: var(--bs-primary);
 }
 
 .submenu-link.active {
-    background: #e8f5f0;
-    color: #006e4c;
+    background: var(--bs-color-hover);
+    color: var(--bs-primary);
     font-weight: 600;
+}
+
+.submenu-link.active .submenu-icon {
+    color: var(--bs-primary);
+}
+
+/* Submenu in Collapsed Sidebar */
+.dashboard-sidebar.sidebar-collapsed .submenu {
+    margin-left: 0;
+    padding-left: 0;
+    border-left: none;
+    background: #f4f8f6;
+    border-radius: 8px;
+    padding: 4px 0;
+    margin: 4px 6px;
+}
+
+.dashboard-sidebar.sidebar-collapsed .submenu-link {
+    justify-content: center;
+    padding: 8px 0;
+    margin: 2px 0;
+    border-radius: 6px;
+}
+
+.dashboard-sidebar.sidebar-collapsed .submenu-title {
+    display: none;
+}
+
+.dashboard-sidebar.sidebar-collapsed .submenu-icon {
+    margin: 0;
+    width: 22px;
+    min-width: 22px;
+    font-size: 16px;
+    color: #6c757d;
+}
+
+.dashboard-sidebar.sidebar-collapsed .submenu-link:hover .submenu-icon,
+.dashboard-sidebar.sidebar-collapsed .submenu-link.active .submenu-icon {
+    color: var(--bs-primary);
 }
 @media (max-width: 991.98px) {
   .top-card {

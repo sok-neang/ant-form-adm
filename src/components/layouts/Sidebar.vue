@@ -23,10 +23,13 @@
                         </span>
                         <span v-show="layoutStore.isAsideOpen" class="menu-title">{{ item.label }}</span>
                     </RouterLink>
+
                     <!-- Dropdown menu -->
                     <div v-else class="menu-dropdown">
-                        <button type="button" class="menu-link dropdown-toggle-btn" :class="{ active: isItemActive(item) }"
-                            :title="!layoutStore.isAsideOpen ? item.label : ''" @click="toggleDropdown(item.label)">
+                        <button type="button" class="menu-link dropdown-toggle-btn"
+                            :class="{ active: isItemActive(item) }"
+                            :title="!layoutStore.isAsideOpen ? item.label : ''" 
+                            @click="toggleDropdown(item.label)">
                             <span class="menu-icon">
                                 <i :class="item.icon"></i>
                             </span>
@@ -42,8 +45,14 @@
 
                         <div class="submenu" :class="{ 'submenu-open': openDropdownMenu === item.label }">
                             <RouterLink v-for="child in item.children" :key="child.label" :to="child.to"
-                                class="submenu-link" :class="{ active: isChildActive(child, item) }">
-                                {{ child.label }}
+                                class="submenu-link" :class="{ active: isChildActive(child, item) }"
+                                :title="!layoutStore.isAsideOpen ? child.label : ''">
+                                <span class="submenu-icon">
+                                    <i :class="child.icon"></i>
+                                </span>
+                                <span v-show="layoutStore.isAsideOpen" class="submenu-title">
+                                    {{ child.label }}
+                                </span>
                             </RouterLink>
                         </div>
                     </div>
@@ -269,14 +278,17 @@ const sidebarMenu = computed(() => {
                 {
                     label: "ទាំងអស់",
                     to: "/all-application",
-                },
-                {
-                    label: "ធ្លាក់",
-                    to: "/all-application/failed",
+                    icon: "bi bi-files",
                 },
                 {
                     label: "ជាប់",
                     to: "/all-application/passed",
+                    icon: "bi bi-file-earmark-check",
+                },
+                {
+                    label: "ធ្លាក់",
+                    to: "/all-application/failed",
+                    icon: "bi bi-file-earmark-x",
                 },
             ],
         },
@@ -289,14 +301,17 @@ const sidebarMenu = computed(() => {
                 {
                     label: "ទាំងអស់",
                     to: "/all-shortlist",
-                },
-                {
-                    label: "ធ្លាក់",
-                    to: "/all-shortlist/failed",
+                    icon: "bi bi-people",
                 },
                 {
                     label: "ជាប់",
                     to: "/all-shortlist/passed",
+                    icon: "bi bi-person-check-fill",
+                },
+                {
+                    label: "ធ្លាក់",
+                    to: "/all-shortlist/failed",
+                    icon: "bi bi-person-x-fill",
                 },
             ],
         },
@@ -309,15 +324,18 @@ const sidebarMenu = computed(() => {
                 {
                     label: "ទាំងអស់",
                     to: "/final-results",
-                },
-                {
-                    label: "បម្រុង",
-                    to: "/final-results/reserve",
+                    icon: "bi bi-award",
                 },
                 {
                     label: "ជាប់",
                     to: "/final-results/passed",
-                }
+                    icon: "bi bi-patch-check",
+                },
+                {
+                    label: "បម្រុង",
+                    to: "/final-results/reserve",
+                    icon: "bi bi-bookmark-star",
+                },
             ],
         },
         {
