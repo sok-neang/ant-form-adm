@@ -77,12 +77,9 @@
                   <p class="text-muted mb-0">
                     មិនអាចរកឃើញទិន្នន័យដែលអ្នកកំពុងស្វែងរកទេ។
                   </p>
-
                 </div>
-
               </td>
             </tr>
-
           </tbody>
 
 
@@ -111,14 +108,9 @@
               <td class="text-start" v-if="showActions">
                 <slot name="actions" :row="row"></slot>
               </td>
-
             </tr>
-
           </tbody>
-
         </table>
-
-
     </div>
 
 

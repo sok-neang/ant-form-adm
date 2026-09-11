@@ -97,7 +97,7 @@ export function useFailedShortlist() {
             score_technology: score_technology ? parseFloat(score_technology).toFixed(2) : "0.00",
             score_attendance: score_attendance ? parseFloat(score_attendance).toFixed(2) : "0.00",
             total_score: sub.overallAverageScore ? parseFloat(sub.overallAverageScore).toFixed(2) : "0.00",
-            created_at: new Date(sub.createdAt).toLocaleDateString("km-KH"),
+            created_at: new Date(sub.submittedAt).toLocaleDateString("km-KH"),
           };
         });
       }

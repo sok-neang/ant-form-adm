@@ -14,7 +14,6 @@ const avatarService = {
       throw new Error("Avatar path is required");
     }
 
-    // Extract filename if full path or URL was passed
     let filename = path;
     if (filename.includes("/")) {
       filename = filename.split("/").pop();
@@ -32,7 +31,7 @@ const avatarService = {
       try {
         const origin = new URL(envBase).origin;
         uploadUrl = `${origin}/uploads/avatars/${encodeURIComponent(filename)}`;
-      } catch (_) {}
+      } catch (_) { }
     }
 
     // Request via Axios with baseURL: "" so it hits the uploadUrl directly
@@ -67,7 +66,7 @@ const avatarService = {
       try {
         const origin = new URL(envBase).origin;
         uploadUrl = `${origin}/uploads/submissions/${encodeURIComponent(filename)}`;
-      } catch (_) {}
+      } catch (_) { }
     }
 
     const response = await api.get(uploadUrl, {

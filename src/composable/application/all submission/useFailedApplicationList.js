@@ -80,7 +80,7 @@ export function useFailedApplicationList() {
             year: yearMap[sub.yearOfStudy] || sub.yearOfStudy || "N/A",
             skill: programMap[sub.program] || sub.program || "N/A",
             study_shift: shiftMap[sub.shift] || sub.shift || "N/A",
-            created_at: new Date(sub.createdAt).toLocaleDateString("km-KH"),
+            created_at: new Date(sub.submittedAt).toLocaleDateString("km-KH"),
           };
         });
       }

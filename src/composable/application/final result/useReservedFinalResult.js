@@ -81,7 +81,7 @@ export function useReservedFinalResult() {
             skill: programMap[sub.program] || sub.program || "N/A",
             study_shift: shiftMap[sub.shift] || sub.shift || "N/A",
             total_score: sub.overallAverageScore ? parseFloat(sub.overallAverageScore).toFixed(2) : "0.00",
-            created_at: new Date(sub.createdAt).toLocaleDateString("km-KH"),
+            created_at: new Date(sub.submittedAt).toLocaleDateString("km-KH"),
           };
         });
       }

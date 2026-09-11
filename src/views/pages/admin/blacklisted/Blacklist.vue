@@ -60,11 +60,11 @@
         <!-- VIEW -->
           <button
             type="button"
-            class="btn action-btn action-view"
+            class="btn btn-action-outline action-btn action-view"
             title="មើលលម្អិត"
             @click="handleView(row)"
           >
-            <i class="bi bi-eye-fill"></i>
+            <i class="bi bi-eye"></i>
           </button>
     </div>
     </template>

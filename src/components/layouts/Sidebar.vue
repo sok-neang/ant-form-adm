@@ -16,7 +16,7 @@
                 <div v-for="item in sidebarMenu" :key="item.label" class="menu-item">
 
                     <!-- Normal menu -->
-                    <RouterLink v-if="!item.children" :to="item.to" class="menu-link" exact-active-class="active"
+                    <RouterLink v-if="!item.children" :to="item.to" class="menu-link" :class="{ active: isItemActive(item) }"
                         :title="!layoutStore.isAsideOpen ? item.label : ''">
                         <span class="menu-icon">
                             <i :class="item.icon"></i>
@@ -25,7 +25,7 @@
                     </RouterLink>
                     <!-- Dropdown menu -->
                     <div v-else class="menu-dropdown">
-                        <button type="button" class="menu-link dropdown-toggle-btn"
+                        <button type="button" class="menu-link dropdown-toggle-btn" :class="{ active: isItemActive(item) }"
                             :title="!layoutStore.isAsideOpen ? item.label : ''" @click="toggleDropdown(item.label)">
                             <span class="menu-icon">
                                 <i :class="item.icon"></i>
@@ -42,7 +42,7 @@
 
                         <div class="submenu" :class="{ 'submenu-open': openDropdownMenu === item.label }">
                             <RouterLink v-for="child in item.children" :key="child.label" :to="child.to"
-                                class="submenu-link" exact-active-class="active">
+                                class="submenu-link" :class="{ active: isChildActive(child, item) }">
                                 {{ child.label }}
                             </RouterLink>
                         </div>
@@ -50,20 +50,22 @@
                 </div>
             </nav>
         </div>
-        <div ref="dropdownRef" class="pb-3">
+        <div ref="dropdownRef" class="sidebar-bottom-section" :class="{ 'img-collapsed': !!openDropdownMenu }" v-show="layoutStore.isAsideOpen">
             <!-- images -->
             <div class="img-sidebar text-center px-3">
-                <img src="/src/assets/images/img/sidebar.png" alt="Sidebar" class="img-fluid rounded-3" />
+                <img src="/src/assets/images/img/sidebar.png" alt="Sidebar" class="img-fluid rounded-3 sidebar-illustration" />
             </div>
         </div>
     </aside>
 </template>
 
 <script setup>
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
+import { useRoute } from "vue-router";
 import { useLayoutStore } from "@/stores/layout";
 import { useAuthStore } from "@/stores/useAuthStore";
 
+const route = useRoute();
 const layoutStore = useLayoutStore();
 const authStore = useAuthStore();
 
@@ -72,6 +74,150 @@ const openDropdownMenu = ref(null);
 const toggleDropdown = (label) => {
     openDropdownMenu.value = openDropdownMenu.value === label ? null : label;
 };
+
+const isItemActive = (item) => {
+    const currentPath = route.path;
+    const currentName = route.name;
+
+    // Dropdown items
+    if (item.children) {
+        if (item.label === "បញ្ជីអ្នកដាក់ពាក្យ") {
+            return (
+                currentPath.startsWith("/all-application") ||
+                currentPath.startsWith("/application-review") ||
+                currentName === "application-review"
+            );
+        }
+        if (item.label === "បញ្ជីសម្រាំង") {
+            return (
+                currentPath.startsWith("/all-shortlist") ||
+                currentPath.startsWith("/shortlist-detail") ||
+                currentName === "shortlist-detail"
+            );
+        }
+        if (item.label === "លទ្ធផលចុងក្រោយ") {
+            return (
+                currentPath.startsWith("/final-results") ||
+                currentPath.startsWith("/final-result-detail") ||
+                currentName === "final-result-detail"
+            );
+        }
+        return item.children.some((child) => currentPath === child.to);
+    }
+
+    // Normal items
+    if (item.to === "/") {
+        return currentPath === "/" || currentName === "dashboard";
+    }
+    if (item.to === "/blacklisted") {
+        return (
+            currentPath.startsWith("/blacklisted") ||
+            currentPath.startsWith("/blacklist-detail") ||
+            currentName === "blacklist-detail" ||
+            currentName === "blacklisted"
+        );
+    }
+    if (item.to === "/drop-out") {
+        return (
+            currentPath.startsWith("/drop-out") ||
+            currentPath.startsWith("/dropout-detail") ||
+            currentName === "dropout-detail" ||
+            currentName === "drop-out"
+        );
+    }
+    if (item.to === "/student-lists") {
+        return (
+            currentPath.startsWith("/student-lists") ||
+            currentName === "student-lists" ||
+            currentName === "student-detail" ||
+            currentName === "student-evaluation"
+        );
+    }
+
+    return currentPath === item.to || currentPath.startsWith(item.to);
+};
+
+const isChildActive = (child, parentItem) => {
+    const currentPath = route.path;
+    const currentName = route.name;
+    const fromQuery = route.query?.from;
+
+    // Normal exact match
+    if (currentPath === child.to) {
+        return true;
+    }
+
+    // Detail page: Application Review
+    if (
+        currentPath.startsWith("/application-review") ||
+        currentName === "application-review"
+    ) {
+        if (parentItem.label === "បញ្ជីអ្នកដាក់ពាក្យ") {
+            if (fromQuery === "passed") return child.to === "/all-application/passed";
+            if (fromQuery === "failed") return child.to === "/all-application/failed";
+            return child.to === "/all-application";
+        }
+    }
+
+    // Detail page: Shortlist Detail
+    if (
+        currentPath.startsWith("/shortlist-detail") ||
+        currentName === "shortlist-detail"
+    ) {
+        if (parentItem.label === "បញ្ជីសម្រាំង") {
+            if (fromQuery === "passed") return child.to === "/all-shortlist/passed";
+            if (fromQuery === "failed") return child.to === "/all-shortlist/failed";
+            return child.to === "/all-shortlist";
+        }
+    }
+
+    // Detail page: Final Result Detail
+    if (
+        currentPath.startsWith("/final-result-detail") ||
+        currentName === "final-result-detail"
+    ) {
+        if (parentItem.label === "លទ្ធផលចុងក្រោយ") {
+            if (fromQuery === "passed") return child.to === "/final-results/passed";
+            if (fromQuery === "reserve") return child.to === "/final-results/reserve";
+            return child.to === "/final-results";
+        }
+    }
+
+    return false;
+};
+
+const syncOpenDropdown = () => {
+    const currentPath = route.path;
+    const currentName = route.name;
+
+    if (
+        currentPath.startsWith("/all-application") ||
+        currentPath.startsWith("/application-review") ||
+        currentName === "application-review"
+    ) {
+        openDropdownMenu.value = "បញ្ជីអ្នកដាក់ពាក្យ";
+    } else if (
+        currentPath.startsWith("/all-shortlist") ||
+        currentPath.startsWith("/shortlist-detail") ||
+        currentName === "shortlist-detail"
+    ) {
+        openDropdownMenu.value = "បញ្ជីសម្រាំង";
+    } else if (
+        currentPath.startsWith("/final-results") ||
+        currentPath.startsWith("/final-result-detail") ||
+        currentName === "final-result-detail"
+    ) {
+        openDropdownMenu.value = "លទ្ធផលចុងក្រោយ";
+    }
+};
+
+watch(
+    () => route.fullPath,
+    () => {
+        syncOpenDropdown();
+    },
+    { immediate: true }
+);
 
 const isSidebarOpen = computed(() => {
     if (typeof window !== "undefined" && window.innerWidth < 992) {
@@ -125,12 +271,12 @@ const sidebarMenu = computed(() => {
                     to: "/all-application",
                 },
                 {
-                    label: "ជាប់",
-                    to: "/all-application/passed",
-                },
-                {
                     label: "ធ្លាក់",
                     to: "/all-application/failed",
+                },
+                {
+                    label: "ជាប់",
+                    to: "/all-application/passed",
                 },
             ],
         },
@@ -145,12 +291,12 @@ const sidebarMenu = computed(() => {
                     to: "/all-shortlist",
                 },
                 {
-                    label: "ជាប់",
-                    to: "/all-shortlist/passed",
-                },
-                {
                     label: "ធ្លាក់",
                     to: "/all-shortlist/failed",
+                },
+                {
+                    label: "ជាប់",
+                    to: "/all-shortlist/passed",
                 },
             ],
         },
@@ -165,13 +311,13 @@ const sidebarMenu = computed(() => {
                     to: "/final-results",
                 },
                 {
-                    label: "ជាប់",
-                    to: "/final-results/passed",
-                },
-                {
                     label: "បម្រុង",
                     to: "/final-results/reserve",
                 },
+                {
+                    label: "ជាប់",
+                    to: "/final-results/passed",
+                }
             ],
         },
         {
@@ -200,4 +346,26 @@ const sidebarMenu = computed(() => {
     });
 });
 </script>
-<style scoped></style>
+
+<style scoped>
+.sidebar-illustration {
+    max-height: 200px;
+    width: auto;
+    object-fit: contain;
+    transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1), transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar-bottom-section {
+    padding-bottom: 12px;
+    transition: padding 0.35s ease;
+}
+
+.sidebar-bottom-section.img-collapsed {
+    padding-bottom: 4px;
+}
+
+.sidebar-bottom-section.img-collapsed .sidebar-illustration {
+    max-height: 160px;
+    transform: scale(0.95);
+}
+</style>

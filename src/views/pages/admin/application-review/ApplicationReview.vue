@@ -2,23 +2,32 @@
   <div class="review-container">
 
     <!-- ================= HEADER ================= -->
-    <div class="form-header-card">
-      <div class="d-flex align-items-center gap-3">
+    <div
+      class="form-header-card position-relative overflow-hidden"
+      :class="{ 'banner-blacklist-theme': isBlacklisted }"
+      :style="{
+        backgroundImage: `url(${computedBannerBg})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center right',
+        backgroundRepeat: 'no-repeat'
+      }"
+    >
+      <div class="d-flex align-items-center justify-content-between position-relative z-1">
+        <div class="d-flex align-items-center gap-3 gap-md-4 min-w-0">
+          <div class="header-icon">
+            <i class="bi bi-file-earmark-text-fill"></i>
+          </div>
 
-        <div class="header-icon">
-          <i class="bi bi-file-earmark-text-fill"></i>
+          <div class="min-w-0">
+            <h4 class="fw-bold mb-1 banner-title text-truncate">
+              ព័ត៌មានពាក្យស្នើសុំអាហារូបករណ៍
+            </h4>
+
+            <p class="mb-0 banner-subtitle text-truncate">
+              ពិនិត្យព័ត៌មានរបស់អ្នកមុនបញ្ជូនយល់ព្រមជ្រើសរើស
+            </p>
+          </div>
         </div>
-
-        <div>
-          <h4 class="fw-bold mb-1">
-            ព័ត៌មានពាក្យស្នើសុំអាហារូបករណ៍
-          </h4>
-
-          <p class="text-muted mb-0 small">
-            ពិនិត្យព័ត៌មានដែលបានបំពេញដោយសិស្ស
-          </p>
-        </div>
-
       </div>
     </div>
 
@@ -33,10 +42,22 @@
 
       <!-- ================= PERSONAL INFORMATION ================= -->
       <div class="form-section">
-        <div class="section-header">
-          <i class="bi bi-person-fill"></i>
-          <span>ព័ត៌មានផ្ទាល់ខ្លួន</span>
+        <div class="d-flex align-items-center justify-content-between mb-2">
+          <div class="d-flex align-items-center gap-3">
+            <div class="section-icon-circle applicant-badge">
+              <i class="bi bi-person-fill"></i>
+            </div>
+            <div>
+              <h5 class="fw-bold mb-0 text-dark">ព័ត៌មានផ្ទាល់ខ្លួន</h5>
+              <span class="section-subtitle">Student Information</span>
+            </div>
+          </div>
+          <span class="badge rounded-pill applicant-badge">
+            <i class="bi bi-mortarboard-fill me-1"></i> 
+             {{ getProgram(application?.program) }}
+          </span>
         </div>
+        <div class="section-line"></div>
       </div>
 
       <!-- 1 -->
@@ -87,10 +108,16 @@
 
       <!-- ================= EDUCATION ================= -->
       <div class="form-section">
-        <div class="section-header">
-          <i class="bi bi-mortarboard-fill"></i>
-          <span>ព័ត៌មានការសិក្សា</span>
+        <div class="d-flex align-items-center gap-3 mb-2">
+          <div class="section-icon-circle applicant-badge">
+            <i class="bi bi-mortarboard-fill"></i>
+          </div>
+          <div>
+            <h5 class="fw-bold mb-0 text-dark">ព័ត៌មានការសិក្សា</h5>
+            <span class="section-subtitle">Education Information</span>
+          </div>
         </div>
+        <div class="section-line"></div>
       </div>
 
       <!-- 8 -->
@@ -105,7 +132,7 @@
       <!-- 9 -->
       <div class="question-card">
         <div class="question">9. តើអ្នកកំពុងសិក្សានៅសាលាណាដែរ?</div>
-        <div class="answer">{{ application?.student?.university?.name || application?.university || application?.student?.university || '-' }}</div>
+        <div class="answer">{{ application?.student?.university?.name || application?.student?.universityOther || '-' }}</div>
       </div>
 
       <!-- 10 -->
@@ -120,61 +147,24 @@
         <div class="answer">{{ getSemester(application?.semester || application?.student?.semester) }}</div>
       </div>
 
-      <!-- 12 -->
-      <div class="question-card" v-if="application?.studentIdCard || application?.student?.idCardUrl">
-        <div class="question">
-          12. ប្រសិនបើអ្នកពិតជាសិក្សាចាប់ពីឆ្នាំទី 3
-          ឆមាសទី 2 ឡើងទៅ សូម Upload បណ្ណសម្គាល់ខ្លួននិស្សិត
-          ឬវិក្កយបត្របង់ថ្លៃសិក្សាចុងក្រោយ
-        </div>
-
-        <div class="file-answer">
-          <div class="file-icon">
-            <i class="bi bi-file-earmark-image"></i>
-          </div>
-
-          <div class="flex-grow-1">
-            <div class="fw-semibold">
-              Student_Card
-            </div>
-            <small class="text-muted">
-              Image file
-            </small>
-          </div>
-
-          <a
-            v-if="getTranscriptUrl()"
-            :href="getFileUrl(getTranscriptUrl())"
-            target="_blank"
-            class="btn btn-sm btn-light"
-          >
-            <i class="bi bi-eye"></i>
-          </a>
-
-          <a
-            v-if="getTranscriptUrl()"
-            :href="getFileUrl(getTranscriptUrl())"
-            download
-            class="btn btn-sm btn-light"
-          >
-            <i class="bi bi-download"></i>
-          </a>
-        </div>
-      </div>
-
-
       <!-- ================= ADDITIONAL INFORMATION ================= -->
       <div class="form-section">
-        <div class="section-header">
-          <i class="bi bi-chat-left-text-fill"></i>
-          <span>ព័ត៌មានបន្ថែម</span>
+        <div class="d-flex align-items-center gap-3 mb-2">
+          <div class="section-icon-circle applicant-badge">
+            <i class="bi bi-chat-left-text-fill"></i>
+          </div>
+          <div>
+            <h5 class="fw-bold mb-0 text-dark">ព័ត៌មានបន្ថែម</h5>
+            <span class="section-subtitle">Additional Information</span>
+          </div>
         </div>
+        <div class="section-line"></div>
       </div>
 
       <!-- 13 -->
       <div class="question-card">
         <div class="question">13. សូមបំពេញទីលំនៅបច្ចុប្បន្ន</div>
-        <div class="answer long-answer">{{ application?.student?.currentAddress || application?.currentAddress || application?.address || '-' }}</div>
+        <div class="answer long-answer">{{ application?.student?.address || '-' }}</div>
       </div>
 
       <!-- 14 -->
@@ -219,10 +209,16 @@
 
       <!-- ================= SCHOLARSHIP ================= -->
       <div class="form-section">
-        <div class="section-header">
-          <i class="bi bi-award-fill"></i>
-          <span>ព័ត៌មានអាហារូបករណ៍</span>
+        <div class="d-flex align-items-center gap-3 mb-2">
+          <div class="section-icon-circle applicant-badge">
+            <i class="bi bi-award-fill"></i>
+          </div>
+          <div>
+            <h5 class="fw-bold mb-0 text-dark">ព័ត៌មានអាហារូបករណ៍</h5>
+            <span class="section-subtitle">Scholarship Information</span>
+          </div>
         </div>
+        <div class="section-line"></div>
       </div>
 
       <!-- 20 -->
@@ -266,10 +262,16 @@
 
       <!-- ================= FILES ================= -->
       <div class="form-section">
-        <div class="section-header">
-          <i class="bi bi-file-earmark-check-fill"></i>
-          <span>ឯកសារ និងរូបថត</span>
+        <div class="d-flex align-items-center gap-3 mb-2">
+          <div class="section-icon-circle applicant-badge">
+            <i class="bi bi-file-earmark-check-fill"></i>
+          </div>
+          <div>
+            <h5 class="fw-bold mb-0 text-dark">ឯកសារ និងរូបថត</h5>
+            <span class="section-subtitle">Documents & Photo</span>
+          </div>
         </div>
+        <div class="section-line"></div>
       </div>
 
       <!-- 25 -->
@@ -289,31 +291,97 @@
             </small>
           </div>
 
-          <a
-            :href="getFileUrl(getPhotoUrl())"
-            target="_blank"
-            class="btn btn-sm btn-light"
-          >
-            <i class="bi bi-eye"></i>
-          </a>
+          <div class="d-flex align-items-center gap-2">
+            <button
+              type="button"
+              class="btn btn-sm btn-light border d-inline-flex align-items-center justify-content-center"
+              @click="viewFile(getPhotoFile())"
+              :disabled="loadingFileId === (getPhotoFile()?.id || getPhotoFile()?.fileUrl || getPhotoFile()?.filePath)"
+              title="មើលរូបភាព"
+            >
+              <span v-if="loadingFileId === (getPhotoFile()?.id || getPhotoFile()?.fileUrl || getPhotoFile()?.filePath)" class="spinner-border spinner-border-sm"></span>
+              <i v-else class="bi bi-eye"></i>
+            </button>
 
-          <a
-            :href="getFileUrl(getPhotoUrl())"
-            download
-            class="btn btn-sm btn-light"
-          >
-            <i class="bi bi-download"></i>
-          </a>
+            <button
+              type="button"
+              class="btn btn-sm btn-light border d-inline-flex align-items-center justify-content-center"
+              @click="downloadFile(getPhotoFile(), 'Profile_Photo_4x6')"
+              :disabled="downloadingFileId === (getPhotoFile()?.id || getPhotoFile()?.fileUrl || getPhotoFile()?.filePath)"
+              title="ទាញយក"
+            >
+              <span v-if="downloadingFileId === (getPhotoFile()?.id || getPhotoFile()?.fileUrl || getPhotoFile()?.filePath)" class="spinner-border spinner-border-sm"></span>
+              <i v-else class="bi bi-download"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+            <!-- 12 -->
+      <div class="question-card">
+        <div class="question">
+          12. ប្រសិនបើអ្នកពិតជាសិក្សាចាប់ពីឆ្នាំទី 3
+          ឆមាសទី 2 ឡើងទៅ សូម Upload បណ្ណសម្គាល់ខ្លួននិស្សិត
+          ឬវិក្កយបត្របង់ថ្លៃសិក្សាចុងក្រោយ
+        </div>
+
+        <div v-if="getTranscriptFile()" class="file-answer">
+          <div class="file-icon">
+            <i :class="getTranscriptIcon(getTranscriptFile())"></i>
+          </div>
+
+          <div class="flex-grow-1 min-w-0">
+            <div class="fw-semibold text-truncate">
+              {{ getTranscriptTitle(getTranscriptFile()) }}
+            </div>
+            <small class="text-muted">
+              {{ getTranscriptSubtitle(getTranscriptFile()) }}
+            </small>
+          </div>
+
+          <div class="d-flex align-items-center gap-2 flex-shrink-0">
+            <button
+              type="button"
+              class="btn btn-sm btn-light border d-inline-flex align-items-center justify-content-center"
+              @click="viewFile(getTranscriptFile())"
+              :disabled="loadingFileId === (getTranscriptFile()?.id || getTranscriptFile()?.fileUrl || getTranscriptFile()?.filePath)"
+              title="មើលឯកសារ"
+            >
+              <span v-if="loadingFileId === (getTranscriptFile()?.id || getTranscriptFile()?.fileUrl || getTranscriptFile()?.filePath)" class="spinner-border spinner-border-sm"></span>
+              <i v-else class="bi bi-eye"></i>
+            </button>
+
+            <button
+              type="button"
+              class="btn btn-sm btn-light border d-inline-flex align-items-center justify-content-center"
+              @click="downloadFile(getTranscriptFile(), 'Transcript')"
+              :disabled="downloadingFileId === (getTranscriptFile()?.id || getTranscriptFile()?.fileUrl || getTranscriptFile()?.filePath)"
+              title="ទាញយក"
+            >
+              <span v-if="downloadingFileId === (getTranscriptFile()?.id || getTranscriptFile()?.fileUrl || getTranscriptFile()?.filePath)" class="spinner-border spinner-border-sm"></span>
+              <i v-else class="bi bi-download"></i>
+            </button>
+          </div>
+        </div>
+
+        <div v-else class="answer text-muted">
+          មិនមានឯកសារភ្ជាប់
         </div>
       </div>
 
 
       <!-- ================= AGREEMENTS ================= -->
       <div class="form-section">
-        <div class="section-header">
-          <i class="bi bi-shield-check"></i>
-          <span>ការយល់ព្រមលក្ខខណ្ឌ</span>
+        <div class="d-flex align-items-center gap-3 mb-2">
+          <div class="section-icon-circle applicant-badge">
+            <i class="bi bi-shield-check"></i>
+          </div>
+          <div>
+            <h5 class="fw-bold mb-0 text-dark">ការយល់ព្រមលក្ខខណ្ឌ</h5>
+            <span class="section-subtitle">Terms & Conditions</span>
+          </div>
         </div>
+        <div class="section-line"></div>
       </div>
 
       <!-- 26 -->
@@ -388,6 +456,7 @@
 
         <!-- Blacklist -->
         <button
+          v-if="!isBlacklisted"
           type="button"
           class="btn blacklist-btn px-4"
           @click="handleBlacklist"
@@ -397,8 +466,21 @@
           បញ្ជីខ្មៅ
         </button>
 
+        <!-- Dropout -->
+        <button
+          v-if="!isDropout && !isBlacklisted"
+          type="button"
+          class="btn blacklist-btn px-4"
+          @click="handleDropout"
+          :disabled="isUpdating"
+        >
+          <i class="bi bi-person-x-fill me-2"></i>
+          បោះបង់
+        </button>
+
         <!-- Reject -->
         <button
+          v-if="!isFailedShortlist && !isBlacklisted"
           type="button"
           class="btn reject-btn px-4"
           @click="handleReject"
@@ -410,6 +492,7 @@
         
         <!-- Shortlist -->
         <button
+          v-if="!isShortlisted && !isBlacklisted"
           type="button"
           class="btn shortlist-btn px-4"
           @click="handleShortlist"
@@ -426,37 +509,91 @@
     <!-- ACTION MODAL -->
     <BaseModal 
       :show="showActionModal" 
-      :title="actionType === 'BLACKLIST' ? 'បញ្ជាក់បញ្ជីខ្មៅ (Blacklist)' : 'បញ្ជាក់ការធ្លាក់ (Reject)'" 
+      :title="actionModalTitle" 
       size="md" 
       @close="showActionModal = false"
     >
-      <div class="mb-3">
-        <label class="form-label">មូលហេតុ (Reason)</label>
-        <textarea v-model="actionReason" class="form-control shadow-none border-success-subtle" rows="3" placeholder="Optional reason..."></textarea>
+      <div class="py-2">
+        <p class="text-secondary mb-3 fs-6 lh-base">
+          {{ actionModalPrompt }}
+        </p>
+
+        <!-- Reason & Note only for Blacklist and Dropout -->
+        <template v-if="isReasonRequired">
+          <div class="mb-3">
+            <label class="form-label">មូលហេតុ (Reason)</label>
+            <textarea 
+              v-model="actionReason" 
+              class="form-control shadow-none border-secondary-subtle" 
+              rows="3" 
+              placeholder="បញ្ចូលមូលហេតុ..."
+            ></textarea>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">កំណត់សម្គាល់ (Note - Optional)</label>
+            <textarea 
+              v-model="actionNote" 
+              class="form-control shadow-none border-secondary-subtle" 
+              rows="2" 
+              placeholder="បញ្ចូលកំណត់ចំណាំបន្ថែម..."
+            ></textarea>
+          </div>
+        </template>
       </div>
-      <div class="mb-4">
-        <label class="form-label">កំណត់សម្គាល់ (Note)</label>
-        <textarea v-model="actionNote" class="form-control shadow-none border-success-subtle" rows="2" placeholder="Optional note..."></textarea>
-      </div>
-      <div class="d-flex justify-content-end gap-2">
+
+      <div class="d-flex justify-content-end gap-2 mt-3">
         <button type="button" class="btn btn-light px-4" @click="showActionModal = false">
           បោះបង់
         </button>
-        <button type="button" class="btn btn-success px-4" @click="submitActionModal" :disabled="isUpdating">
+        <button 
+          type="button" 
+          class="btn btn-success px-4" 
+          style="background-color: #357867; border-color: #357867;"
+          @click="submitActionModal" 
+          :disabled="isUpdating"
+        >
           <span v-if="isUpdating" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-          បញ្ជូន
+          យល់ព្រម
         </button>
       </div>
     </BaseModal>
 
+    <!-- Teleport Full Image Preview Modal -->
+    <Teleport to="body">
+      <div
+        v-if="previewImageUrl"
+        class="modal-backdrop-custom d-flex align-items-center justify-content-center"
+        @click.self="closePreview"
+      >
+        <div class="position-relative bg-white rounded-4 p-2 shadow-lg preview-box" @click.stop>
+          <button
+            type="button"
+            class="btn-close position-absolute top-0 end-0 m-3 z-3 bg-white shadow-sm p-2 rounded-circle"
+            @click="closePreview"
+            aria-label="Close"
+          ></button>
+          <img
+            :src="previewImageUrl || defaultAvatar"
+            alt="Full Size Photo"
+            class="img-fluid rounded-3 preview-img"
+            @error="onPreviewImageError"
+          />
+        </div>
+      </div>
+    </Teleport>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, computed, onMounted, onUnmounted } from "vue";
 import { useRouter } from "vue-router";
 import { useApplicationReview } from "@/composable/application/applicationReview/useApplicationReview";
 import BaseModal from "@/components/ui/base/BaseModal.vue";
+import bannerDetailBg from "@/assets/images/img/application_banner.png";
+import bannerBlacklistBg from "@/assets/images/img/banner_blacklist.png";
+import defaultAvatar from "@/assets/images/img/default_avatar.png";
+import avatarService from "@/services/avatar.service";
+import { getSubmissionFileUrl, DEFAULT_AVATAR } from "@/composable/useAvatar";
 
 const router = useRouter();
 const { application, loading, isUpdating, fetchApplication, promoteStatus } = useApplicationReview();
@@ -466,6 +603,74 @@ const actionType = ref("");
 const actionReason = ref("");
 const actionNote = ref("");
 
+// Preview and Download states
+const previewImageUrl = ref(null);
+const loadingFileId = ref(null);
+const downloadingFileId = ref(null);
+
+const closePreview = () => {
+  previewImageUrl.value = null;
+};
+
+const onPreviewImageError = (e) => {
+  e.target.src = defaultAvatar;
+};
+
+const isShortlisted = computed(() => {
+  const s = String(application.value?.status || "").toUpperCase();
+  return s === "SHORTLIST" || s === "PASS" || s === "PASSED";
+});
+
+const isFailedShortlist = computed(() => {
+  const s = String(application.value?.status || "").toUpperCase();
+  return s === "FAILED_SHORTLIST" || s === "FAIL" || s === "FAILED";
+});
+
+const isBlacklisted = computed(() => {
+  const s = String(application.value?.status || "").toUpperCase();
+  return s === "BLACKLIST" || s === "BLACKLISTED";
+});
+
+const isDropout = computed(() => {
+  const s = String(application.value?.status || "").toUpperCase();
+  return s === "DROPOUT" || s === "DROP_OUT";
+});
+
+const isReasonRequired = computed(() => {
+  return actionType.value === "BLACKLIST" || actionType.value === "DROPOUT";
+});
+
+const actionModalTitle = computed(() => {
+  if (actionType.value === "BLACKLIST") return "បញ្ជាក់បញ្ជីខ្មៅ (Blacklist)";
+  if (actionType.value === "DROPOUT") return "បញ្ជាក់បោះបង់ (Dropout)";
+  if (actionType.value === "FAILED_SHORTLIST" || actionType.value === "FAIL") return "បញ្ជាក់ការធ្លាក់ (Reject)";
+  if (actionType.value === "SHORTLIST") return "បញ្ជាក់ការជាប់ (Shortlist)";
+  return "បញ្ជាក់";
+});
+
+const actionModalPrompt = computed(() => {
+  if (actionType.value === "BLACKLIST") {
+    return "តើអ្នកពិតជាចង់ផ្លាស់ប្តូរបេក្ខជននេះទៅកាន់បញ្ជីខ្មៅ (Blacklist) មែនទេ?";
+  }
+  if (actionType.value === "DROPOUT") {
+    return "តើអ្នកពិតជាចង់ផ្លាស់ប្តូរបេក្ខជននេះទៅជាបោះបង់ (Dropout) មែនទេ?";
+  }
+  if (actionType.value === "FAILED_SHORTLIST" || actionType.value === "FAIL") {
+    return "តើអ្នកពិតជាចង់ផ្លាស់ប្តូរស្ថានភាពបេក្ខជននេះទៅជា «ធ្លាក់» មែនទេ?";
+  }
+  if (actionType.value === "SHORTLIST") {
+    return "តើអ្នកពិតជាចង់ផ្លាស់ប្តូរស្ថានភាពបេក្ខជននេះទៅជា «ជាប់ (ជ្រើសសម្រាំង)» មែនទេ?";
+  }
+  return "តើអ្នកពិតជាចង់ផ្លាស់ប្តូរស្ថានភាពបេក្ខជននេះមែនទេ?";
+});
+
+const computedBannerBg = computed(() => {
+  if (isBlacklisted.value) {
+    return bannerBlacklistBg;
+  }
+  return bannerDetailBg;
+});
+
 onMounted(() => {
   fetchApplication();
 });
@@ -474,49 +679,189 @@ const goBack = () => {
   router.back();
 };
 
-const handleBlacklist = () => {
-  actionType.value = "BLACKLIST";
+const openActionModal = (type) => {
+  actionType.value = type;
   actionReason.value = "";
   actionNote.value = "";
   showActionModal.value = true;
 };
 
-const handleReject = () => {
-  actionType.value = "FAILED_SHORTLIST";
-};
+const handleBlacklist = () => openActionModal("BLACKLIST");
+const handleDropout = () => openActionModal("DROPOUT");
+const handleReject = () => openActionModal("FAILED_SHORTLIST");
+const handleShortlist = () => openActionModal("SHORTLIST");
 
 const submitActionModal = async () => {
-  await promoteStatus(actionType.value, { 
-    reason: actionReason.value || undefined, 
-    note: actionNote.value || undefined 
-  });
+  const payload = isReasonRequired.value
+    ? {
+        reason: actionReason.value || undefined,
+        note: actionNote.value || undefined,
+      }
+    : {};
+
+  await promoteStatus(actionType.value, payload);
   if (!isUpdating.value) {
     showActionModal.value = false;
   }
 };
 
-const handleShortlist = () => {
-  promoteStatus("SHORTLIST");
+// File helpers & Handlers
+const getPhotoFile = () => {
+  if (!application.value) return null;
+  const files = application.value.files || [];
+  const photo = files.find(f => String(f.fileType).toUpperCase() === 'PHOTO');
+  if (photo) return photo;
+
+  const photoPath = application.value.student?.avatarPath || application.value.student?.photoUrl || application.value.photoUrl;
+  if (photoPath) {
+    return { fileType: 'PHOTO', fileUrl: photoPath, filePath: photoPath };
+  }
+  return null;
 };
 
-// Helpers
+const getTranscriptFile = () => {
+  if (!application.value) return null;
+  const files = application.value.files || [];
+
+  // 1. Look for TRANSCRIPT, STUDENT_CARD, ID_CARD, etc. in files array
+  let transcript = files.find(f => {
+    const t = String(f.fileType || "").toUpperCase();
+    return t === 'TRANSCRIPT' || t.includes('TRANSCRIPT') || t === 'STUDENT_CARD' || t.includes('CARD') || t === 'CERTIFICATE';
+  });
+  if (transcript) return transcript;
+
+  // 2. If no specific type matched, find any file that is not PHOTO and not CV/RESUME
+  transcript = files.find(f => {
+    const t = String(f.fileType || "").toUpperCase();
+    return t !== 'PHOTO' && !t.includes('PHOTO') && !t.includes('CV') && !t.includes('RESUME');
+  });
+  if (transcript) return transcript;
+
+  // 3. Fallback to direct properties on application or student
+  const cardPath =
+    application.value.transcript ||
+    application.value.transcriptUrl ||
+    application.value.transcriptPath ||
+    application.value.studentIdCard ||
+    application.value.idCardUrl ||
+    application.value.student?.transcript ||
+    application.value.student?.transcriptUrl ||
+    application.value.student?.idCardUrl ||
+    application.value.student?.studentIdCard ||
+    application.value.student?.studentCard;
+
+  if (cardPath) {
+    return {
+      fileType: 'TRANSCRIPT',
+      fileUrl: cardPath,
+      filePath: cardPath,
+      originalFilename: String(cardPath).split('/').pop() || 'Transcript'
+    };
+  }
+  return null;
+};
+
+const getTranscriptTitle = (file) => {
+  if (!file) return "Student_Card / Transcript";
+  const name = file.originalFilename || file.fileName;
+  if (name) return name;
+  const type = String(file.fileType || "").toUpperCase();
+  if (type === "TRANSCRIPT" || type.includes("TRANSCRIPT")) return "Transcript";
+  if (type === "STUDENT_CARD" || type.includes("CARD")) return "Student_Card";
+  return "Transcript";
+};
+
+const getTranscriptSubtitle = (file) => {
+  if (!file) return "Attached document";
+  const path = String(file.filePath || file.fileUrl || file.originalFilename || "").toLowerCase();
+  if (path.endsWith(".pdf")) return "PDF Document";
+  if (/\.(jpe?g|png|webp|gif)$/i.test(path)) return "Image file";
+  return file.mimeType || "Document file";
+};
+
+const getTranscriptIcon = (file) => {
+  if (!file) return "bi bi-file-earmark-text";
+  const path = String(file.filePath || file.fileUrl || file.originalFilename || "").toLowerCase();
+  if (path.endsWith(".pdf")) return "bi bi-file-earmark-pdf";
+  if (/\.(jpe?g|png|webp|gif)$/i.test(path)) return "bi bi-file-earmark-image";
+  return "bi bi-file-earmark-text";
+};
+
 const getPhotoUrl = () => {
-  if (!application.value?.files) return '';
-  const photo = application.value.files.find(f => f.fileType === 'PHOTO');
-  return photo ? photo.fileUrl : '';
+  const f = getPhotoFile();
+  return f ? (f.fileUrl || f.filePath) : '';
 };
 
 const getTranscriptUrl = () => {
-  if (!application.value?.files) return '';
-  const transcript = application.value.files.find(f => f.fileType === 'TRANSCRIPT' || f.fileType === 'STUDENT_CARD');
-  return transcript ? transcript.fileUrl : '';
+  const f = getTranscriptFile();
+  return f ? (f.fileUrl || f.filePath) : '';
 };
 
-const getFileUrl = (path) => {
-  if (!path) return '';
-  if (path.startsWith('http')) return path;
-  const baseUrl = import.meta.env.VITE_API_BASE_URL || '';
-  return `${baseUrl.replace(/\/$/, '')}/${path.replace(/^\//, '')}`;
+const viewFile = async (file) => {
+  if (!file) return;
+  const path = file.filePath || file.fileUrl;
+  const fileType = String(file.fileType || "").toUpperCase();
+  const isImage =
+    file.mimeType?.startsWith("image/") ||
+    /\.(jpe?g|png|webp|gif)$/i.test(path || "") ||
+    fileType === "PHOTO" ||
+    fileType === "STUDENT_CARD";
+
+  if (!path) {
+    if (isImage) {
+      previewImageUrl.value = defaultAvatar;
+    }
+    return;
+  }
+
+  const fileKey = file.id || path;
+  loadingFileId.value = fileKey;
+  try {
+    const url = await getSubmissionFileUrl(path);
+    if (isImage) {
+      previewImageUrl.value = (!url || url === DEFAULT_AVATAR) ? defaultAvatar : url;
+    } else {
+      window.open(url, "_blank");
+    }
+  } catch (err) {
+    console.error("Failed to view file:", err);
+    if (isImage) {
+      previewImageUrl.value = defaultAvatar;
+    }
+  } finally {
+    loadingFileId.value = null;
+  }
+};
+
+const downloadFile = async (file, defaultName = "Document") => {
+  if (!file) return;
+  const path = file.filePath || file.fileUrl;
+  if (!path) return;
+
+  const fileKey = file.id || path;
+  downloadingFileId.value = fileKey;
+  try {
+    const filename = path.split("/").pop().split("?")[0];
+    const blob = await avatarService.getSubmissionFileBlob(filename);
+    const blobUrl = URL.createObjectURL(blob);
+    const extMatch = path.match(/\.([a-zA-Z0-9]+)(?:\?.*)?$/);
+    const ext = extMatch ? extMatch[1].toLowerCase() : (String(file.fileType).toUpperCase() === 'PHOTO' ? 'jpg' : 'pdf');
+    const studentName = application.value?.student?.khName || application.value?.student?.enName || "Student";
+    const cleanName = studentName.trim().replace(/\s+/g, "_");
+    const downloadName = `${defaultName}_${cleanName}.${ext}`;
+
+    const a = document.createElement("a");
+    a.href = blobUrl;
+    a.download = downloadName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
+  } catch (err) {
+    console.error("Failed to download file:", err);
+  } finally {
+    downloadingFileId.value = null;
+  }
 };
 
 const formatDate = (dateString) => {
@@ -575,13 +920,9 @@ const getShift = (s) => {
 .review-container {
   width: 100%;
   max-width: 900px;
-  height: calc(100vh - 100px);
-
   margin: 0 auto;
-
   display: flex;
   flex-direction: column;
-
   padding: 10px 0;
 }
 
@@ -592,35 +933,77 @@ const getShift = (s) => {
 
 .form-header-card {
   flex-shrink: 0;
-
-  background: #ffffff;
-
-  border: 1px solid #e5e7eb;
-
-  border-top: 5px solid #357867;
-
-  border-radius: 12px;
-
-  padding: 22px 26px;
-
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  position: relative;
+  background-color: #eaf5f0;
+  border: 1px solid rgba(46, 125, 107, 0.18);
+  border-radius: 20px;
+  padding: 24px 32px;
+  box-shadow: 0 4px 20px rgba(18, 53, 43, 0.06);
 }
 
 .header-icon {
-  width: 46px;
-  height: 46px;
-
+  width: 62px;
+  height: 62px;
   display: flex;
   align-items: center;
   justify-content: center;
+  border-radius: 18px;
+  background: rgba(209, 250, 229, 0.85);
+  border: 1px solid rgba(52, 211, 153, 0.35);
+  color: #176852;
+  font-size: 28px;
+  box-shadow: 0 2px 8px rgba(18, 53, 43, 0.05);
+  flex-shrink: 0;
+}
 
-  border-radius: 10px;
+.banner-title {
+  color: #07261d;
+  font-size: 1.45rem;
+  letter-spacing: -0.01em;
+}
 
-  background: rgba(53, 120, 103, 0.1);
+.banner-subtitle {
+  color: #2e6658;
+  font-size: 0.92rem;
+  font-weight: 500;
+}
 
-  color: #357867;
+.banner-quote-line {
+  width: 34px;
+  height: 2.5px;
+  background-color: #246d5b;
+  border-radius: 2px;
+  margin-top: 5px;
+  margin-right: 4px;
+}
 
-  font-size: 21px;
+/* Blacklist theme for header */
+.form-header-card.banner-blacklist-theme {
+  background-color: #fef2f2;
+  border-color: rgba(220, 38, 38, 0.18);
+  box-shadow: 0 4px 20px rgba(220, 38, 38, 0.06);
+}
+
+.form-header-card.banner-blacklist-theme .header-icon {
+  background: rgba(254, 226, 226, 0.85);
+  border-color: rgba(248, 113, 113, 0.35);
+  color: #dc2626;
+}
+
+.form-header-card.banner-blacklist-theme .banner-title {
+  color: #450a0a;
+}
+
+.form-header-card.banner-blacklist-theme .banner-subtitle {
+  color: #991b1b;
+}
+
+.form-header-card.banner-blacklist-theme .banner-quote-text {
+  color: #dc2626;
+}
+
+.form-header-card.banner-blacklist-theme .banner-quote-line {
+  background-color: #dc2626;
 }
 
 
@@ -629,32 +1012,7 @@ const getShift = (s) => {
 ========================================= */
 
 .review-scroll {
-  flex: 1;
-
-  overflow-y: auto;
-  overflow-x: hidden;
-
-  padding: 18px 10px 20px 2px;
-}
-
-
-/* Scrollbar */
-
-.review-scroll::-webkit-scrollbar {
-  width: 6px;
-}
-
-.review-scroll::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.review-scroll::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 10px;
-}
-
-.review-scroll::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  padding: 18px 0 20px 0;
 }
 
 
@@ -666,23 +1024,38 @@ const getShift = (s) => {
   margin: 24px 0 12px;
 }
 
-.section-header {
+.section-icon-circle {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #dcfce7;
+  color: #15803d;
   display: flex;
   align-items: center;
-
-  gap: 10px;
-
-  color: #357867;
-
-  font-size: 18px;
-
-  font-weight: 700;
-
-  padding: 0 4px;
+  justify-content: center;
+  font-size: 1.15rem;
+  flex-shrink: 0;
 }
 
-.section-header i {
-  font-size: 19px;
+.section-subtitle {
+  color: #64748b;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.section-line {
+  height: 1px;
+  background: #e2e8f0;
+  width: 100%;
+}
+
+.applicant-badge {
+  background-color: #ecfdf5;
+  color: #059669;
+  border: 1px solid rgba(5, 150, 105, 0.2);
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 6px 14px;
 }
 
 
@@ -868,16 +1241,14 @@ const getShift = (s) => {
   align-items: center;
 
   background: #ffffff;
-
   border: 1px solid #e5e7eb;
-
   border-radius: 12px;
-
   padding: 14px 16px;
-
-  margin-top: 10px;
-
+  margin-top: 16px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  position: sticky;
+  bottom: 16px;
+  z-index: 20;
 }
 
 
@@ -935,8 +1306,6 @@ const getShift = (s) => {
 @media (max-width: 768px) {
 
   .review-container {
-    height: calc(100vh - 80px);
-
     padding: 8px;
   }
 
@@ -966,4 +1335,49 @@ const getShift = (s) => {
 
 }
 
+/* =========================================
+   MODAL PREVIEW
+========================================= */
+
+.modal-backdrop-custom {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(4px);
+  z-index: 1060;
+}
+
+.preview-box {
+  max-width: 90vw;
+  max-height: 90vh;
+  min-width: 220px;
+  min-height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.preview-img {
+  max-width: 85vw;
+  max-height: 80vh;
+  min-width: 180px;
+  min-height: 180px;
+  object-fit: contain;
+}
+
+.file-answer .btn-light {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border-radius: 8px;
+  transition: all 0.15s ease;
+}
+
+.file-answer .btn-light:hover {
+  background-color: #e2e8f0;
+  color: #0f172a;
+}
 </style>

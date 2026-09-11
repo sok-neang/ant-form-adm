@@ -307,37 +307,44 @@ textarea {
   border-right: 1px solid #e9ecef;
   overflow-x: hidden;
   overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
   transition: width 0.25s ease;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
 }
 
+.dashboard-sidebar::-webkit-scrollbar {
+  display: none;
+}
+
 .sidebar-logo {
-  height: 90px;
+  height: 75px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0 20px;
+  padding: 10 20px;
 }
 .logo-full {
-  width: 120px;
+  width: 110px;
   height: auto;
   object-fit: contain;
+  padding-top: 10px;
 }
 
 .logo-small {
-  width: 50px;
-  height: 50px;
+  width: 45px;
+  height: 45px;
   object-fit: contain;
 }
 
 .sidebar-menu {
-  padding: 15px 12px;
+  padding: 8px 12px;
 }
 
 .menu-item {
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 }
 
 .menu-link {
@@ -345,7 +352,7 @@ textarea {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 11px 14px;
+  padding: 9px 14px;
   border: 0;
   border-radius: 8px;
   background: transparent;
@@ -1018,26 +1025,6 @@ textarea {
 
 
 
-.submenu-link {
-    display: block;
-    padding: 9px 12px;
-    color: #6c757d;
-    text-decoration: none;
-    font-size: 14px;
-    border-radius: 6px;
-}
-
-.submenu-link:hover {
-    background: #f8f9fa;
-    color: #006e4c;
-}
-
-.submenu-link.active {
-    background: #e8f5f0;
-    color: #006e4c;
-    font-weight: 600;
-}
-
 .submenu {
     max-height: 0;
     overflow: hidden;
@@ -1057,10 +1044,10 @@ textarea {
 
 .submenu-link {
     display: block;
-    padding: 9px 12px;
+    padding: 7px 12px;
     color: #6c757d;
     text-decoration: none;
-    font-size: 14px;
+    font-size: 13.5px;
     border-radius: 6px;
     transition:
         background-color 0.2s ease,
@@ -1180,4 +1167,29 @@ textarea {
     padding: 24px;
 
   }
+}
+
+/* ACTION BUTTONS (TEACHER STYLE) */
+.btn-action-outline,
+.action-btn.action-view {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid #2e7d6b !important;
+  border-radius: 8px !important;
+  background-color: #ffffff !important;
+  color: #2e7d6b !important;
+  font-size: 0.95rem !important;
+  transition: all 0.2s ease;
+}
+
+.btn-action-outline:hover,
+.action-btn.action-view:hover {
+  border-color: #2e7d6b !important;
+  color: #2e7d6b !important;
+  background-color: #e8f5f1 !important;
+  transform: translateY(-1px);
 }

@@ -125,9 +125,9 @@
         <div class="d-flex align-items-center gap-1">
 
           <!-- VIEW DETAIL -->
-          <button v-if="activeTab !== 'login'" type="button" class="btn action-btn action-view" title="មើលលម្អិត"
+          <button v-if="activeTab !== 'login'" type="button" class="btn btn-action-outline action-btn action-view" title="មើលលម្អិត"
             @click="openDetail(row, activeTab)">
-            <i class="bi bi-eye-fill"></i>
+            <i class="bi bi-eye"></i>
           </button>
 
           <!-- RESTORE -->

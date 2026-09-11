@@ -22,7 +22,11 @@ export function useApplicationList() {
   const fetchSubmissions = async (params = {}) => {
     loading.value = true;
     try {
-      const response = await submissionService.getSubmissions(params);
+      const queryParams = {
+        created_at: "newest",
+        ...params,
+      };
+      const response = await submissionService.getSubmissions(queryParams);
       if (response.data?.success) {
         const data = response.data.data;
 
@@ -81,7 +85,7 @@ export function useApplicationList() {
             year: yearMap[sub.yearOfStudy] || sub.yearOfStudy || "N/A",
             skill: programMap[sub.program] || sub.program || "N/A",
             study_shift: shiftMap[sub.shift] || sub.shift || "N/A",
-            created_at: new Date(sub.createdAt).toLocaleDateString("km-KH"),
+            created_at: new Date(sub.submittedAt).toLocaleDateString("km-KH"),
           };
         });
       }

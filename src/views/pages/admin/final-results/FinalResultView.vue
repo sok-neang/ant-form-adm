@@ -106,11 +106,11 @@
         <!-- VIEW -->
           <button
             type="button"
-            class="btn action-btn action-view"
+            class="btn btn-action-outline action-btn action-view"
             title="មើលលម្អិត"
             @click="handleView(row)"
           >
-            <i class="bi bi-eye-fill"></i>
+            <i class="bi bi-eye"></i>
           </button>
     </div>
     </template>
@@ -144,7 +144,7 @@ const {
 } = useFinalResult();
 
 const handleView = (row) => {
-  router.push(`/final-result-detail/${row.id}`);
+  router.push({ path: `/final-result-detail/${row.id}`, query: { from: "all" } });
 };
 
 const columns = [
@@ -154,7 +154,7 @@ const columns = [
   { key: "year", label: "និស្សិតឆ្នាំ" },
   { key: "skill", label: "ជំនាញ" },
   { key: "study_shift", label: "វេនសិក្សា" },
-  { key: "total_score", label: "ពិន្ទុសរុប" },
+  { key: "total_score", label: "ពិន្ទុមធ្យម" },
 ];
 
 const loadSubmissions = async (page = 1) => {

@@ -77,17 +77,17 @@
       </span>
     </template>
     <template #actions="{ row }">
-    <div class="d-flex justify-content-start align-items-center gap-2">
+      <div class="d-flex justify-content-start align-items-center gap-2">
         <!-- VIEW -->
-          <button 
-            type="button"
-            class="btn action-btn action-view"
-            title="មើលលម្អិត"
-            @click="reviewAplication(row)"
-          >
-            <i class="bi bi-eye-fill"></i>
-          </button>
-    </div>
+        <button 
+          type="button"
+          class="btn btn-action-outline action-btn action-view"
+          title="មើលលម្អិត"
+          @click="reviewAplication(row)"
+        >
+          <i class="bi bi-eye"></i>
+        </button>
+      </div>
     </template>
     </BaseTable>
   </div>
@@ -102,8 +102,6 @@ import { shiftOptions, specializationOptions } from "@/constants/options";
 import { useApplicationList } from "@/composable/application/all submission/useapplicationList";
 
 const router = useRouter();
-
-// Filters
 const selectedShift = ref("");
 const selectedTrack = ref("");
 const searchQuery = ref("");
@@ -117,7 +115,7 @@ const {
 } = useApplicationList();
 
 const reviewAplication = (row) => {
-  router.push(`/application-review/${row.id}`);
+  router.push({ path: `/application-review/${row.id}`, query: { from: "all" } });
 };
 
 const columns = [
@@ -134,6 +132,7 @@ const loadSubmissions = async (page = 1) => {
   const params = {
     page,
     limit: pagination.value.per_page,
+    created_at: "newest",
   };
   
   // Add filters if selected
