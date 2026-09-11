@@ -23,10 +23,13 @@
                         </span>
                         <span v-show="layoutStore.isAsideOpen" class="menu-title">{{ item.label }}</span>
                     </RouterLink>
+
                     <!-- Dropdown menu -->
                     <div v-else class="menu-dropdown">
                         <button type="button" class="menu-link dropdown-toggle-btn"
-                            :title="!layoutStore.isAsideOpen ? item.label : ''" @click="toggleDropdown(item.label)">
+                            :class="{ active: isChildActive(item) }"
+                            :title="!layoutStore.isAsideOpen ? item.label : ''" 
+                            @click="toggleDropdown(item.label)">
                             <span class="menu-icon">
                                 <i :class="item.icon"></i>
                             </span>
@@ -42,8 +45,14 @@
 
                         <div class="submenu" :class="{ 'submenu-open': openDropdownMenu === item.label }">
                             <RouterLink v-for="child in item.children" :key="child.label" :to="child.to"
-                                class="submenu-link" exact-active-class="active">
-                                {{ child.label }}
+                                class="submenu-link" exact-active-class="active"
+                                :title="!layoutStore.isAsideOpen ? child.label : ''">
+                                <span class="submenu-icon">
+                                    <i :class="child.icon"></i>
+                                </span>
+                                <span v-show="layoutStore.isAsideOpen" class="submenu-title">
+                                    {{ child.label }}
+                                </span>
                             </RouterLink>
                         </div>
                     </div>
@@ -61,9 +70,11 @@
 
 <script setup>
 import { computed, ref } from "vue";
+import { useRoute } from "vue-router";
 import { useLayoutStore } from "@/stores/layout";
 import { useAuthStore } from "@/stores/useAuthStore";
 
+const route = useRoute();
 const layoutStore = useLayoutStore();
 const authStore = useAuthStore();
 
@@ -79,6 +90,14 @@ const isSidebarOpen = computed(() => {
     }
     return layoutStore.isAsideOpen;
 });
+
+const isChildActive = (item) => {
+    if (!item.children) return false;
+    return item.children.some(child => {
+        if (!child.to) return false;
+        return route.path === child.to || (child.to !== '/' && route.path.startsWith(child.to + '/'));
+    });
+};
 
 const currentRole = computed(() => {
     if (authStore.user?.role) return authStore.user.role;
@@ -123,14 +142,17 @@ const sidebarMenu = computed(() => {
                 {
                     label: "ទាំងអស់",
                     to: "/all-application",
+                    icon: "bi bi-files",
                 },
                 {
                     label: "ជាប់",
                     to: "/all-application/passed",
+                    icon: "bi bi-file-earmark-check",
                 },
                 {
                     label: "ធ្លាក់",
                     to: "/all-application/failed",
+                    icon: "bi bi-file-earmark-x",
                 },
             ],
         },
@@ -143,14 +165,17 @@ const sidebarMenu = computed(() => {
                 {
                     label: "ទាំងអស់",
                     to: "/all-shortlist",
+                    icon: "bi bi-people",
                 },
                 {
                     label: "ជាប់",
                     to: "/all-shortlist/passed",
+                    icon: "bi bi-person-check-fill",
                 },
                 {
                     label: "ធ្លាក់",
                     to: "/all-shortlist/failed",
+                    icon: "bi bi-person-x-fill",
                 },
             ],
         },
@@ -163,14 +188,17 @@ const sidebarMenu = computed(() => {
                 {
                     label: "ទាំងអស់",
                     to: "/final-results",
+                    icon: "bi bi-award",
                 },
                 {
                     label: "ជាប់",
                     to: "/final-results/passed",
+                    icon: "bi bi-patch-check",
                 },
                 {
                     label: "បម្រុង",
                     to: "/final-results/reserve",
+                    icon: "bi bi-bookmark-star",
                 },
             ],
         },
