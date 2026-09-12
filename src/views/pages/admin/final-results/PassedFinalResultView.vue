@@ -49,10 +49,10 @@
                 style="width: 190px"
             />
           <BaseButton
-            type="submit"
+            type="button"
             variant=""
             custom-class="bg-primary text-light"
-            @click=""
+            @click="isExportModalOpen = true"
           >
             ទាញយក
             <template #icon>
@@ -106,6 +106,15 @@
     </div>
     </template>
     </BaseTable>
+
+    <!-- Export Modal -->
+    <ExportModal
+      v-model:is-open="isExportModalOpen"
+      export-type="final"
+      :initial-program="selectedSpecialization"
+      :initial-shift="selectedShift"
+      :total-count="totalSubmissions || 100"
+    />
   </div>
 </template>
 <script setup>
@@ -114,6 +123,7 @@ import { useRouter } from "vue-router";
 import BaseTable from "@/components/ui/base/BaseTable.vue";
 import BaseSelect from "@/components/ui/base/BaseSelect.vue";
 import BaseButton from "@/components/ui/base/BaseButton.vue";
+import ExportModal from "@/components/ui/ExportModal.vue";
 import {shiftOptions, specializationOptions, scoreLevelOptions} from "@/constants/options"
 import { usePassedFinalResult } from "@/composable/application/final result/usePassedFinalResult";
 
@@ -124,6 +134,7 @@ const selectedShift = ref("");
 const selectedSpecialization = ref("");
 const searchQuery = ref("");
 const showCreateModal = ref(false);
+const isExportModalOpen = ref(false);
 
 const {
   loading,

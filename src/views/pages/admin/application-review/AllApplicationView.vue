@@ -40,7 +40,7 @@
             :clearable="true"
             style="width: 190px"
             />
-         <BaseButton
+          <BaseButton
             type="button"
             variant=""
             custom-class="text-success border-2 border-success bg-transparent"
@@ -48,16 +48,6 @@
           >
             <template #icon>
               <i class="bi bi-arrow-clockwise"></i>
-            </template>
-          </BaseButton>
-          <BaseButton
-            type="submit"
-            variant=""
-            custom-class="bg-primary text-light"
-          >
-            ទាញយក
-            <template #icon>
-              <i class="bi bi-download"></i>            
             </template>
           </BaseButton>
         </div>
