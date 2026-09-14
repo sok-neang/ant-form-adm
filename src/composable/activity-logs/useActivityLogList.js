@@ -44,14 +44,20 @@ export const useActivityLogList = () => {
 
   const getData = async (type, page = 1) => {
     const tab = tabs[type];
+
+    if (!tab || !services[type]) {
+      return;
+    }
+
     tab.loading = true;
+    error.value = null;
 
     try {
       const params = {
         page,
       };
 
-      // Search for current tab
+      // Search
       if (tab.search?.trim()) {
         params.search = tab.search.trim();
       }
@@ -59,6 +65,11 @@ export const useActivityLogList = () => {
       // Status filter
       if (tab.filters.status) {
         params.status = tab.filters.status;
+
+        // Audit uses action instead of status
+        if (type === "audit") {
+          params.action = tab.filters.status;
+        }
       }
 
       const response = await services[type](params);
@@ -81,6 +92,9 @@ export const useActivityLogList = () => {
       }
 
       return response.data;
+    } catch (err) {
+      error.value = err;
+      console.error("Failed to get activity logs:", err);
     } finally {
       tab.loading = false;
     }

@@ -50,17 +50,6 @@
               <i class="bi bi-arrow-clockwise"></i>
             </template>
           </BaseButton>
-          <BaseButton
-            type="submit"
-            variant=""
-            custom-class="bg-primary text-light"
-            @click=""
-          >
-            ទាញយក
-            <template #icon>
-              <i class="bi bi-download"></i>            
-            </template>
-          </BaseButton>
         </div>
     </template>
     <template #cell-skill="{ row }">

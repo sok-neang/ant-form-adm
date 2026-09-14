@@ -115,7 +115,8 @@ function updateHasValue() {
       ? value.length > 0
       : value !== "";
   } else {
-    hasValue.value = value !== "" && value != null;
+    const hasItem = tom.control ? tom.control.querySelector(".item") !== null : false;
+    hasValue.value = hasItem || (value !== "" && value != null);
   }
 }
 
@@ -823,6 +824,11 @@ onBeforeUnmount(() => {
 .base-select__placeholder.no-icon {
   left: 15px;
 }
+
+.base-select__group:has(.ts-control .item) .base-select__placeholder {
+  display: none !important;
+}
+
 .base-select {
   width: 100%;
   min-width: 0;
