@@ -3,7 +3,7 @@
     :show="isOpenModel"
     :show-close="false"
     :close-on-backdrop="!isDownloading"
-    size="md"
+    class="export-modal-dialog-wrapper"
     @close="handleClose"
   >
     <!-- ================= MODAL HEADER ================= -->
@@ -12,13 +12,13 @@
         <div class="d-flex align-items-center gap-3">
           <!-- Download Icon Box -->
           <div class="export-icon-box d-flex align-items-center justify-content-center flex-shrink-0">
-            <i class="bi bi-download"></i>
+            <i class="bi bi-file-earmark-arrow-down-fill"></i>
           </div>
           <!-- Title & Subtitle -->
           <div>
-            <h5 class="fw-bold mb-1 export-modal-title">ទាញយកទិន្នន័យ</h5>
+            <h5 class="fw-bold mb-0 export-modal-title">ទាញយកទិន្នន័យ (Export Data)</h5>
             <p class="mb-0 text-muted export-modal-subtitle">
-              កំណត់ក្រុម និងទាញយកទិន្នន័យឥឡូវនេះ
+              កំណត់លក្ខខណ្ឌ ចែកក្រុម និងទាញយកជាឯកសារ PDF ឬ Word
             </p>
           </div>
         </div>
@@ -38,15 +38,15 @@
 
     <!-- ================= MODAL BODY ================= -->
     <!-- 1. SUCCESS VIEW -->
-    <div v-if="isSuccess" class="export-success-container d-flex flex-column align-items-center text-center py-3">
+    <div v-if="isSuccess" class="export-success-container d-flex flex-column align-items-center text-center py-4">
       <!-- Success Checkmark Badge -->
       <div class="export-success-icon-box d-flex align-items-center justify-content-center mb-3">
         <svg
-          width="32"
-          height="32"
+          width="36"
+          height="36"
           viewBox="0 0 24 24"
           fill="none"
-          stroke="#357867"
+          stroke="#2e7d6b"
           stroke-width="2.5"
           stroke-linecap="round"
           stroke-linejoin="round"
@@ -56,20 +56,20 @@
       </div>
 
       <!-- Heading -->
-      <h4 class="fw-bold mb-2 export-success-title">ទាញយកបានជោគជ័យ</h4>
+      <h4 class="fw-bold mb-2 export-success-title">ទាញយកបានជោគជ័យ!</h4>
 
       <!-- Description with bold highlight -->
-      <p class="export-success-desc mb-4">
+      <p class="export-success-desc mb-4 px-3">
         <template v-if="isFinalChoice">
-          ទិន្នន័យបេក្ខជនជ័យលាភី <span class="fw-bold export-success-highlight">សរុប {{ finalTotalCount }} នាក់</span> (ជាប់ {{ passCount }} នាក់, បម្រុង {{ effectiveReservedCount }} នាក់) ត្រូវបានទាញយក
+          ទិន្នន័យបេក្ខជនជ័យលាភី <span class="fw-bold export-success-highlight">សរុប {{ finalTotalCount }} នាក់</span> (ជាប់ {{ passCount }} នាក់, បម្រុង {{ effectiveReservedCount }} នាក់) ត្រូវបានទាញយកដោយជោគជ័យ។
         </template>
         <template v-else>
-          ទិន្នន័យ <span class="fw-bold export-success-highlight">Group {{ selectedGroupIndex }}: {{ activeRangeText }}</span> ({{ activeRowCount }} ជួរ) ត្រូវបានទាញយក
+          ទិន្នន័យ <span class="fw-bold export-success-highlight">Group {{ selectedGroupIndex }}: {{ activeRangeText }}</span> ({{ activeRowCount }} ជួរ) ត្រូវបានទាញយកដោយជោគជ័យ។
         </template>
       </p>
 
       <!-- 4 Details Cards Grid -->
-      <div class="row g-2 w-100 mb-2">
+      <div class="row g-2 w-100 mb-2 px-2">
         <div class="col-3">
           <div class="export-stat-card">
             <div class="export-stat-label">ជំនាញ</div>
@@ -84,8 +84,8 @@
         </div>
         <div class="col-3">
           <div class="export-stat-card">
-            <div class="export-stat-label">ស្ថានភាព</div>
-            <div class="export-stat-value text-truncate">{{ selectedStatusLabel }}</div>
+            <div class="export-stat-label">ទម្រង់</div>
+            <div class="export-stat-value text-truncate text-uppercase">{{ selectedFormat }}</div>
           </div>
         </div>
         <div class="col-3">
@@ -99,305 +99,336 @@
 
     <!-- 2. FORM VIEW -->
     <div v-else class="export-modal-content py-2">
-      <!-- Total Available Students Banner -->
-      <!-- A. Final Export Banner -->
-      <div
-        v-if="isFinalChoice"
-        class="export-total-banner export-total-banner-final p-3 rounded-4 mb-3"
-      >
-        <div class="d-flex align-items-center justify-content-between mb-2">
-          <div class="d-flex align-items-center gap-2">
-            <div class="export-banner-icon bg-warning-subtle text-warning-emphasis">
-              <i class="bi bi-award-fill"></i>
+      <div class="row g-3">
+        <!-- ==================================================== -->
+        <!-- LEFT COLUMN: Candidates, Grouping & Summary Preview -->
+        <!-- ==================================================== -->
+        <div class="col-12 col-md-6 d-flex flex-column gap-3">
+          <!-- Final Choice Overview Banner -->
+          <div
+            v-if="isFinalChoice"
+            class="export-stat-card-banner export-stat-banner-final p-3 rounded-3"
+          >
+            <div class="d-flex align-items-center justify-content-between mb-2">
+              <div class="d-flex align-items-center gap-2">
+                <div class="stat-icon-circle bg-warning-subtle text-warning-emphasis">
+                  <i class="bi bi-award-fill"></i>
+                </div>
+                <div>
+                  <span class="d-block fw-bold text-dark small">ទិន្នន័យលទ្ធផលចុងក្រោយ</span>
+                  <span class="text-muted" style="font-size: 0.74rem;">ជាប់ & បម្រុងសរុប</span>
+                </div>
+              </div>
+              <div class="d-flex align-items-center gap-1">
+                <span v-if="isLoadingCounts" class="spinner-border spinner-border-sm text-secondary me-1" role="status"></span>
+                <span class="badge bg-dark text-white fw-bold px-2 py-1">
+                  សរុប {{ passCount + reservedCount }} នាក់
+                </span>
+              </div>
             </div>
+
+            <div class="row g-2 pt-1">
+              <div class="col-6">
+                <div class="p-2 rounded-2 bg-white border d-flex align-items-center justify-content-between">
+                  <div class="d-flex align-items-center gap-1.5">
+                    <span class="status-indicator bg-success"></span>
+                    <span class="small fw-semibold text-muted">ជាប់</span>
+                  </div>
+                  <span class="fw-bold text-success small">{{ passCount }} នាក់</span>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="p-2 rounded-2 bg-white border d-flex align-items-center justify-content-between">
+                  <div class="d-flex align-items-center gap-1.5">
+                    <span class="status-indicator bg-warning"></span>
+                    <span class="small fw-semibold text-muted">បម្រុង</span>
+                  </div>
+                  <span class="fw-bold text-warning-emphasis small">{{ reservedCount }} នាក់</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Shortlist Overview Banner -->
+          <div
+            v-else
+            class="export-stat-card-banner p-3 rounded-3"
+          >
+            <div class="d-flex align-items-center justify-content-between mb-2">
+              <div class="d-flex align-items-center gap-2">
+                <div class="stat-icon-circle bg-success-subtle text-success">
+                  <i class="bi bi-people-fill"></i>
+                </div>
+                <div>
+                  <span class="d-block fw-bold text-dark small">បេក្ខជន Shortlist សរុប</span>
+                  <span class="text-muted" style="font-size: 0.74rem;">ទិន្នន័យដែលអាចទាញយកបាន</span>
+                </div>
+              </div>
+              <div class="d-flex align-items-center gap-1">
+                <span v-if="isLoadingCounts" class="spinner-border spinner-border-sm text-success me-1" role="status"></span>
+                <span class="badge bg-success-subtle text-success border border-success-subtle fw-bold px-2.5 py-1">
+                  {{ activeTotalCount }} នាក់
+                </span>
+              </div>
+            </div>
+            <div class="d-flex align-items-center justify-content-between bg-white px-3 py-2 rounded-2 border small text-muted">
+              <span>ចែកជា <strong class="text-dark">{{ computedGroups.length }}</strong> ក្រុម</span>
+              <span>មធ្យម <strong class="text-dark">{{ groupSize }}</strong> នាក់/ក្រុម</span>
+            </div>
+          </div>
+
+          <!-- Group Config & Group Selector (Shortlist Only) -->
+          <template v-if="!isFinalChoice">
+            <!-- Group Size Input -->
             <div>
-              <span class="fw-bold fs-6 text-dark">ទិន្នន័យលទ្ធផលចុងក្រោយ</span>
-              <span class="text-muted small ms-1">(ជាប់ និងបម្រុង)</span>
+              <label class="form-label fw-semibold export-label mb-1.5 d-flex align-items-center justify-content-between">
+                <span><i class="bi bi-layers text-success me-1"></i>ចំនួនក្នុងមួយក្រុម</span>
+                <span class="text-muted fw-normal small">
+                  សរុប៖ <strong class="text-success">{{ activeTotalCount }}</strong> នាក់
+                </span>
+              </label>
+              <div class="position-relative">
+                <input
+                  type="number"
+                  min="1"
+                  :max="Math.max(1, activeTotalCount)"
+                  v-model.number="groupSize"
+                  class="form-control export-input shadow-none"
+                  placeholder="20"
+                />
+              </div>
             </div>
-          </div>
-          <div class="d-flex align-items-center gap-1">
-            <span v-if="isLoadingCounts" class="spinner-border spinner-border-sm text-secondary me-1" role="status"></span>
-            <span class="badge bg-dark-subtle text-dark fw-bold px-2 py-1">
-              សរុប {{ passCount + reservedCount }} នាក់
-            </span>
+
+            <!-- Group Selector Pills -->
+            <div>
+              <label class="form-label fw-semibold export-label mb-1.5 d-flex align-items-center justify-content-between">
+                <span><i class="bi bi-check2-square text-success me-1"></i>ជ្រើសរើសក្រុមទាញយក</span>
+                <span class="text-muted fw-normal small">
+                  មាន <strong class="text-success">{{ computedGroups.length }}</strong> ក្រុម
+                </span>
+              </label>
+              <div class="group-pills-container d-flex gap-2 overflow-x-auto pb-1 pt-1">
+                <button
+                  v-for="grp in computedGroups"
+                  :key="grp.index"
+                  type="button"
+                  class="group-pill-btn d-flex flex-column align-items-center justify-content-center flex-shrink-0"
+                  :class="{ active: selectedGroupIndex === grp.index }"
+                  @click="selectedGroupIndex = grp.index"
+                >
+                  <span class="group-pill-name">G{{ grp.index }}</span>
+                  <span class="group-pill-range">{{ grp.rangeText }}</span>
+                </button>
+              </div>
+            </div>
+          </template>
+
+          <!-- Final Mode: Optional Reserve Limit -->
+          <template v-else>
+            <div>
+              <label class="form-label fw-semibold export-label mb-1.5 d-flex align-items-center justify-content-between">
+                <span><i class="bi bi-sliders text-primary me-1"></i>កំណត់ចំនួនបេក្ខជនបម្រុង</span>
+                <span class="text-muted fw-normal small">
+                  បម្រុងសរុប៖ <strong class="text-warning-emphasis">{{ reservedCount }}</strong> នាក់
+                </span>
+              </label>
+              <input
+                type="number"
+                min="0"
+                :max="reservedCount || undefined"
+                v-model.number="reserveLimit"
+                class="form-control export-input shadow-none"
+                :placeholder="`ទាំងអស់ (${reservedCount} នាក់)`"
+              />
+              <div class="form-text text-muted small mt-1">
+                <i class="bi bi-info-circle me-1"></i>ទុកទទេ = ជ្រើសយកទាំងអស់ ({{ reservedCount }} នាក់)
+              </div>
+            </div>
+          </template>
+
+          <!-- Live Summary Preview Card -->
+          <div class="export-summary-card p-3 rounded-3 mt-auto">
+            <div class="d-flex align-items-center justify-content-between">
+              <div class="d-flex align-items-center gap-2">
+                <div class="summary-icon-box d-flex align-items-center justify-content-center me-2 flex-shrink-0">
+                  <i class="bi bi-file-earmark-bar-graph"></i>
+                </div>
+                <div>
+                  <div class="summary-title fw-bold">ទិន្នន័យទាញយក</div>
+                  <div class="summary-subtitle text-muted text-truncate" style="max-width: 190px;">
+                    <template v-if="isFinalChoice">
+                      ជាប់ {{ passCount }} + បម្រុង {{ effectiveReservedCount }}
+                    </template>
+                    <template v-else>
+                      Group {{ selectedGroupIndex }} · ជួរ {{ activeRangeText }}
+                    </template>
+                  </div>
+                </div>
+              </div>
+              <div class="text-end">
+                <div class="summary-count fw-bold">
+                  {{ isFinalChoice ? finalTotalCount : activeRowCount }}
+                </div>
+                <div class="summary-unit text-muted">
+                  {{ isFinalChoice ? 'នាក់' : 'ជួរ' }}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
-        <div class="row g-2">
-          <div class="col-6">
-            <div class="p-2 rounded-3 bg-white border d-flex align-items-center justify-content-between">
-              <div class="d-flex align-items-center gap-2">
-                <span class="status-indicator bg-success"></span>
-                <span class="small fw-semibold text-muted">ជាប់ (Pass)</span>
+        <!-- ==================================================== -->
+        <!-- RIGHT COLUMN: Filters, Requirement Dates & Formats  -->
+        <!-- ==================================================== -->
+        <div class="col-12 col-md-6 d-flex flex-column gap-3">
+          <!-- Filter Selects Card -->
+          <div class="filter-box-card p-3 rounded-3 border">
+            <div class="small fw-bold text-dark mb-2.5 d-flex align-items-center gap-1.5">
+              <i class="bi bi-funnel text-success me-2"></i>
+              <span>លក្ខខណ្ឌតម្រងទិន្នន័យ</span>
+            </div>
+            <div class="row g-2">
+              <!-- Program -->
+              <div class="col-4">
+                <label class="form-label small fw-semibold text-muted mb-1">ជំនាញ</label>
+                <BaseSelect
+                  v-model="selectedProgram"
+                  :options="programOptions"
+                  option-label="label"
+                  option-value="value"
+                  :clearable="false"
+                  :searchable="false"
+                />
               </div>
-              <span class="fw-bold text-success">{{ passCount }} នាក់</span>
+              <!-- Shift -->
+              <div class="col-4">
+                <label class="form-label small fw-semibold text-muted mb-1">វេន</label>
+                <BaseSelect
+                  v-model="selectedShift"
+                  :options="shiftOptions"
+                  option-label="label"
+                  option-value="value"
+                  :clearable="false"
+                  :searchable="false"
+                />
+              </div>
+              <!-- Status / Type -->
+              <div class="col-4">
+                <label class="form-label small fw-semibold text-muted mb-1">ស្ថានភាព</label>
+                <BaseSelect
+                  v-model="selectedStatus"
+                  :options="statusOptions"
+                  option-label="label"
+                  option-value="value"
+                  :clearable="false"
+                  :searchable="false"
+                />
+              </div>
             </div>
           </div>
-          <div class="col-6">
-            <div class="p-2 rounded-3 bg-white border d-flex align-items-center justify-content-between">
-              <div class="d-flex align-items-center gap-2">
-                <span class="status-indicator bg-warning"></span>
-                <span class="small fw-semibold text-muted">បម្រុង (Reserved)</span>
-              </div>
-              <span class="fw-bold text-warning-emphasis">{{ reservedCount }} នាក់</span>
-            </div>
-          </div>
-        </div>
-      </div>
 
-      <!-- B. Shortlist Export Banner -->
-      <div
-        v-else
-        class="export-total-banner p-3 rounded-4 mb-3 d-flex align-items-center justify-content-between"
-      >
-        <div class="d-flex align-items-center gap-3">
-          <div class="export-banner-icon bg-success-subtle text-success">
-            <i class="bi bi-people-fill"></i>
+          <!-- Course Requirement Dates (Shortlist Only) -->
+          <div v-if="!isFinalChoice" class="date-box-card p-3 rounded-3 border">
+            <div class="small fw-bold text-dark mb-2.5 d-flex align-items-center justify-content-between">
+              <span><i class="bi bi-calendar-range text-success me-2"></i>កាលបរិច្ឆេទចូលរៀន ២សប្ដាហ៍</span>
+              <span class="badge bg-secondary-subtle text-secondary fw-normal">2 Weeks</span>
+            </div>
+            <div class="row g-2">
+              <div class="col-6">
+                <label class="form-label small text-muted mb-1">ថ្ងៃចាប់ផ្ដើម (Start)</label>
+                <el-date-picker
+                  v-model="startDate"
+                  type="date"
+                  format="DD MMM YYYY"
+                  value-format="YYYY-MM-DD"
+                  placeholder="ចាប់ផ្ដើម"
+                  :clearable="true"
+                  class="w-100 export-date-picker"
+                  popper-class="export-date-popper"
+                  @change="onStartDateChange"
+                />
+              </div>
+              <div class="col-6">
+                <label class="form-label small text-muted mb-1">ថ្ងៃបញ្ចប់ (End)</label>
+                <el-date-picker
+                  v-model="endDate"
+                  type="date"
+                  format="DD MMM YYYY"
+                  value-format="YYYY-MM-DD"
+                  placeholder="បញ្ចប់"
+                  :clearable="true"
+                  class="w-100 export-date-picker"
+                  popper-class="export-date-popper"
+                />
+              </div>
+            </div>
           </div>
+
+          <!-- Document Export Date -->
           <div>
-            <div class="small text-muted fw-medium mb-1">
-              បេក្ខជន Shortlist សរុបដែលអាចទាញយក
-            </div>
-            <div class="d-flex align-items-baseline gap-2">
-              <span class="fw-bold text-success fs-5">{{ activeTotalCount }}</span>
-              <span class="text-dark fw-semibold small">នាក់</span>
-              <span class="text-muted small ms-1">
-                (ចែកជា <strong class="text-dark">{{ computedGroups.length }}</strong> ក្រុម · {{ groupSize }} នាក់/ក្រុម)
-              </span>
-            </div>
-          </div>
-        </div>
-        <div>
-          <span v-if="isLoadingCounts" class="spinner-border spinner-border-sm text-success" role="status"></span>
-        </div>
-      </div>
-
-      <!-- 1. Students Per Group Input & 2. Select Group List (Shortlist Only) -->
-      <template v-if="!isFinalChoice">
-        <!-- 1. Students Per Group Input -->
-        <div class="mb-3">
-          <label class="form-label fw-bold export-label mb-2 d-flex align-items-center justify-content-between">
-            <span>ចំនួននៅក្នុងមួយក្រុម</span>
-            <span class="text-muted fw-normal small">
-              សរុប៖ <strong class="text-success">{{ activeTotalCount }}</strong> នាក់
-            </span>
-          </label>
-          <div class="position-relative">
-            <input
-              type="number"
-              min="1"
-              :max="Math.max(1, activeTotalCount)"
-              v-model.number="groupSize"
-              class="form-control export-input shadow-none"
-              placeholder="20"
-            />
-          </div>
-        </div>
-
-        <!-- 2. Select Group List -->
-        <div class="mb-3">
-          <label class="form-label fw-bold export-label mb-2 d-flex align-items-center justify-content-between">
-            <span>ជ្រើសក្រុម <span class="text-muted fw-normal">({{ groupSize }} ជួរ/ក្រុម)</span></span>
-            <span class="text-muted fw-normal small">
-              មាន <strong class="text-success">{{ computedGroups.length }}</strong> ក្រុម
-            </span>
-          </label>
-          <div class="group-pills-container d-flex gap-2 overflow-x-auto pb-2">
-            <button
-              v-for="grp in computedGroups"
-              :key="grp.index"
-              type="button"
-              class="group-pill-btn d-flex flex-column align-items-center justify-content-center flex-shrink-0"
-              :class="{ active: selectedGroupIndex === grp.index }"
-              @click="selectedGroupIndex = grp.index"
-            >
-              <span class="group-pill-name">G{{ grp.index }}</span>
-              <span class="group-pill-range">{{ grp.rangeText }}</span>
-            </button>
-          </div>
-        </div>
-      </template>
-
-      <!-- 3. Filter Selects: ជំនាញ (Skill), វេន (Shift), ស្ថានភាព (Status) -->
-      <div class="row g-2 mb-3">
-        <!-- ជំនាញ (Skill) -->
-        <div class="col-4">
-          <label class="form-label fw-bold export-label mb-1">
-            ជំនាញ
-          </label>
-          <BaseSelect
-            v-model="selectedProgram"
-            :options="programOptions"
-            option-label="label"
-            option-value="value"
-            :clearable="false"
-            :searchable="false"
-          />
-        </div>
-
-        <!-- វេន (Shift) -->
-        <div class="col-4">
-          <label class="form-label fw-bold export-label mb-1">
-            វេន
-          </label>
-          <BaseSelect
-            v-model="selectedShift"
-            :options="shiftOptions"
-            option-label="label"
-            option-value="value"
-            :clearable="false"
-            :searchable="false"
-          />
-        </div>
-
-        <!-- ស្ថានភាព (Status) -->
-        <div class="col-4">
-          <label class="form-label fw-bold export-label mb-1">
-            ស្ថានភាព
-          </label>
-          <BaseSelect
-            v-model="selectedStatus"
-            :options="statusOptions"
-            option-label="label"
-            option-value="value"
-            :clearable="false"
-            :searchable="false"
-          />
-        </div>
-      </div>
-
-      <!-- 4. Final Mode: Optional Reserve Count Limit -->
-      <div v-if="isFinalChoice" class="mb-3">
-        <label class="form-label fw-bold export-label mb-1 d-flex align-items-center justify-content-between">
-          <span>កំណត់ចំនួនបេក្ខជនបម្រុង (Reserve Limit)</span>
-          <span class="text-muted fw-normal small">
-            បម្រុងសរុប៖ <strong class="text-warning-emphasis">{{ reservedCount }}</strong> នាក់
-          </span>
-        </label>
-        <div class="position-relative">
-          <input
-            type="number"
-            min="0"
-            :max="reservedCount || undefined"
-            v-model.number="reserveLimit"
-            class="form-control export-input shadow-none"
-            :placeholder="`ទាំងអស់ (${reservedCount} នាក់)`"
-          />
-        </div>
-        <div class="form-text text-muted small mt-1">
-          <i class="bi bi-info-circle me-1"></i>កំណត់ចំនួនបេក្ខជនបម្រុងដែលត្រូវទាញយក (ទុកទទេ = ទាំងអស់ {{ reservedCount }} នាក់)
-        </div>
-      </div>
-
-      <!-- 5. Course Requirement Dates (កាលបរិច្ឆេទចូលរៀន ២សប្ដាហ៍) - Shortlist Only -->
-      <div v-if="!isFinalChoice" class="mb-3">
-        <label class="form-label fw-bold export-label mb-1 d-flex align-items-center justify-content-between">
-          <span>កាលបរិច្ឆេទចូលរៀន ២សប្ដាហ៍</span>
-          <span class="text-muted fw-normal small">វគ្គសិក្សាសាកល្បង (2 Weeks Course)</span>
-        </label>
-        <div class="row g-2">
-          <!-- Start Date -->
-          <div class="col-6">
-            <label class="form-label small text-muted mb-1">ថ្ងៃចាប់ផ្ដើម (Start Date)</label>
+            <label class="form-label fw-semibold export-label mb-1.5 d-flex align-items-center justify-content-between">
+              <span><i class="bi bi-calendar-event text-success me-2"></i>កាលបរិច្ឆេទលើឯកសារ</span>
+              <span class="text-muted fw-normal small">ថ្ងៃទាញយក / ហត្ថលេខា</span>
+            </label>
             <el-date-picker
-              v-model="startDate"
+              v-model="exportDate"
               type="date"
               format="DD MMM YYYY"
               value-format="YYYY-MM-DD"
-              placeholder="ថ្ងៃចាប់ផ្ដើម"
-              :clearable="true"
-              class="w-100 export-date-picker"
-              popper-class="export-date-popper"
-              @change="onStartDateChange"
-            />
-          </div>
-
-          <!-- End Date -->
-          <div class="col-6">
-            <label class="form-label small text-muted mb-1">ថ្ងៃបញ្ចប់ (End Date)</label>
-            <el-date-picker
-              v-model="endDate"
-              type="date"
-              format="DD MMM YYYY"
-              value-format="YYYY-MM-DD"
-              placeholder="ថ្ងៃបញ្ចប់"
-              :clearable="true"
+              placeholder="ជ្រើសរើសកាលបរិច្ឆេទ"
+              :clearable="false"
               class="w-100 export-date-picker"
               popper-class="export-date-popper"
             />
           </div>
-        </div>
-      </div>
 
-      <!-- 5. Export Date (កាលបរិច្ឆេទលើឯកសារ) -->
-      <div class="mb-3">
-        <label class="form-label fw-bold export-label mb-1 d-flex align-items-center justify-content-between">
-          <span>កាលបរិច្ឆេទលើឯកសារ</span>
-          <span class="text-muted fw-normal small">កាលបរិច្ឆេទទាញយក / ហត្ថលេខា</span>
-        </label>
-        <el-date-picker
-          v-model="exportDate"
-          type="date"
-          format="DD MMM YYYY"
-          value-format="YYYY-MM-DD"
-          placeholder="ជ្រើសរើសកាលបរិច្ឆេទ"
-          :clearable="false"
-          class="w-100 export-date-picker"
-          popper-class="export-date-popper"
-        />
-      </div>
-
-      <!-- 6. Summary Preview Card -->
-      <div class="export-summary-card d-flex align-items-center justify-content-between p-3 rounded-4 mb-3">
-        <div class="d-flex align-items-center gap-3">
-          <!-- Device / Monitor Icon -->
-          <div class="summary-icon-box d-flex align-items-center justify-content-center flex-shrink-0">
-            <i class="bi bi-display"></i>
-          </div>
-          <!-- Info -->
+          <!-- File Format Selection (Modern Interactive Cards) -->
           <div>
-            <div class="summary-title fw-bold">ទិន្នន័យអ្នកទាញយក</div>
-            <div class="summary-subtitle text-muted">
-              <template v-if="isFinalChoice">
-                លទ្ធផលចុងក្រោយ (Pass {{ passCount }} + Reserved {{ effectiveReservedCount }}) · {{ selectedProgramLabel }}
-              </template>
-              <template v-else>
-                Group {{ selectedGroupIndex }} · ជួរ {{ activeRangeText }}
-              </template>
+            <label class="form-label fw-semibold export-label mb-1.5">
+              <i class="bi bi-file-earmark-text text-primary me-1.5"></i>ទម្រង់ឯកសារ (File Format)
+            </label>
+            <div class="row g-2">
+              <!-- PDF Card -->
+              <div class="col-6">
+                <div
+                  class="format-card d-flex align-items-center justify-content-between p-2.5 rounded-3 border"
+                  :class="{ active: selectedFormat === 'pdf' }"
+                  @click="selectedFormat = 'pdf'"
+                >
+                  <div class="d-flex align-items-center gap-2">
+                    <div class="format-card-icon bg-danger-subtle text-danger">
+                      <i class="bi bi-file-earmark-pdf-fill"></i>
+                    </div>
+                    <div>
+                      <span class="d-block fw-bold small text-dark">PDF</span>
+                      <span class="text-muted" style="font-size: 0.72rem;">ផ្លូវការ / បោះពុម្ព</span>
+                    </div>
+                  </div>
+                  <i class="bi" :class="selectedFormat === 'pdf' ? 'bi-check-circle-fill text-success fs-5' : 'bi-circle text-muted fs-5'"></i>
+                </div>
+              </div>
+
+              <!-- Word Card -->
+              <div class="col-6">
+                <div
+                  class="format-card d-flex align-items-center justify-content-between p-2.5 rounded-3 border"
+                  :class="{ active: selectedFormat === 'docx' }"
+                  @click="selectedFormat = 'docx'"
+                >
+                  <div class="d-flex align-items-center gap-2">
+                    <div class="format-card-icon bg-primary-subtle text-primary">
+                      <i class="bi bi-file-earmark-word-fill"></i>
+                    </div>
+                    <div>
+                      <span class="d-block fw-bold small text-dark">Word (.docx)</span>
+                      <span class="text-muted" style="font-size: 0.72rem;">អាចកែសម្រួលបាន</span>
+                    </div>
+                  </div>
+                  <i class="bi" :class="selectedFormat === 'docx' ? 'bi-check-circle-fill text-success fs-5' : 'bi-circle text-muted fs-5'"></i>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-        <!-- Right Counter -->
-        <div class="text-end">
-          <div class="summary-count fw-bold">
-            {{ isFinalChoice ? finalTotalCount : activeRowCount }}
-          </div>
-          <div class="summary-unit text-muted">
-            {{ isFinalChoice ? 'នាក់' : 'ជួរ' }}
-          </div>
-        </div>
-      </div>
-
-      <!-- 5. Optional Format Switcher (PDF / DOCX) -->
-      <div class="d-flex align-items-center justify-content-between px-1 mb-1">
-        <span class="small text-muted fw-semibold">ទម្រង់ឯកសារ (Format):</span>
-        <div class="btn-group btn-group-sm format-toggle-group" role="group">
-          <button
-            type="button"
-            class="btn format-btn"
-            :class="selectedFormat === 'pdf' ? 'btn-format-active' : 'btn-format-inactive'"
-            @click="selectedFormat = 'pdf'"
-          >
-            <i class="bi bi-file-earmark-pdf me-1 text-danger"></i> PDF
-          </button>
-          <button
-            type="button"
-            class="btn format-btn"
-            :class="selectedFormat === 'docx' ? 'btn-format-active' : 'btn-format-inactive'"
-            @click="selectedFormat = 'docx'"
-          >
-            <i class="bi bi-file-earmark-word me-1 text-primary"></i> Word
-          </button>
         </div>
       </div>
     </div>
@@ -408,36 +439,42 @@
       <div v-if="isSuccess" class="w-100 pt-1">
         <button
           type="button"
-          class="btn btn-export-submit w-100 py-2 fs-6 fw-bold"
+          class="btn btn-export-submit w-100 py-2.5 fs-6 fw-bold"
           @click="handleClose"
         >
-          រួចរាល់
+          <i class="bi bi-check2-circle me-1.5"></i>រួចរាល់
         </button>
       </div>
 
       <!-- Normal Form Actions -->
-      <div v-else class="d-flex align-items-center gap-3 w-100 pt-2">
-        <!-- Cancel Button -->
-        <button
-          type="button"
-          class="btn btn-export-cancel w-50"
-          :disabled="isDownloading"
-          @click="handleClose"
-        >
-          បោះបង់
-        </button>
+      <div v-else class="d-flex align-items-center justify-content-between w-100 pt-1">
+        <div class="text-muted small d-none d-sm-block">
+          <i class="bi bi-shield-check text-success me-1"></i>ទិន្នន័យត្រូវបានទាញយកដោយស្វ័យប្រវត្តិតាមតម្រង
+        </div>
 
-        <!-- Download Button -->
-        <button
-          type="button"
-          class="btn btn-export-submit w-50 d-inline-flex align-items-center justify-content-center gap-2"
-          :disabled="isDownloading"
-          @click="handleDownload"
-        >
-          <span v-if="isDownloading" class="spinner-border spinner-border-sm" role="status"></span>
-          <i v-else class="bi bi-download"></i>
-          <span>{{ isDownloading ? 'កំពុងទាញយក...' : 'ទាញយក' }}</span>
-        </button>
+        <div class="d-flex align-items-center gap-2 ms-auto">
+          <!-- Cancel Button -->
+          <button
+            type="button"
+            class="btn btn-export-cancel px-4"
+            :disabled="isDownloading"
+            @click="handleClose"
+          >
+            បោះបង់
+          </button>
+
+          <!-- Download Button -->
+          <button
+            type="button"
+            class="btn btn-export-submit px-4 d-inline-flex align-items-center justify-content-center gap-2"
+            :disabled="isDownloading"
+            @click="handleDownload"
+          >
+            <span v-if="isDownloading" class="spinner-border spinner-border-sm" role="status"></span>
+            <i v-else class="bi bi-download"></i>
+            <span>{{ isDownloading ? 'កំពុងទាញយក...' : 'ទាញយកឯកសារ' }}</span>
+          </button>
+        </div>
       </div>
     </template>
   </BaseModal>
@@ -757,62 +794,63 @@ const handleDownload = async () => {
    HEADER STYLES
    ==================================== */
 .export-icon-box {
-  width: 44px;
-  height: 44px;
-  background-color: #e8f5f1;
+  width: 42px;
+  height: 42px;
+  background: linear-gradient(135deg, #e8f5f1 0%, #d5eee6 100%);
   border-radius: 12px;
-  color: #357867;
+  color: #2e7d6b;
   font-size: 20px;
 }
 
 .export-modal-title {
-  color: #2d6a4f;
-  font-size: 1.15rem;
+  color: #1e3a34;
+  font-size: 1.12rem;
+  letter-spacing: -0.2px;
 }
 
 .export-modal-subtitle {
-  font-size: 0.82rem;
-  color: #718096 !important;
+  font-size: 0.8rem;
+  color: #64748b !important;
 }
 
 .btn-close-export {
   width: 32px;
   height: 32px;
-  background-color: #e8f5f1;
+  background-color: #f1f5f9;
   border: none;
   border-radius: 8px;
-  color: #357867;
+  color: #64748b;
   font-size: 13px;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .btn-close-export:hover {
-  background-color: #d2ebe2;
-  color: #24523d;
+  background-color: #e2e8f0;
+  color: #1e293b;
 }
 
 /* ====================================
-   TOTAL CANDIDATES BANNER
+   BANNER CARDS
    ==================================== */
-.export-total-banner {
-  background: linear-gradient(135deg, #f7faf9 0%, #edf7f4 100%);
+.export-stat-card-banner {
+  background: linear-gradient(135deg, #f8faf9 0%, #f0f7f5 100%);
   border: 1px solid #d4ede4 !important;
 }
 
-.export-total-banner-final {
-  background: linear-gradient(135deg, #fbfbfd 0%, #f4f6fa 100%);
-  border: 1px solid #e2e8f0 !important;
+.export-stat-banner-final {
+  background: linear-gradient(135deg, #fffbf5 0%, #fef8ec 100%);
+  border: 1px solid #fed7aa !important;
 }
 
-.export-banner-icon {
-  width: 38px;
-  height: 38px;
-  border-radius: 10px;
+.stat-icon-circle {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 18px;
+  font-size: 16px;
   flex-shrink: 0;
 }
 
@@ -824,77 +862,38 @@ const handleDownload = async () => {
 }
 
 /* ====================================
-   LABELS & INPUTS
+   CONTAINER CARDS (FILTERS & DATES)
    ==================================== */
-.export-label {
-  color: #2d3748;
-  font-size: 0.88rem;
-}
-
-.export-input {
-  height: 46px;
-  border: 1.5px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 0 16px;
-  font-size: 0.95rem;
-  font-weight: 500;
-  color: #2d3748;
-  background-color: #ffffff;
-  transition: border-color 0.2s ease;
-}
-
-.export-input:focus {
-  border-color: #357867;
-  background-color: #ffffff;
+.filter-box-card,
+.date-box-card {
+  background-color: #fafbfc;
+  border: 1px solid #eef2f6 !important;
 }
 
 /* ====================================
-   ELEMENT PLUS DATE PICKER OVERRIDES
+   LABELS & INPUTS
    ==================================== */
-.export-date-picker {
-  --el-color-primary: #357867 !important;
-  --el-input-focus-border-color: #357867 !important;
-  --el-input-hover-border-color: #357867 !important;
-  --el-input-border-color: #e2e8f0 !important;
-  height: 46px !important;
-  width: 100% !important;
+.export-label {
+  color: #334155;
+  font-size: 0.84rem;
 }
 
-.export-date-picker :deep(.el-input__wrapper) {
-  border-radius: 12px !important;
-  border: 1.5px solid #e2e8f0 !important;
-  box-shadow: none !important;
-  outline: none !important;
-  transition: all 0.2s ease !important;
-  padding: 0 14px !important;
+.export-input {
+  height: 42px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 0 14px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #1e293b;
+  background-color: #ffffff;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.export-date-picker :deep(.el-input__wrapper:hover) {
-  border-color: #357867 !important;
-}
-
-.export-date-picker :deep(.el-input__wrapper.is-focus),
-.export-date-picker :deep(.el-input__wrapper:focus),
-.export-date-picker :deep(.el-input__wrapper:focus-within) {
-  border-color: #357867 !important;
-  box-shadow: 0 0 0 1px #357867 inset, 0 0 0 3px rgba(53, 120, 103, 0.12) !important;
-  outline: none !important;
-}
-
-.export-date-picker :deep(.el-input__inner) {
-  font-weight: 600 !important;
-  color: #2d3748 !important;
-  font-size: 0.92rem !important;
-}
-
-.export-date-picker :deep(.el-input__inner:focus) {
-  outline: none !important;
-  box-shadow: none !important;
-}
-
-.export-date-picker :deep(.el-input__prefix) {
-  color: #357867 !important;
-  font-size: 16px !important;
+.export-input:focus {
+  border-color: #2e7d6b;
+  box-shadow: 0 0 0 3px rgba(46, 125, 107, 0.12);
+  background-color: #ffffff;
 }
 
 /* ====================================
@@ -906,81 +905,154 @@ const handleDownload = async () => {
 }
 
 .group-pill-btn {
-  width: 82px;
-  height: 58px;
-  border-radius: 12px;
-  border: 1.5px solid #edf2f7;
+  min-width: 72px;
+  height: 52px;
+  border-radius: 10px;
+  border: 1.5px solid #e2e8f0;
   background-color: #ffffff;
+  cursor: pointer;
+  padding: 4px 8px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.group-pill-btn:hover {
+  border-color: #9fd4c7;
+  background-color: #f7faf9;
+  transform: translateY(-1px);
+}
+
+.group-pill-name {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #334155;
+}
+
+.group-pill-range {
+  font-size: 0.7rem;
+  color: #94a3b8;
+  white-space: nowrap;
+}
+
+.group-pill-btn.active {
+  border-color: #2e7d6b;
+  background: linear-gradient(135deg, #f0fdf4 0%, #e8f7f2 100%);
+  box-shadow: 0 2px 6px rgba(46, 125, 107, 0.15);
+}
+
+.group-pill-btn.active .group-pill-name {
+  color: #2e7d6b;
+}
+
+.group-pill-btn.active .group-pill-range {
+  color: #2e7d6b;
+  font-weight: 600;
+}
+
+/* ====================================
+   SUMMARY PREVIEW CARD
+   ==================================== */
+.export-summary-card {
+  border: 1.5px solid #d1fae5;
+  background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+}
+
+.summary-icon-box {
+  width: 42px;
+  height: 42px;
+  background-color: #ffffff;
+  border-radius: 10px;
+  color: #2e7d6b;
+  font-size: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+}
+
+.summary-title {
+  color: #1e3a34;
+  font-size: 0.88rem;
+}
+
+.summary-subtitle {
+  font-size: 0.78rem;
+}
+
+.summary-count {
+  color: #2e7d6b;
+  font-size: 1.6rem;
+  line-height: 1;
+}
+
+.summary-unit {
+  font-size: 0.78rem;
+  color: #64748b;
+}
+
+/* ====================================
+   FORMAT CARDS (PDF / WORD)
+   ==================================== */
+.format-card {
+  background-color: #ffffff;
+  border: 1.5px solid #e2e8f0;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
-.group-pill-btn:hover {
-  border-color: #a3d9c9;
-  background-color: #f7faf9;
+.format-card:hover {
+  border-color: #cbd5e1;
+  background-color: #f8fafc;
 }
 
-.group-pill-name {
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: #4a5568;
+.format-card.active {
+  border-color: #2e7d6b !important;
+  background-color: #f0f9f6 !important;
+  box-shadow: 0 0 0 1px #2e7d6b;
 }
 
-.group-pill-range {
-  font-size: 0.72rem;
-  color: #a0aec0;
-}
-
-/* Active Group Pill */
-.group-pill-btn.active {
-  border: 1.5px solid #357867;
-  background-color: #f0f9f5;
-}
-
-.group-pill-btn.active .group-pill-name {
-  color: #357867;
-}
-
-.group-pill-btn.active .group-pill-range {
-  color: #357867;
-  opacity: 0.85;
+.format-card-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
 }
 
 /* ====================================
    BASE SELECT DROPDOWN OVERRIDES
    ==================================== */
 :deep(.base-select) {
-  --bs-radius: 12px;
+  --bs-radius: 10px;
   --bs-border: #e2e8f0;
-  --bs-focus: #357867;
-  --bs-focus-ring: rgba(53, 120, 103, 0.12);
-  --bs-text: #357867;
+  --bs-focus: #2e7d6b;
+  --bs-focus-ring: rgba(46, 125, 107, 0.12);
+  --bs-text: #2e7d6b;
 }
 
 :deep(.base-select__group) {
   border: 1.5px solid #e2e8f0 !important;
-  border-radius: 12px !important;
+  border-radius: 10px !important;
   transition: all 0.2s ease !important;
   background-color: #ffffff !important;
 }
 
 :deep(.base-select.is-focused .base-select__group) {
-  border-color: #357867 !important;
-  box-shadow: 0 0 0 3px rgba(53, 120, 103, 0.12) !important;
+  border-color: #2e7d6b !important;
+  box-shadow: 0 0 0 3px rgba(46, 125, 107, 0.12) !important;
 }
 
 :deep(.base-select__group .ts-control) {
   font-weight: 600 !important;
-  color: #357867 !important;
-  font-size: 0.88rem !important;
-  min-height: 44px !important;
-  padding: 0 30px 0 14px !important;
-  border-radius: 12px !important;
+  color: #334155 !important;
+  font-size: 0.84rem !important;
+  min-height: 40px !important;
+  padding: 0 26px 0 12px !important;
+  border-radius: 10px !important;
 }
 
 :deep(.base-select__chevron) {
-  color: #357867 !important;
-  right: 12px !important;
+  color: #64748b !important;
+  right: 10px !important;
 }
 
 :deep(.base-select__placeholder) {
@@ -988,7 +1060,7 @@ const handleDownload = async () => {
 }
 
 :deep(.ts-dropdown) {
-  border-radius: 12px !important;
+  border-radius: 10px !important;
   border: 1px solid #e2e8f0 !important;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08) !important;
   overflow: hidden !important;
@@ -997,186 +1069,174 @@ const handleDownload = async () => {
 }
 
 :deep(.ts-dropdown .option) {
-  padding: 9px 14px !important;
-  font-size: 0.88rem !important;
+  padding: 8px 12px !important;
+  font-size: 0.84rem !important;
   font-weight: 500 !important;
-  color: #2d3748 !important;
+  color: #334155 !important;
   cursor: pointer !important;
 }
 
 :deep(.ts-dropdown .option.active),
 :deep(.ts-dropdown .option:hover) {
-  background-color: #f0f9f5 !important;
-  color: #357867 !important;
+  background-color: #f0f9f6 !important;
+  color: #2e7d6b !important;
   font-weight: 600 !important;
 }
 
 :deep(.ts-dropdown .option.selected) {
   background-color: #e8f5f1 !important;
-  color: #2d6a4f !important;
+  color: #1e3a34 !important;
   font-weight: 700 !important;
 }
 
 /* ====================================
-   SUMMARY CARD
+   ELEMENT PLUS DATE PICKER OVERRIDES
    ==================================== */
-.export-summary-card {
-  border: 1.5px solid #d4ede4;
-  background-color: #f8fcfa;
+.export-date-picker {
+  --el-color-primary: #2e7d6b !important;
+  --el-input-focus-border-color: #2e7d6b !important;
+  --el-input-hover-border-color: #2e7d6b !important;
+  --el-input-border-color: #e2e8f0 !important;
+  height: 42px !important;
+  width: 100% !important;
 }
 
-.summary-icon-box {
-  width: 44px;
-  height: 44px;
-  background-color: #e2ede8;
-  border-radius: 10px;
-  color: #357867;
-  font-size: 20px;
+.export-date-picker :deep(.el-input__wrapper) {
+  border-radius: 10px !important;
+  border: 1.5px solid #e2e8f0 !important;
+  box-shadow: none !important;
+  outline: none !important;
+  transition: all 0.2s ease !important;
+  padding: 0 12px !important;
 }
 
-.summary-title {
-  color: #357867;
-  font-size: 0.95rem;
+.export-date-picker :deep(.el-input__wrapper:hover) {
+  border-color: #2e7d6b !important;
 }
 
-.summary-subtitle {
-  font-size: 0.82rem;
+.export-date-picker :deep(.el-input__wrapper.is-focus),
+.export-date-picker :deep(.el-input__wrapper:focus),
+.export-date-picker :deep(.el-input__wrapper:focus-within) {
+  border-color: #2e7d6b !important;
+  box-shadow: 0 0 0 1px #2e7d6b inset, 0 0 0 3px rgba(46, 125, 107, 0.12) !important;
+  outline: none !important;
 }
 
-.summary-count {
-  color: #357867;
-  font-size: 1.85rem;
-  line-height: 1;
+.export-date-picker :deep(.el-input__inner) {
+  font-weight: 600 !important;
+  color: #1e293b !important;
+  font-size: 0.88rem !important;
 }
 
-.summary-unit {
-  font-size: 0.82rem;
+.export-date-picker :deep(.el-input__inner:focus) {
+  outline: none !important;
+  box-shadow: none !important;
 }
 
-/* ====================================
-   FORMAT TOGGLE PILLS
-   ==================================== */
-.format-toggle-group {
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  overflow: hidden;
-  padding: 2px;
-  background-color: #f8fafc;
-}
-
-.format-btn {
-  font-size: 0.78rem;
-  font-weight: 600;
-  border-radius: 6px !important;
-  padding: 3px 10px;
-  border: none;
-  transition: all 0.2s ease;
-}
-
-.btn-format-active {
-  background-color: #ffffff !important;
-  color: #2d6a4f !important;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
-}
-
-.btn-format-inactive {
-  background-color: transparent !important;
-  color: #718096 !important;
+.export-date-picker :deep(.el-input__prefix) {
+  color: #2e7d6b !important;
+  font-size: 15px !important;
 }
 
 /* ====================================
    SUCCESS SCREEN STYLES
    ==================================== */
 .export-success-container {
-  padding: 18px 0;
+  padding: 20px 0;
 }
 
 .export-success-icon-box {
-  width: 72px;
-  height: 72px;
-  background-color: #ecfdf5;
-  border-radius: 20px;
-  color: #357867;
+  width: 76px;
+  height: 76px;
+  background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+  border-radius: 50%;
+  color: #2e7d6b;
+  box-shadow: 0 10px 20px rgba(46, 125, 107, 0.15);
 }
 
 .export-success-title {
-  color: #2d3748;
-  font-size: 1.25rem;
+  color: #1e293b;
+  font-size: 1.3rem;
   letter-spacing: -0.2px;
 }
 
 .export-success-desc {
-  font-size: 0.88rem;
-  color: #718096;
+  font-size: 0.9rem;
+  color: #64748b;
 }
 
 .export-success-highlight {
-  color: #357867;
+  color: #2e7d6b;
   font-weight: 700;
 }
 
 .export-stat-card {
   background-color: #f8fafc;
-  border: 1px solid #e8edf2;
-  border-radius: 14px;
-  padding: 12px 6px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 10px 4px;
   text-align: center;
   transition: all 0.2s ease;
 }
 
 .export-stat-label {
-  font-size: 0.82rem;
-  color: #718096;
+  font-size: 0.78rem;
+  color: #64748b;
   font-weight: 500;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 }
 
 .export-stat-value {
-  font-size: 0.95rem;
+  font-size: 0.92rem;
   font-weight: 700;
-  color: #2d3748;
+  color: #1e293b;
 }
 
 /* ====================================
    FOOTER BUTTONS
    ==================================== */
 .btn-export-cancel {
-  height: 46px;
+  height: 42px;
   border: 1.5px solid #e2e8f0;
-  border-radius: 12px;
+  border-radius: 10px;
   background-color: #ffffff;
-  color: #718096;
+  color: #64748b;
   font-weight: 600;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   transition: all 0.2s ease;
 }
 
 .btn-export-cancel:hover {
-  background-color: #f8f9fa;
+  background-color: #f8fafc;
   border-color: #cbd5e1;
-  color: #4a5568;
+  color: #334155;
 }
 
 .btn-export-submit {
-  height: 46px;
+  height: 42px;
   border: none;
-  border-radius: 12px;
-  background-color: #357867;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #2e7d6b 0%, #24584b 100%);
   color: #ffffff;
   font-weight: 600;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
+  box-shadow: 0 4px 12px rgba(46, 125, 107, 0.25);
   transition: all 0.2s ease;
 }
 
 .btn-export-submit:hover {
-  background-color: #295f51;
+  background: linear-gradient(135deg, #256b5b 0%, #1e4b40 100%);
   color: #ffffff;
+  box-shadow: 0 6px 16px rgba(46, 125, 107, 0.35);
+  transform: translateY(-1px);
 }
 
 .btn-export-submit:disabled,
 .btn-export-cancel:disabled {
   opacity: 0.65;
   cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 </style>
 
@@ -1184,11 +1244,11 @@ const handleDownload = async () => {
 /* Unscoped styles for Element Plus date picker */
 .export-date-popper,
 .export-date-picker {
-  --el-color-primary: #357867 !important;
-  --el-input-focus-border-color: #357867 !important;
-  --el-input-hover-border-color: #357867 !important;
-  --el-datepicker-active-color: #357867 !important;
-  --el-datepicker-hover-text-color: #357867 !important;
+  --el-color-primary: #2e7d6b !important;
+  --el-input-focus-border-color: #2e7d6b !important;
+  --el-input-hover-border-color: #2e7d6b !important;
+  --el-datepicker-active-color: #2e7d6b !important;
+  --el-datepicker-hover-text-color: #2e7d6b !important;
 }
 
 .export-date-popper {
@@ -1198,30 +1258,51 @@ const handleDownload = async () => {
 }
 
 .export-date-popper .el-date-table td.current:not(.disabled) .el-date-table-cell__text {
-  background-color: #357867 !important;
+  background-color: #2e7d6b !important;
   color: #ffffff !important;
   font-weight: 700 !important;
   border-radius: 50% !important;
 }
 
 .export-date-popper .el-date-table td.today .el-date-table-cell__text {
-  color: #357867 !important;
+  color: #2e7d6b !important;
   font-weight: 700 !important;
 }
 
 .export-date-popper .el-date-table td.available:hover {
-  color: #357867 !important;
+  color: #2e7d6b !important;
 }
 
 .export-date-picker .el-input__wrapper.is-focus,
 .export-date-picker .el-input__wrapper:focus,
 .export-date-picker .el-input__wrapper:focus-within {
-  border-color: #357867 !important;
-  box-shadow: 0 0 0 1px #357867 inset, 0 0 0 3px rgba(53, 120, 103, 0.12) !important;
+  border-color: #2e7d6b !important;
+  box-shadow: 0 0 0 1px #2e7d6b inset, 0 0 0 3px rgba(46, 125, 107, 0.12) !important;
   outline: none !important;
 }
 
 .export-date-picker .el-input__inner:focus {
   outline: none !important;
+}
+
+/* ==========================================================
+   ISOLATED WIDTH FOR EXPORT MODAL ONLY (Does not touch others)
+   ========================================================== */
+.export-modal-dialog-wrapper .modal-dialog {
+  max-width: 1050px !important;
+  width: 1000px !important;
+}
+
+.export-modal-dialog-wrapper .modal-content {
+  width: 1050px !important;
+  max-width: 95vw !important;
+  border-radius: 16px !important;
+}
+
+.export-modal-dialog-wrapper .modal-body {
+  max-height: calc(90vh - 130px);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
 }
 </style>
