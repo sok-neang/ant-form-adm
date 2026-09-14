@@ -105,16 +105,12 @@
 
       <template v-if="activeTab === 'restore'" #cell-status="{ row }">
         <span class="badge px-3 py-1" :class="{
-          'bg-success-subtle text-success':
-            row.status === 'Restored',
-
-          'bg-warning-subtle text-warning':
-            row.status === 'Pending',
+          'bg-success-subtle text-success': isRestored(row),
+          'bg-warning-subtle text-warning': !isRestored(row),
         }">
-          {{ row.status }}
+          {{ isRestored(row) ? 'បានស្ដារ' : 'កំពុងរង់ចាំ' }}
         </span>
       </template>
-      <template #cell-></template>
 
 
       <!-- ================================================= -->
@@ -131,26 +127,84 @@
           </button>
 
           <!-- RESTORE -->
-          <button v-if="activeTab === 'restore'" type="button" class="btn action-btn" :class="row.status === 'Restored'
+          <button v-if="activeTab === 'restore'" type="button" class="btn action-btn" :class="isRestored(row)
               ? 'action-restored'
               : 'action-restore'
-            " :title="row.status === 'Restored'
+            " :disabled="isRestored(row) || restoringId === row.id" :title="isRestored(row)
           ? 'បានស្ដាររួច'
           : 'ស្ដារកំណត់ត្រា'
-        " @click="handleRestore(row)">
-            <i class="bi bi-arrow-counterclockwise"></i>
+        " @click="openRestoreModal(row)">
+            <span v-if="restoringId === row.id" class="spinner-border spinner-border-sm" role="status"></span>
+            <i v-else class="bi bi-arrow-counterclockwise"></i>
           </button>
 
         </div>
       </template>
     </BaseTable>
   </div>
- <DetailActivityLog
-  :show="showDetail"
-  :log="selectedLog"
-  :type="detailType"
-  @close="showDetail = false"
-/>
+
+  <!-- Detail Modal -->
+  <DetailActivityLog
+    :show="showDetail"
+    :log="selectedLog"
+    :type="detailType"
+    @close="showDetail = false"
+  />
+
+  <!-- Confirm Restore Modal -->
+  <BaseModal :show="showRestoreModal" size="md" title="បញ្ជាក់ការស្ដារទិន្នន័យ" @close="closeRestoreModal">
+    <template #header>
+      <div class="d-flex align-items-center gap-3">
+        <div class="d-flex align-items-center justify-content-center bg-warning-subtle text-warning rounded-3" style="width: 42px; height: 42px;">
+          <i class="bi bi-arrow-counterclockwise fs-3"></i>
+        </div>
+        <div>
+          <h5 class="modal-title fw-bold mb-1">បញ្ជាក់ការស្ដារទិន្នន័យ</h5>
+          <p class="text-muted mb-0 small">ស្ដារកំណត់ត្រាត្រឡប់ទៅស្ថានភាពដើមវិញ</p>
+        </div>
+      </div>
+    </template>
+
+    <div class="py-2">
+      <p class="mb-3">តើអ្នកពិតជាចង់ស្ដារកំណត់ត្រានេះត្រឡប់ទៅស្ថានភាពដើមវិញមែនទេ?</p>
+
+      <div class="p-3 bg-light rounded-3 mb-3 small">
+        <div class="d-flex justify-content-between py-1 border-bottom">
+          <span class="text-muted">តារាងគោលដៅ (Table):</span>
+          <span class="fw-semibold text-primary font-monospace">{{ getRestoreTable(restoreTarget) }}</span>
+        </div>
+        <div class="d-flex justify-content-between py-1 border-bottom">
+          <span class="text-muted">សកម្មភាពដើម (Action):</span>
+          <span class="fw-semibold text-danger">{{ restoreTarget?.action || 'N/A' }}</span>
+        </div>
+        <div v-if="restoreTarget?.message" class="d-flex justify-content-between py-1 border-bottom">
+          <span class="text-muted">សារ (Message):</span>
+          <span class="fw-semibold text-dark">{{ restoreTarget?.message }}</span>
+        </div>
+        <div class="d-flex justify-content-between py-1">
+          <span class="text-muted">ពេលវេលា (Time):</span>
+          <span class="text-dark">{{ formatDate(restoreTarget?.createdAt) }}</span>
+        </div>
+      </div>
+
+      <div class="alert alert-warning d-flex align-items-center gap-2 mb-0 py-2 small">
+        <i class="bi bi-exclamation-triangle-fill fs-5"></i>
+        <span>ទិន្នន័យបច្ចុប្បន្ននឹងត្រូវបានជំនួសដោយទិន្នន័យដើម (Snapshot) មុនពេលមានការកែប្រែ/លុប។</span>
+      </div>
+    </div>
+
+    <template #footer>
+      <div class="d-flex justify-content-end gap-2 w-100">
+        <BaseButton type="button" custom-class="btn-light bg-secondary-subtle px-4" :disabled="restoring" @click="closeRestoreModal">
+          បោះបង់
+        </BaseButton>
+        <BaseButton type="button" variant="warning" custom-class="px-4 text-white" :disabled="restoring" @click="handleRestoreConfirm">
+          <span v-if="restoring" class="spinner-border spinner-border-sm me-1" role="status"></span>
+          {{ restoring ? "កំពុងស្ដារ..." : "យល់ព្រមស្ដារ" }}
+        </BaseButton>
+      </div>
+    </template>
+  </BaseModal>
 </template>
 
 <script setup>
@@ -159,8 +213,13 @@ import BaseTable from "@/components/ui/base/BaseTable.vue";
 import BaseInput from "@/components/ui/base/BaseInput.vue";
 import BaseSelect from "@/components/ui/base/BaseSelect.vue";
 import BaseModal from "@/components/ui/base/BaseModal.vue";
+import BaseButton from "@/components/ui/base/BaseButton.vue";
 import { formatDate } from "@/utils/dateFormat.js";
+import { useAppToast } from "@/composable/useAppToast";
+import activityLogService from "@/services/activity-log.service";
 import DetailActivityLog from "./DetailActivityLog .vue";
+
+const toast = useAppToast();
 
 const showDetail = ref(false);
 const selectedLog = ref(null);
@@ -170,6 +229,67 @@ const openDetail = (row, type) => {
   selectedLog.value = row;
   detailType.value = type;
   showDetail.value = true;
+};
+
+// Restore state & actions
+const showRestoreModal = ref(false);
+const restoreTarget = ref(null);
+const restoring = ref(false);
+const restoringId = ref(null);
+
+const isRestored = (row) => {
+  const s = String(row?.status || row?.restoreStatus || "").toUpperCase();
+  return s === "RESTORED";
+};
+
+const getRestoreTable = (row) => {
+  const rawTable = row?.targetTable || row?.tableName || row?.table || "";
+  const t = rawTable.toLowerCase();
+  if (t.includes("user")) return "users";
+  if (t.includes("submiss")) return "submissions";
+  if (t.includes("eval")) return "evaluations";
+  return t || "users";
+};
+
+const openRestoreModal = (row) => {
+  if (isRestored(row)) return;
+  restoreTarget.value = row;
+  showRestoreModal.value = true;
+};
+
+const closeRestoreModal = () => {
+  if (restoring.value) return;
+  showRestoreModal.value = false;
+  restoreTarget.value = null;
+};
+
+const handleRestoreConfirm = async () => {
+  if (!restoreTarget.value) return;
+  const target = restoreTarget.value;
+  const table = getRestoreTable(target);
+  const id = target.id;
+
+  try {
+    restoring.value = true;
+    restoringId.value = id;
+
+    const response = await activityLogService.restoreRecord(table, id);
+    if (response.data?.success || response.status === 200 || response.status === 201) {
+      toast.success("ស្ដារទិន្នន័យបានជោគជ័យ");
+      showRestoreModal.value = false;
+      restoreTarget.value = null;
+      // Refresh current tab
+      await getData(activeTab.value, currentTab.value?.pagination?.page || 1);
+    } else {
+      toast.error(response.data?.message || "បរាជ័យក្នុងការស្ដារទិន្នន័យ");
+    }
+  } catch (error) {
+    console.error("Restore failed:", error);
+    toast.error(error.response?.data?.message || "មានបញ្ហាក្នុងការស្ដារទិន្នន័យ");
+  } finally {
+    restoring.value = false;
+    restoringId.value = null;
+  }
 };
 import { useActivityLogList } from "@/composable/activity-logs/useActivityLogList";
 

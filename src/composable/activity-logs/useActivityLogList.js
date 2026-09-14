@@ -58,6 +58,9 @@ const getData = async (type, page = 1) => {
 
     // Status filter
     if (tab.filters.status) {
+      if (type === "audit") {
+        params.action = tab.filters.status;
+      }
       params.status = tab.filters.status;
     }
 
