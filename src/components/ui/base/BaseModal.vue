@@ -50,7 +50,7 @@
 
 
 <script setup>
-import { computed, watch } from "vue";
+import { computed, watch, onBeforeUnmount } from "vue";
 
 const props = defineProps({
   show: {
@@ -102,15 +102,27 @@ const close = () => {
   emit("update:show", false);
 };
 
-// Prevent background scrolling
+// Prevent background scrolling without layout shift (scrollbar jump)
 watch(
   () => props.show,
   (value) => {
-    document.body.style.overflow = value
-      ? "hidden"
-      : "";
+    if (value) {
+      const scrollBarWidth = window.innerWidth - document.documentElement.clientWidth;
+      if (scrollBarWidth > 0) {
+        document.body.style.paddingRight = `${scrollBarWidth}px`;
+      }
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.paddingRight = "";
+      document.body.style.overflow = "";
+    }
   }
 );
+
+onBeforeUnmount(() => {
+  document.body.style.paddingRight = "";
+  document.body.style.overflow = "";
+});
 </script>
 
 
@@ -144,6 +156,7 @@ watch(
 .modal-dialog {
   position: relative;
   z-index: 1;
+  margin: auto;
 }
 
 .modal-content {
@@ -169,15 +182,18 @@ watch(
 }
 
 /* =========================
-   MODAL TRANSITION
+   MODAL TRANSITION (Smooth Zoom & Fade)
 ========================= */
 
-/* Enter */
+.modal-enter-active,
+.modal-leave-active {
+  transition: opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
 
-.modal-enter-active {
-  transition:
-    opacity 0.25s ease,
-    transform 0.35s ease;
+.modal-enter-active .modal-dialog,
+.modal-leave-active .modal-dialog {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.22s ease;
+  will-change: transform, opacity;
 }
 
 .modal-enter-from {
@@ -185,7 +201,8 @@ watch(
 }
 
 .modal-enter-from .modal-dialog {
-  transform: translateY(-60px);
+  opacity: 0;
+  transform: translateY(-16px) scale(0.96);
 }
 
 .modal-enter-to {
@@ -193,16 +210,8 @@ watch(
 }
 
 .modal-enter-to .modal-dialog {
-  transform: translateY(0);
-}
-
-
-/* Leave */
-
-.modal-leave-active {
-  transition:
-    opacity 0.2s ease,
-    transform 0.25s ease;
+  opacity: 1;
+  transform: translateY(0) scale(1);
 }
 
 .modal-leave-from {
@@ -210,7 +219,8 @@ watch(
 }
 
 .modal-leave-from .modal-dialog {
-  transform: translateY(0);
+  opacity: 1;
+  transform: translateY(0) scale(1);
 }
 
 .modal-leave-to {
@@ -218,6 +228,7 @@ watch(
 }
 
 .modal-leave-to .modal-dialog {
-  transform: translateY(-30px);
+  opacity: 0;
+  transform: translateY(-10px) scale(0.97);
 }
 </style>

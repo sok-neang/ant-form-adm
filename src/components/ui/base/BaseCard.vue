@@ -9,36 +9,6 @@
     </div>
 </template>
 <script setup>
-defineProps({
-    // kh_title: {
-    //     type: String,
-    //     required: true,
-    // },
-    // en_title: {
-    //     type: String,
-    //     required: true,
-    // },
-    // value: {
-    //     type: [String, Number],
-    //     required: true,
-    // },
-
-    // icon: {
-    //     type: String,
-    //     required: true,
-    // },
-    // color: {
-    //     type: String,
-    //     default: "primary",
-    // },
-
-    // badge: {
-    //     type: String,
-    //     default: "",
-    // },
-
-
-});
 </script>
 <style scoped>
 .info-icon {

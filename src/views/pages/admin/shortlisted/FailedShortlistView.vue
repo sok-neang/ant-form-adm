@@ -10,15 +10,15 @@
     >
     <template #search-filter>
         <!-- search  -->
-        <div class="search-box position-relative">
-          <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
-          <input 
-            type="text" 
+        <div class="position-relative search-box">
+          <BaseInput 
             v-model="searchQuery" 
-            class="form-control rounded-pill border-success ps-5" 
-            placeholder="Search" 
-            style="width: 250px;"
+            type="text" 
+            placeholder="ស្វែងរក..." 
+            input-class="p-0"
           >
+            <i class="bi bi-search search-icon"></i>
+          </BaseInput>
         </div>
         <!-- Filters / Dropdown -->
         <div class="d-flex align-items-center gap-2">
@@ -29,7 +29,7 @@
                 option-value="value"
                 placeholder="ជ្រើសរើសកម្រិតពិន្ទុ"
                 :clearable="false"
-                style="width: 150px"
+                style="width: 220px"
             />
            <BaseSelect
                 v-model="selectedShift"
@@ -144,6 +144,7 @@
 import { ref, watch, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import BaseTable from "@/components/ui/base/BaseTable.vue";
+import BaseInput from "@/components/ui/base/BaseInput.vue";
 import BaseSelect from "@/components/ui/base/BaseSelect.vue";
 import BaseButton from "@/components/ui/base/BaseButton.vue";
 import { shiftOptions, specializationOptions, scoreLevelOptions } from "@/constants/options";

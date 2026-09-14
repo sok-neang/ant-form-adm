@@ -398,6 +398,8 @@
         v-if="showPreviewModal"
         class="modal-backdrop-custom d-flex align-items-center justify-content-center p-3"
         @click.self="closePreview"
+        @wheel.self.prevent
+        @touchmove.self.prevent
       >
         <!-- PDF Modal Container -->
         <div
@@ -522,7 +524,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from "vue";
+import { ref, computed, watch, onMounted, onUnmounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import VuePdfEmbed from "vue-pdf-embed";
 import "vue-pdf-embed/dist/styles/annotationLayer.css";
@@ -644,6 +646,20 @@ const showPreviewModal = ref(false);
 const previewType = ref(""); // 'image' | 'pdf'
 const loadingFileId = ref(null);
 const downloadingFileId = ref(null);
+
+// Prevent background scrolling when preview modal is open
+watch(showPreviewModal, (value) => {
+  if (value) {
+    const scrollBarWidth = window.innerWidth - document.documentElement.clientWidth;
+    if (scrollBarWidth > 0) {
+      document.body.style.paddingRight = `${scrollBarWidth}px`;
+    }
+    document.body.style.overflow = "hidden";
+  } else {
+    document.body.style.paddingRight = "";
+    document.body.style.overflow = "";
+  }
+});
 
 const fetchData = async () => {
   const targetId = activeId.value;
@@ -1139,6 +1155,8 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
+  document.body.style.paddingRight = "";
+  document.body.style.overflow = "";
   window.removeEventListener("keydown", handleKeydown);
 });
 </script>
@@ -1467,6 +1485,7 @@ onUnmounted(() => {
   background-color: rgba(15, 23, 42, 0.75);
   backdrop-filter: blur(4px);
   z-index: 1050;
+  overscroll-behavior: contain;
 }
 
 .preview-box {

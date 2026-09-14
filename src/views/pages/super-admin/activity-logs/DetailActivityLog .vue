@@ -31,46 +31,6 @@ const actionClass = computed(() => {
       return "bg-secondary-subtle text-secondary";
   }
 });
-
-// Helper to safely parse JSON or object
-const parseValue = (val) => {
-  if (val === null || val === undefined) return null;
-  if (typeof val === "object") return val;
-  try {
-    return JSON.parse(val);
-  } catch {
-    return val;
-  }
-};
-
-const parsedBefore = computed(() => parseValue(props.log?.beforeValue));
-const parsedAfter = computed(() => parseValue(props.log?.afterValue));
-
-const isObject = (val) => val !== null && typeof val === "object" && !Array.isArray(val);
-
-const diffKeys = computed(() => {
-  const b = isObject(parsedBefore.value) ? parsedBefore.value : {};
-  const a = isObject(parsedAfter.value) ? parsedAfter.value : {};
-  const keys = new Set([...Object.keys(b), ...Object.keys(a)]);
-  return Array.from(keys);
-});
-
-const isFieldChanged = (key) => {
-  const bVal = parsedBefore.value?.[key];
-  const aVal = parsedAfter.value?.[key];
-  return JSON.stringify(bVal) !== JSON.stringify(aVal);
-};
-
-const formatFieldValue = (val) => {
-  if (val === undefined || val === null) return "—";
-  if (typeof val === "boolean") return val ? "true" : "false";
-  if (typeof val === "object") return JSON.stringify(val);
-  return String(val);
-};
-
-const hasChanges = computed(() => {
-  return parsedBefore.value !== null || parsedAfter.value !== null;
-});
 </script>
 
 <template>
@@ -168,69 +128,6 @@ const hasChanges = computed(() => {
           {{ props.log?.message }}
         </div>
       </div>
-
-      <!-- Before / After Changes -->
-      <div v-if="hasChanges" class="detail-section">
-        <h6 class="section-title">
-          ការផ្លាស់ប្តូរទិន្នន័យ
-        </h6>
-
-        <div class="row g-3">
-          <!-- Before -->
-          <div class="col-md-6">
-            <div class="change-card h-100">
-              <div class="change-header before">
-                <i class="bi bi-arrow-left-circle me-2"></i>
-                មុនពេលផ្លាស់ប្តូរ (Before)
-              </div>
-
-              <div class="change-content">
-                <template v-if="parsedBefore && diffKeys.length > 0">
-                  <div v-for="key in diffKeys" :key="'before-' + key" class="change-item">
-                    <span class="font-monospace text-secondary">{{ key }}</span>
-                    <strong :class="{ 'text-danger': isFieldChanged(key) }">
-                      {{ formatFieldValue(parsedBefore?.[key]) }}
-                    </strong>
-                  </div>
-                </template>
-                <div v-else-if="parsedBefore && typeof parsedBefore !== 'object'" class="text-break font-monospace small">
-                  {{ parsedBefore }}
-                </div>
-                <div v-else class="text-muted p-2 fst-italic">
-                  <i class="bi bi-dash-circle me-1"></i>គ្មានទិន្នន័យដើម (កំណត់ត្រាថ្មី)
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- After -->
-          <div class="col-md-6">
-            <div class="change-card h-100">
-              <div class="change-header after">
-                <i class="bi bi-arrow-right-circle me-2"></i>
-                បន្ទាប់ពីផ្លាស់ប្តូរ (After)
-              </div>
-
-              <div class="change-content">
-                <template v-if="parsedAfter && diffKeys.length > 0">
-                  <div v-for="key in diffKeys" :key="'after-' + key" class="change-item">
-                    <span class="font-monospace text-secondary">{{ key }}</span>
-                    <strong :class="{ 'text-success': isFieldChanged(key) }">
-                      {{ formatFieldValue(parsedAfter?.[key]) }}
-                    </strong>
-                  </div>
-                </template>
-                <div v-else-if="parsedAfter && typeof parsedAfter !== 'object'" class="text-break font-monospace small">
-                  {{ parsedAfter }}
-                </div>
-                <div v-else class="text-danger p-2 fst-italic">
-                  <i class="bi bi-trash me-1"></i>កំណត់ត្រាត្រូវបានលុប
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
 
     <!-- Footer -->
@@ -243,5 +140,4 @@ const hasChanges = computed(() => {
 </template>
 
 <style scoped>
-
 </style>

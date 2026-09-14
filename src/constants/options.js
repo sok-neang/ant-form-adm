@@ -94,7 +94,7 @@ export const resultStatusOptions = [
 export const scoreLevelOptions = [
   {
     value: "all",
-    label: "ពិន្ទុ",
+    label: "ជ្រើសរើសកម្រិតពិន្ទុ",
   },
   {
     value: "highest",

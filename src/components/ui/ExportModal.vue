@@ -16,7 +16,7 @@
           </div>
           <!-- Title & Subtitle -->
           <div>
-            <h5 class="fw-bold mb-0 export-modal-title">ទាញយកទិន្នន័យ (Export Data)</h5>
+            <h5 class="fw-bold mb-0 export-modal-title">ទាញយកទិន្នន័យ</h5>
             <p class="mb-0 text-muted export-modal-subtitle">
               កំណត់លក្ខខណ្ឌ ចែកក្រុម និងទាញយកជាឯកសារ PDF ឬ Word
             </p>
@@ -40,7 +40,7 @@
     <!-- 1. SUCCESS VIEW -->
     <div v-if="isSuccess" class="export-success-container d-flex flex-column align-items-center text-center py-4">
       <!-- Success Checkmark Badge -->
-      <div class="export-success-icon-box d-flex align-items-center justify-content-center mb-3">
+      <div class="export-success-icon-box border border-success-subtle bg-success-subtle d-flex align-items-center justify-content-center mb-3">
         <svg
           width="36"
           height="36"
@@ -99,7 +99,7 @@
 
     <!-- 2. FORM VIEW -->
     <div v-else class="export-modal-content py-2">
-      <div class="row g-3">
+      <div class="row g-4">
         <!-- ==================================================== -->
         <!-- LEFT COLUMN: Candidates, Grouping & Summary Preview -->
         <!-- ==================================================== -->
@@ -166,7 +166,7 @@
               </div>
               <div class="d-flex align-items-center gap-1">
                 <span v-if="isLoadingCounts" class="spinner-border spinner-border-sm text-success me-1" role="status"></span>
-                <span class="badge bg-success-subtle text-success border border-success-subtle fw-bold px-2.5 py-1">
+                <span v-else class="badge bg-success-subtle text-success border border-success-subtle fw-bold px-2.5 py-1">
                   {{ activeTotalCount }} នាក់
                 </span>
               </div>
@@ -199,27 +199,23 @@
               </div>
             </div>
 
-            <!-- Group Selector Pills -->
+            <!-- Group Selector Dropdown -->
             <div>
               <label class="form-label fw-semibold export-label mb-1.5 d-flex align-items-center justify-content-between">
-                <span><i class="bi bi-check2-square text-success me-1"></i>ជ្រើសរើសក្រុមទាញយក</span>
+                <span><i class="bi bi-people text-success me-1"></i>ជ្រើសរើសក្រុមទាញយក</span>
                 <span class="text-muted fw-normal small">
                   មាន <strong class="text-success">{{ computedGroups.length }}</strong> ក្រុម
                 </span>
               </label>
-              <div class="group-pills-container d-flex gap-2 overflow-x-auto pb-1 pt-1">
-                <button
-                  v-for="grp in computedGroups"
-                  :key="grp.index"
-                  type="button"
-                  class="group-pill-btn d-flex flex-column align-items-center justify-content-center flex-shrink-0"
-                  :class="{ active: selectedGroupIndex === grp.index }"
-                  @click="selectedGroupIndex = grp.index"
-                >
-                  <span class="group-pill-name">G{{ grp.index }}</span>
-                  <span class="group-pill-range">{{ grp.rangeText }}</span>
-                </button>
-              </div>
+              <BaseSelect
+                v-model="selectedGroupIndex"
+                :options="groupOptions"
+                option-label="label"
+                option-value="value"
+                placeholder="ជ្រើសរើសក្រុម"
+                :clearable="false"
+                :searchable="false"
+              />
             </div>
           </template>
 
@@ -385,7 +381,7 @@
           <!-- File Format Selection (Modern Interactive Cards) -->
           <div>
             <label class="form-label fw-semibold export-label mb-1.5">
-              <i class="bi bi-file-earmark-text text-primary me-1.5"></i>ទម្រង់ឯកសារ (File Format)
+              <i class="bi bi-file-earmark-text text-success me-2"></i>ទម្រង់ឯកសារ (File Format)
             </label>
             <div class="row g-2">
               <!-- PDF Card -->
@@ -395,16 +391,15 @@
                   :class="{ active: selectedFormat === 'pdf' }"
                   @click="selectedFormat = 'pdf'"
                 >
-                  <div class="d-flex align-items-center gap-2">
+                  <div class="d-flex align-items-center p-2 gap-2">
                     <div class="format-card-icon bg-danger-subtle text-danger">
                       <i class="bi bi-file-earmark-pdf-fill"></i>
                     </div>
                     <div>
-                      <span class="d-block fw-bold small text-dark">PDF</span>
-                      <span class="text-muted" style="font-size: 0.72rem;">ផ្លូវការ / បោះពុម្ព</span>
+                      <span class="d-block fw-semibold small text-dark">PDF</span>
                     </div>
                   </div>
-                  <i class="bi" :class="selectedFormat === 'pdf' ? 'bi-check-circle-fill text-success fs-5' : 'bi-circle text-muted fs-5'"></i>
+                  <i class="bi" :class="selectedFormat === 'pdf' ? 'bi-check-circle-fill text-success fs-5 me-2' : 'bi-circle text-muted fs-5 me-2'"></i>
                 </div>
               </div>
 
@@ -415,16 +410,15 @@
                   :class="{ active: selectedFormat === 'docx' }"
                   @click="selectedFormat = 'docx'"
                 >
-                  <div class="d-flex align-items-center gap-2">
+                  <div class="d-flex align-items-center p-2 gap-2">
                     <div class="format-card-icon bg-primary-subtle text-primary">
                       <i class="bi bi-file-earmark-word-fill"></i>
                     </div>
                     <div>
-                      <span class="d-block fw-bold small text-dark">Word (.docx)</span>
-                      <span class="text-muted" style="font-size: 0.72rem;">អាចកែសម្រួលបាន</span>
+                      <span class="d-block fw-semibold small text-dark">Word (.docx)</span>
                     </div>
                   </div>
-                  <i class="bi" :class="selectedFormat === 'docx' ? 'bi-check-circle-fill text-success fs-5' : 'bi-circle text-muted fs-5'"></i>
+                  <i class="bi" :class="selectedFormat === 'docx' ? 'bi-check-circle-fill text-success fs-5 me-2' : 'bi-circle text-muted fs-5 me-2'"></i>
                 </div>
               </div>
             </div>
@@ -442,7 +436,7 @@
           class="btn btn-export-submit w-100 py-2.5 fs-6 fw-bold"
           @click="handleClose"
         >
-          <i class="bi bi-check2-circle me-1.5"></i>រួចរាល់
+          <i class="bi bi-check2-circle me-2"></i>រួចរាល់
         </button>
       </div>
 
@@ -719,6 +713,14 @@ const computedGroups = computed(() => {
   return groups;
 });
 
+// Options formatted for BaseSelect dropdown
+const groupOptions = computed(() => {
+  return computedGroups.value.map((grp) => ({
+    value: grp.index,
+    label: `ក្រុមទី ${grp.index} (G${grp.index}: ជួរ ${grp.rangeText})`,
+  }));
+});
+
 // Clamp selected group index when groups change
 watch(computedGroups, (newGroups) => {
   if (newGroups.length > 0 && selectedGroupIndex.value > newGroups.length) {
@@ -809,7 +811,7 @@ const handleDownload = async () => {
 }
 
 .export-modal-subtitle {
-  font-size: 0.8rem;
+  font-size: 16px;
   color: #64748b !important;
 }
 
@@ -896,65 +898,14 @@ const handleDownload = async () => {
   background-color: #ffffff;
 }
 
-/* ====================================
-   GROUP PILLS
-   ==================================== */
-.group-pills-container {
-  scrollbar-width: thin;
-  scrollbar-color: #cbd5e1 transparent;
-}
 
-.group-pill-btn {
-  min-width: 72px;
-  height: 52px;
-  border-radius: 10px;
-  border: 1.5px solid #e2e8f0;
-  background-color: #ffffff;
-  cursor: pointer;
-  padding: 4px 8px;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.group-pill-btn:hover {
-  border-color: #9fd4c7;
-  background-color: #f7faf9;
-  transform: translateY(-1px);
-}
-
-.group-pill-name {
-  font-size: 0.9rem;
-  font-weight: 700;
-  color: #334155;
-}
-
-.group-pill-range {
-  font-size: 0.7rem;
-  color: #94a3b8;
-  white-space: nowrap;
-}
-
-.group-pill-btn.active {
-  border-color: #2e7d6b;
-  background: linear-gradient(135deg, #f0fdf4 0%, #e8f7f2 100%);
-  box-shadow: 0 2px 6px rgba(46, 125, 107, 0.15);
-}
-
-.group-pill-btn.active .group-pill-name {
-  color: #2e7d6b;
-}
-
-.group-pill-btn.active .group-pill-range {
-  color: #2e7d6b;
-  font-weight: 600;
-}
 
 /* ====================================
    SUMMARY PREVIEW CARD
    ==================================== */
 .export-summary-card {
-  border: 1.5px solid #d1fae5;
-  background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
-}
+  background: linear-gradient(135deg, #f8faf9 0%, #f0f7f5 100%);
+  border: 1px solid #d4ede4 !important;}
 
 .summary-icon-box {
   width: 42px;
@@ -1002,7 +953,6 @@ const handleDownload = async () => {
 }
 
 .format-card.active {
-  border-color: #2e7d6b !important;
   background-color: #f0f9f6 !important;
   box-shadow: 0 0 0 1px #2e7d6b;
 }
@@ -1161,7 +1111,7 @@ const handleDownload = async () => {
 }
 
 .export-success-desc {
-  font-size: 0.9rem;
+  font-size: 16px;
   color: #64748b;
 }
 
@@ -1180,7 +1130,6 @@ const handleDownload = async () => {
 }
 
 .export-stat-label {
-  font-size: 0.78rem;
   color: #64748b;
   font-weight: 500;
   margin-bottom: 2px;
@@ -1290,12 +1239,12 @@ const handleDownload = async () => {
    ========================================================== */
 .export-modal-dialog-wrapper .modal-dialog {
   max-width: 1050px !important;
-  width: 1000px !important;
+  width: 1050px !important;
 }
 
 .export-modal-dialog-wrapper .modal-content {
-  width: 1050px !important;
-  max-width: 95vw !important;
+  width: 100% !important;
+  max-width: 100% !important;
   border-radius: 16px !important;
 }
 
