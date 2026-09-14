@@ -68,6 +68,22 @@ export function useReservedFinalResult() {
             YEAR_5: "ឆ្នាំទី 5",
           };
 
+          let score_technology = 0; // C++
+          let score_attendance = 0; // HTML / Dart
+
+          if (Array.isArray(sub.evaluations)) {
+            sub.evaluations.forEach((ev) => {
+              const subj = (ev.subject || "").toUpperCase();
+              const score = ev.averageScore != null ? parseFloat(ev.averageScore) : null;
+              if (subj === "CPP" || subj === "C++") {
+                score_technology = score ?? 0;
+              }
+              if (subj === "DART" || subj === "HTML_CSS" || subj === "HTML" || subj === "HTML&CSS" || subj === "HTML_AND_CSS") {
+                score_attendance = score ?? 0;
+              }
+            });
+          }
+
           return {
             seq_num: startNumber + index,
             id: sub.id,
@@ -80,6 +96,8 @@ export function useReservedFinalResult() {
             year: yearMap[sub.yearOfStudy] || sub.yearOfStudy || "N/A",
             skill: programMap[sub.program] || sub.program || "N/A",
             study_shift: shiftMap[sub.shift] || sub.shift || "N/A",
+            score_technology: score_technology ? parseFloat(score_technology).toFixed(2) : "0.00",
+            score_attendance: score_attendance ? parseFloat(score_attendance).toFixed(2) : "0.00",
             total_score: sub.overallAverageScore ? parseFloat(sub.overallAverageScore).toFixed(2) : "0.00",
             created_at: new Date(sub.submittedAt).toLocaleDateString("km-KH"),
           };

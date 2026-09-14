@@ -132,7 +132,7 @@ const loadSubmissions = async (page = 1) => {
   const params = {
     page,
     limit: pagination.value.per_page,
-    created_at: "newest",
+    submittedAt: "newest",
   };
   
   // Add filters if selected

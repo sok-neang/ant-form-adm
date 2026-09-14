@@ -24,66 +24,71 @@
       </div>
     </div>
 
-    <!-- Loading -->
-    <div v-if="isUserStatsLoading" class="text-center py-5">
-      <div class="spinner-border text-primary" role="status">
-        <span class="visually-hidden">Loading...</span>
+    <!-- Information Cards (Static text & icons, skeleton only on the value) -->
+    <div class="row g-3 mb-4">
+      <BaseCard v-for="card in displayCards" :key="card.kh_title" class="col-12 col-md-4">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+            <div class="info-icon p-2 rounded" :class="`bg-${card.color}-subtle text-${card.color}`">
+                <i :class="card.icon" class="fs-4"></i>
+            </div>
+            <!-- Data Point Skeleton vs Actual Value -->
+            <BaseSkeleton v-if="isUserStatsLoading" width="60px" height="32px" />
+            <h2 v-else class="fw-bold mb-0 text-dark">{{ card.value }}</h2>
+        </div>
+        <!-- Static Titles -->
+        <p class="text-muted mb-1 fw-bold">
+            {{ card.en_title }}
+        </p>
+        <p class="text-muted mb-1">
+            {{ card.kh_title }}
+        </p>
+      </BaseCard>
+    </div>
+
+    <!-- Graph Information -->
+    <div class="row mb-4">
+      <!-- Gender Donut Chart -->
+      <div class="col-md-6 mb-4 mb-md-0">
+        <div class="card border-0 rounded-4 shadow-sm h-100">
+          <div class="card-body p-4 text-center d-flex flex-column align-items-center justify-content-center">
+            <!-- Static Title -->
+            <h6 class="fw-bold mb-4 w-100 text-start text-muted">អ្នកប្រើប្រាស់តាមភេទ</h6>
+            
+            <!-- Chart Skeleton vs Actual Chart -->
+            <BaseSkeleton v-if="isUserStatsLoading" width="260px" height="260px" circle />
+            <apexchart v-else-if="summaries" type="donut" width="100%" height="320" :options="genderOptions" :series="genderSeries"></apexchart>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Role Bar Chart -->
+      <div class="col-md-6">
+        <div class="card border-0 rounded-4 shadow-sm h-100">
+          <div class="card-body p-4 text-center d-flex flex-column justify-content-center">
+            <!-- Static Title -->
+            <h6 class="fw-bold mb-4 w-100 text-start text-muted">អ្នកប្រើប្រាស់តាមតួនាទី</h6>
+            
+            <!-- Chart Skeleton vs Actual Chart -->
+            <div v-if="isUserStatsLoading" class="w-100">
+              <BaseSkeleton width="100%" height="280px" radius="8px" />
+            </div>
+            <apexchart v-else-if="summaries" type="bar" width="100%" height="320" :options="roleOptions" :series="roleSeries"></apexchart>
+          </div>
+        </div>
       </div>
     </div>
 
-    <template v-else-if="summaries">
-      <!-- Information Cards -->
-      <div class="row g-3 mb-4">
-        <BaseCard v-for="card in dynamicCards" :key="card.kh_title">
-          <div class="d-flex align-items-center justify-content-between mb-3">
-              <div class="info-icon" :class="`bg-${card.color}-subtle text-${card.color}`">
-                  <i :class="card.icon"></i>
-              </div>
-              <!-- Value -->
-              <h2 class="fw-bold mb-0 text-dark fw-bold">{{ card.value }}</h2>
-          </div>
-          <!-- Title -->
-          <p class="text-muted mb-1 fw-bold">
-              {{ card.en_title }}
-          </p>
-          <p class="text-muted mb-1">
-              {{ card.kh_title }}
-          </p>
-        </BaseCard>
-      </div>
-
-      <!-- Graph Information -->
-      <div class="row mb-4">
-        <!-- Gender Donut Chart -->
-        <div class="col-md-6 mb-4 mb-md-0">
-          <div class="card border-0 rounded-4 shadow-sm h-100">
-            <div class="card-body p-4 text-center d-flex flex-column align-items-center justify-content-center">
-              <h6 class="fw-bold mb-4 w-100 text-start text-muted">អ្នកប្រើប្រាស់តាមភេទ</h6>
-              <apexchart type="donut" width="100%" height="320" :options="genderOptions" :series="genderSeries"></apexchart>
-            </div>
-          </div>
-        </div>
-        <!-- Role Bar Chart -->
-        <div class="col-md-6">
-          <div class="card border-0 rounded-4 shadow-sm h-100">
-            <div class="card-body p-4 text-center d-flex flex-column justify-content-center">
-              <h6 class="fw-bold mb-4 w-100 text-start text-muted">អ្នកប្រើប្រាស់តាមតួនាទី</h6>
-              <apexchart type="bar" width="100%" height="320" :options="roleOptions" :series="roleSeries"></apexchart>
-            </div>
-          </div>
-        </div>
-      </div>
-    </template>
   </div>
 </template>
 
 <script setup>
 import { onMounted, computed, ref } from 'vue';
 import BaseCard from '@/components/ui/base/BaseCard.vue';
+import BaseSkeleton from '@/components/ui/base/BaseSkeleton.vue'; 
 import dashboardService from '@/services/dashboard.service.js';
 
 const summaries = ref(null);
-const isUserStatsLoading = ref(false);
+const isUserStatsLoading = ref(true); // Default to true to trigger skeleton on mount
 
 const fetchUserStats = async () => {
   isUserStatsLoading.value = true;
@@ -103,6 +108,28 @@ onMounted(() => {
   fetchUserStats();
 });
 
+// Placeholder cards to keep the UI static while loading
+const loadingCards = [
+  {
+    kh_title: "អ្នកប្រើប្រាស់សរុប",
+    en_title: "Total Users",
+    icon: "bi bi-people-fill",
+    color: "primary",
+  },
+  {
+    kh_title: "អ្នកគ្រប់គ្រង",
+    en_title: "Admin",
+    icon: "bi bi-person-check-fill",
+    color: "success",
+  },
+  {
+    kh_title: "គ្រូបង្រៀន",
+    en_title: "Teacher",
+    icon: "bi bi-book-fill",
+    color: "warning",
+  }
+];
+
 // Calculate metrics from summaries
 const dynamicCards = computed(() => {
   if (!summaries.value) return [];
@@ -119,7 +146,6 @@ const dynamicCards = computed(() => {
 
   if (summaries.value.byRole) {
     summaries.value.byRole.forEach(item => {
-      // Skip the Super Admin card as requested
       if (item.role === 'SUPER_ADMIN') return;
 
       let khTitle = item.role;
@@ -150,6 +176,11 @@ const dynamicCards = computed(() => {
   }
 
   return cards;
+});
+
+// Controls which array of cards to show based on the loading state
+const displayCards = computed(() => {
+  return isUserStatsLoading.value ? loadingCards : dynamicCards.value;
 });
 
 // Chart: Gender

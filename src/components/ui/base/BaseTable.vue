@@ -336,7 +336,7 @@ watch(
 .skeleton-action {
   width: 45px;
   height: 30px;
-  margin-left: auto;
+  margin-right: auto;
 }
 
 @keyframes skeleton-loading {

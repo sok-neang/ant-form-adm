@@ -23,7 +23,7 @@ export function useApplicationList() {
     loading.value = true;
     try {
       const queryParams = {
-        created_at: "newest",
+        submittedAt: "newest",
         ...params,
       };
       const response = await submissionService.getSubmissions(queryParams);

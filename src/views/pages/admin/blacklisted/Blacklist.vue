@@ -113,6 +113,7 @@ const loadSubmissions = async (page = 1) => {
   const params = {
     page,
     limit: pagination.value.per_page,
+    submittedAt: "newest",
   };
   
   if (selectedShift.value) params.shift = selectedShift.value;

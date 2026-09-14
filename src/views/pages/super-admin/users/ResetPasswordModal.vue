@@ -36,13 +36,11 @@
         <div class="d-flex align-items-center gap-3">
 
           <!-- Avatar -->
-          <div
-            class="rounded-circle bg-primary-subtle text-primary
-                   d-flex align-items-center justify-content-center"
-            style="width: 48px; height: 48px;"
-          >
-            <i class="bi bi-person-fill fs-4"></i>
-          </div>
+          <BaseAvatar
+            :src="props.user"
+            :alt="props.user.name"
+            :size="48"
+          />
 
           <!-- User Info -->
           <div>
@@ -172,6 +170,7 @@ import { ref } from "vue";
 
 import BaseModal from "@/components/ui/base/BaseModal.vue";
 import BaseButton from "@/components/ui/base/BaseButton.vue";
+import BaseAvatar from "@/components/ui/base/BaseAvatar.vue";
 
 const props = defineProps({
   show: {

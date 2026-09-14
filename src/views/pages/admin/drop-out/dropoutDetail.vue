@@ -84,7 +84,7 @@ const getDropoutNote = (submission) => {
 };
 
 const getDropoutDate = (submission) => {
-  const d = submission?.dropoutAt || submission?.updatedAt || submission?.createdAt;
+  const d = submission?.dropoutAt || submission?.updatedAt || submission?.created_at;
   if (!d) return "";
   try {
     const dt = new Date(d);

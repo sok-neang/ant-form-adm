@@ -178,7 +178,7 @@ const columns = [
   { key: "skill", label: "ជំនាញ" },
   { key: "study_shift", label: "វេនសិក្សា" },
   { key: "score_technology", label: "C++" },
-  { key: "score_attendance", label: "HMTL / Dart" },
+  { key: "score_attendance", label: "HTML / Dart" },
   { key: "total_score", label: "ពិន្ទុមធ្យម" },
 ];
 
@@ -191,14 +191,33 @@ const loadSubmissions = async (page = 1) => {
   if (selectedShift.value) params.shift = selectedShift.value;
   if (selectedSpecialization.value) params.program = selectedSpecialization.value;
   if (selectedScoreLevel.value) {
-    if (selectedScoreLevel.value === "highest" || selectedScoreLevel.value === "HIGH") {
+    const val = selectedScoreLevel.value;
+    if (val === "highest" || val === "HIGH") {
       params.scoreSort = "highest";
-    } else if (selectedScoreLevel.value === "lowest" || selectedScoreLevel.value === "LOW") {
+    } else if (val === "lowest" || val === "LOW") {
       params.scoreSort = "lowest";
-    } else if (selectedScoreLevel.value === "all" || selectedScoreLevel.value === "ALL") {
+    } else if (val === "highestCPP") {
+      params.cpp = "highest";
+      params.scoreSort = "highestCPP";
+    } else if (val === "lowestCPP") {
+      params.cpp = "lowest";
+      params.scoreSort = "lowestCPP";
+    } else if (val === "highestDART") {
+      params.dart = "highest";
+      params.scoreSort = "highestDART";
+    } else if (val === "lowestDART") {
+      params.dart = "lowest";
+      params.scoreSort = "lowestDART";
+    } else if (val === "highestHTML_CSS") {
+      params.html_css = "highest";
+      params.scoreSort = "highestHTML_CSS";
+    } else if (val === "lowestHTML_CSS") {
+      params.html_css = "lowest";
+      params.scoreSort = "lowestHTML_CSS";
+    } else if (val === "all" || val === "ALL") {
       params.scoreSort = "all";
     } else {
-      params.scoreSort = selectedScoreLevel.value;
+      params.scoreSort = val;
     }
   }
   if (searchQuery.value) params.search = searchQuery.value;

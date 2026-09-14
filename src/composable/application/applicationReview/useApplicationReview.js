@@ -11,19 +11,32 @@ export function useApplicationReview() {
   const loading = ref(true);
   const isUpdating = ref(false);
 
-  const fetchApplication = async () => {
-    const id = route.params.id;
+  const fetchApplication = async (customId = null) => {
+    const id = customId || route.params.id || route.params.submissionId;
     if (!id) return;
     
     loading.value = true;
     try {
       const response = await submissionService.getById(id);
-      console.log("Submission API response:", response.data);
-      if (response.data?.success) {
-        application.value = response.data.data || response.data.submission;
-      } else {
-        application.value = response.data;
+      let appData = response.data?.success
+        ? (response.data.data || response.data.submission)
+        : (response.data?.data || response.data);
+
+      if (appData && appData.files && Array.isArray(appData.files)) {
+        appData.files = appData.files.map((file) => {
+          let fileUrl = file.fileUrl;
+          if (!fileUrl && file.filePath) {
+            fileUrl = file.filePath.startsWith("http")
+              ? file.filePath
+              : `https://ant-form-backend.g2.ant.com.kh/${file.filePath.replace(/^\/+/, "")}`;
+          }
+          return {
+            ...file,
+            fileUrl: fileUrl || file.filePath || "",
+          };
+        });
       }
+      application.value = appData;
       console.log("Mapped application data:", application.value);
     } catch (error) {
       console.error("Error fetching application details:", error);
@@ -33,13 +46,13 @@ export function useApplicationReview() {
   };
 
   const promoteStatus = async (status, payload = {}) => {
-    const id = route.params.id;
+    const id = route.params.id || route.params.submissionId;
     if (!id) return;
 
     isUpdating.value = true;
     try {
       const response = await submissionService.promoteStatus(id, { status, ...payload });
-      if (response.data?.success) {
+      if (response.data?.success || response.status === 200) {
         toast.success("ស្ថានភាពត្រូវបានកែប្រែដោយជោគជ័យ");
         router.back();
       }

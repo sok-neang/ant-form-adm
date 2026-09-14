@@ -63,13 +63,13 @@
       <!-- 1 -->
       <div class="question-card">
         <div class="question">1. លេខទូរសព្ទរបស់អ្នក</div>
-        <div class="answer">{{ application?.student?.phone || application?.phoneNumber || '-' }}</div>
+        <div class="answer">{{ application?.student?.phone || application?.student?.phoneNumber || application?.phoneNumber || application?.phone || '-' }}</div>
       </div>
 
       <!-- 2 -->
       <div class="question-card">
         <div class="question">2. Username Telegram</div>
-        <div class="answer">{{ application?.student?.telegramUsername || application?.telegramUsername || '-' }}</div>
+        <div class="answer">{{ application?.student?.telegramUsername || application?.student?.telegramPhone || application?.telegramUsername || '-' }}</div>
       </div>
 
       <!-- 3 -->
@@ -95,14 +95,14 @@
         <div class="question">6. ភេទ</div>
         <div class="selected-option">
           <i class="bi bi-check-circle-fill"></i>
-          {{ application?.student?.gender === 'MALE' ? 'ប្រុស' : (application?.student?.gender === 'FEMALE' ? 'ស្រី' : '-') }}
+          {{ (application?.student?.gender || application?.gender) === 'MALE' ? 'ប្រុស' : ((application?.student?.gender || application?.gender) === 'FEMALE' ? 'ស្រី' : (application?.student?.gender || application?.gender || '-')) }}
         </div>
       </div>
 
       <!-- 7 -->
       <div class="question-card">
         <div class="question">7. ថ្ងៃ ខែ ឆ្នាំកំណើត</div>
-        <div class="answer">{{ formatDate(application?.student?.dateOfBirth || application?.student?.dob || application?.dateOfBirth) }}</div>
+        <div class="answer">{{ formatDate(application?.student?.dateOfBirth || application?.student?.dob || application?.dateOfBirth || application?.dob) }}</div>
       </div>
 
 
@@ -132,7 +132,7 @@
       <!-- 9 -->
       <div class="question-card">
         <div class="question">9. តើអ្នកកំពុងសិក្សានៅសាលាណាដែរ?</div>
-        <div class="answer">{{ application?.student?.university?.name || application?.student?.universityOther || '-' }}</div>
+        <div class="answer">{{ application?.student?.university?.name || application?.student?.university?.code || application?.student?.universityOther || application?.student?.university || application?.university || '-' }}</div>
       </div>
 
       <!-- 10 -->
@@ -164,7 +164,7 @@
       <!-- 13 -->
       <div class="question-card">
         <div class="question">13. សូមបំពេញទីលំនៅបច្ចុប្បន្ន</div>
-        <div class="answer long-answer">{{ application?.student?.address || '-' }}</div>
+        <div class="answer long-answer">{{ application?.student?.address || application?.address || '-' }}</div>
       </div>
 
       <!-- 14 -->
@@ -172,38 +172,38 @@
         <div class="question">14. តើអ្នកទទួលបានព័ត៌មានអាហារូបករណ៍របស់យើងតាមរយៈអ្វីដែរ?</div>
         <div class="selected-option">
           <i class="bi bi-check-circle-fill"></i>
-          {{ Array.isArray(application?.referralSource) ? application?.referralSource.join(', ') : application?.referralSource || '-' }}
+          {{ formatReferralSource(application?.referralSource) }}
         </div>
       </div>
 
       <!-- 15 -->
       <div class="question-card">
         <div class="question">15. តើអ្វីទៅជាភាពខ្លាំងរបស់អ្នក?</div>
-        <div class="answer long-answer">{{ application?.narrative?.strengths || '-' }}</div>
+        <div class="answer long-answer">{{ application?.narrative?.strengths || application?.strengths || '-' }}</div>
       </div>
 
       <!-- 16 -->
       <div class="question-card">
         <div class="question">16. តើអ្វីទៅជាភាពខ្សោយរបស់អ្នក?</div>
-        <div class="answer long-answer">{{ application?.narrative?.weaknesses || '-' }}</div>
+        <div class="answer long-answer">{{ application?.narrative?.weaknesses || application?.weaknesses || '-' }}</div>
       </div>
 
       <!-- 17 -->
       <div class="question-card">
         <div class="question">17. តើអ្វីដែលជាគោលបំណងក្នុងថ្ងៃអនាគតរបស់អ្នក?</div>
-        <div class="answer long-answer">{{ application?.narrative?.goals || '-' }}</div>
+        <div class="answer long-answer">{{ application?.narrative?.goals || application?.goals || '-' }}</div>
       </div>
 
       <!-- 18 -->
       <div class="question-card">
         <div class="question">18. មូលហេតុដែលអ្នកចង់ទទួលបានអាហារូបករណ៍ពីថ្នាក់បណ្តុះបណ្តាលបច្ចេកវិទ្យាអាន-ANT</div>
-        <div class="answer long-answer">{{ application?.narrative?.opportunities || '-' }}</div>
+        <div class="answer long-answer">{{ application?.narrative?.opportunities || application?.narrative?.reasonAnt || application?.opportunities || '-' }}</div>
       </div>
 
       <!-- 19 -->
       <div class="question-card">
         <div class="question">19. ចូររៀបរាប់ពីស្ថានភាពបច្ចុប្បន្នរបស់អ្នក</div>
-        <div class="answer long-answer">{{ application?.narrative?.familySituation || '-' }}</div>
+        <div class="answer long-answer">{{ application?.narrative?.familySituation || application?.familySituation || '-' }}</div>
       </div>
 
 
@@ -245,19 +245,19 @@
       <!-- 22 -->
       <div class="question-card">
         <div class="question">22. ហេតុអ្វីអ្នកចង់ជ្រើសរើសជំនាញខាងលើ?</div>
-        <div class="answer long-answer">{{ application?.narrative?.reason || '-' }}</div>
+        <div class="answer long-answer">{{ application?.narrative?.reason || application?.reason || '-' }}</div>
       </div>
 
       <!-- 23 -->
       <div class="question-card">
         <div class="question">23. Website ឬ App ដែលអ្នកចាប់អារម្មណ៍</div>
-        <div class="answer">{{ application?.narrative?.webAppInterest || '-' }}</div>
+        <div class="answer">{{ application?.narrative?.webAppInterest || application?.webAppInterest || '-' }}</div>
       </div>
 
       <!-- 24 -->
       <div class="question-card">
         <div class="question">24. តើអាហារូបករណ៍នេះនឹងចូលរួមជាប្រយោជន៍អ្វីខ្លះទៅដល់ប្រទេសរបស់យើង?</div>
-        <div class="answer long-answer">{{ application?.narrative?.scholarshipVision || '-' }}</div>
+        <div class="answer long-answer">{{ application?.narrative?.scholarshipVision || application?.scholarshipVision || '-' }}</div>
       </div>
 
       <!-- ================= FILES ================= -->
@@ -275,67 +275,19 @@
       </div>
 
       <!-- 25 -->
-      <div class="question-card" v-if="getPhotoUrl()">
+      <div class="question-card">
         <div class="question">25. សូម Upload រូបភាពទំហំ ៤x៦ ផ្ទៃពណ៌ខៀវ</div>
-        <div class="file-answer">
+        <div v-if="photoFile" class="file-answer">
           <div class="file-icon">
             <i class="bi bi-image"></i>
           </div>
 
-          <div class="flex-grow-1">
-            <div class="fw-semibold">
-              Profile_Photo
-            </div>
-            <small class="text-muted">
-              Image file
-            </small>
-          </div>
-
-          <div class="d-flex align-items-center gap-2">
-            <button
-              type="button"
-              class="btn btn-sm btn-light border d-inline-flex align-items-center justify-content-center"
-              @click="viewFile(getPhotoFile())"
-              :disabled="loadingFileId === (getPhotoFile()?.id || getPhotoFile()?.fileUrl || getPhotoFile()?.filePath)"
-              title="មើលរូបភាព"
-            >
-              <span v-if="loadingFileId === (getPhotoFile()?.id || getPhotoFile()?.fileUrl || getPhotoFile()?.filePath)" class="spinner-border spinner-border-sm"></span>
-              <i v-else class="bi bi-eye"></i>
-            </button>
-
-            <button
-              type="button"
-              class="btn btn-sm btn-light border d-inline-flex align-items-center justify-content-center"
-              @click="downloadFile(getPhotoFile(), 'Profile_Photo_4x6')"
-              :disabled="downloadingFileId === (getPhotoFile()?.id || getPhotoFile()?.fileUrl || getPhotoFile()?.filePath)"
-              title="ទាញយក"
-            >
-              <span v-if="downloadingFileId === (getPhotoFile()?.id || getPhotoFile()?.fileUrl || getPhotoFile()?.filePath)" class="spinner-border spinner-border-sm"></span>
-              <i v-else class="bi bi-download"></i>
-            </button>
-          </div>
-        </div>
-      </div>
-
-            <!-- 12 -->
-      <div class="question-card">
-        <div class="question">
-          12. ប្រសិនបើអ្នកពិតជាសិក្សាចាប់ពីឆ្នាំទី 3
-          ឆមាសទី 2 ឡើងទៅ សូម Upload បណ្ណសម្គាល់ខ្លួននិស្សិត
-          ឬវិក្កយបត្របង់ថ្លៃសិក្សាចុងក្រោយ
-        </div>
-
-        <div v-if="getTranscriptFile()" class="file-answer">
-          <div class="file-icon">
-            <i :class="getTranscriptIcon(getTranscriptFile())"></i>
-          </div>
-
           <div class="flex-grow-1 min-w-0">
             <div class="fw-semibold text-truncate">
-              {{ getTranscriptTitle(getTranscriptFile()) }}
+              {{ photoFile.originalFilename || 'Profile_Photo_4x6.jpg' }}
             </div>
             <small class="text-muted">
-              {{ getTranscriptSubtitle(getTranscriptFile()) }}
+              រូបថត ៤x៦ (Photo)
             </small>
           </div>
 
@@ -343,22 +295,74 @@
             <button
               type="button"
               class="btn btn-sm btn-light border d-inline-flex align-items-center justify-content-center"
-              @click="viewFile(getTranscriptFile())"
-              :disabled="loadingFileId === (getTranscriptFile()?.id || getTranscriptFile()?.fileUrl || getTranscriptFile()?.filePath)"
-              title="មើលឯកសារ"
+              @click="viewFile(photoFile)"
+              :disabled="loadingFileId === (photoFile.id || photoFile.fileUrl || photoFile.filePath)"
+              title="មើលរូបភាព"
             >
-              <span v-if="loadingFileId === (getTranscriptFile()?.id || getTranscriptFile()?.fileUrl || getTranscriptFile()?.filePath)" class="spinner-border spinner-border-sm"></span>
+              <span v-if="loadingFileId === (photoFile.id || photoFile.fileUrl || photoFile.filePath)" class="spinner-border spinner-border-sm"></span>
               <i v-else class="bi bi-eye"></i>
             </button>
 
             <button
               type="button"
               class="btn btn-sm btn-light border d-inline-flex align-items-center justify-content-center"
-              @click="downloadFile(getTranscriptFile(), 'Transcript')"
-              :disabled="downloadingFileId === (getTranscriptFile()?.id || getTranscriptFile()?.fileUrl || getTranscriptFile()?.filePath)"
+              @click="downloadFile(photoFile, 'Profile_Photo_4x6')"
+              :disabled="downloadingFileId === (photoFile.id || photoFile.fileUrl || photoFile.filePath)"
               title="ទាញយក"
             >
-              <span v-if="downloadingFileId === (getTranscriptFile()?.id || getTranscriptFile()?.fileUrl || getTranscriptFile()?.filePath)" class="spinner-border spinner-border-sm"></span>
+              <span v-if="downloadingFileId === (photoFile.id || photoFile.fileUrl || photoFile.filePath)" class="spinner-border spinner-border-sm"></span>
+              <i v-else class="bi bi-download"></i>
+            </button>
+          </div>
+        </div>
+
+        <div v-else class="answer text-muted">
+          មិនមានរូបថតភ្ជាប់
+        </div>
+      </div>
+
+      <!-- 12 -->
+      <div class="question-card">
+        <div class="question">
+          12. ប្រសិនបើអ្នកពិតជាសិក្សាចាប់ពីឆ្នាំទី 3
+          ឆមាសទី 2 ឡើងទៅ សូម Upload បណ្ណសម្គាល់ខ្លួននិស្សិត
+          ឬវិក្កយបត្របង់ថ្លៃសិក្សាចុងក្រោយ
+        </div>
+
+        <div v-if="transcriptFile" class="file-answer">
+          <div class="file-icon">
+            <i class="bi bi-file-earmark-text"></i>
+          </div>
+
+          <div class="flex-grow-1 min-w-0">
+            <div class="fw-semibold text-truncate">
+              {{ getTranscriptTitle(transcriptFile) }}
+            </div>
+            <small class="text-muted">
+              {{ getTranscriptSubtitle(transcriptFile) }}
+            </small>
+          </div>
+
+          <div class="d-flex align-items-center gap-2 flex-shrink-0">
+            <button
+              type="button"
+              class="btn btn-sm btn-light border d-inline-flex align-items-center justify-content-center"
+              @click="viewFile(transcriptFile)"
+              :disabled="loadingFileId === (transcriptFile.fileUrl)"
+              title="មើលឯកសារ"
+            >
+              <span v-if="loadingFileId === (transcriptFile.fileUrl)" class="spinner-border spinner-border-sm"></span>
+              <i v-else class="bi bi-eye"></i>
+            </button>
+
+            <button
+              type="button"
+              class="btn btn-sm btn-light border d-inline-flex align-items-center justify-content-center"
+              @click="downloadFile(transcriptFile, 'Transcript')"
+              :disabled="downloadingFileId === (transcriptFile.fileUrl)"
+              title="ទាញយក"
+            >
+              <span v-if="downloadingFileId === (transcriptFile.fileUrl)" class="spinner-border spinner-border-sm"></span>
               <i v-else class="bi bi-download"></i>
             </button>
           </div>
@@ -369,6 +373,47 @@
         </div>
       </div>
 
+      <!-- Additional files if any -->
+      <div v-if="otherFiles && otherFiles.length > 0" class="question-card">
+        <div class="question">ឯកសារភ្ជាប់ផ្សេងៗ (Additional Files)</div>
+        <div class="d-flex flex-column gap-2">
+          <div v-for="file in otherFiles" :key="file.fileUrl" class="file-answer">
+            <div class="file-icon">
+              <i class="bi bi-file-earmark-text"></i>
+            </div>
+            <div class="flex-grow-1 min-w-0">
+              <div class="fw-semibold text-truncate">
+                {{ file.originalFilename || file.fileType || 'ឯកសារភ្ជាប់' }}
+              </div>
+              <small class="text-muted">
+                {{ getTranscriptSubtitle(file) }}
+              </small>
+            </div>
+            <div class="d-flex align-items-center gap-2 flex-shrink-0">
+              <button
+                type="button"
+                class="btn btn-sm btn-light border d-inline-flex align-items-center justify-content-center"
+                @click="viewFile(file)"
+                :disabled="loadingFileId === (file.fileUrl)"
+                title="មើលឯកសារ"
+              >
+                <span v-if="loadingFileId === (file.fileUrl)" class="spinner-border spinner-border-sm"></span>
+                <i v-else class="bi bi-eye"></i>
+              </button>
+              <button
+                type="button"
+                class="btn btn-sm btn-light border d-inline-flex align-items-center justify-content-center"
+                @click="downloadFile(file, file.fileType || 'Document')"
+                :disabled="downloadingFileId === (file.fileUrl)"
+                title="ទាញយក"
+              >
+                <span v-if="downloadingFileId === (file.fileUrl)" class="spinner-border spinner-border-sm"></span>
+                <i v-else class="bi bi-download"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <!-- ================= AGREEMENTS ================= -->
       <div class="form-section">
@@ -392,9 +437,9 @@
           ពិតជាត្រឹមត្រូវ និងគ្មានការក្លែងបន្លំ
         </div>
 
-        <div class="approved-answer">
-          <i class="bi bi-check-circle-fill"></i>
-          យល់ព្រម
+        <div :class="(application?.agreedToEligibilityPolicy ?? true) ? 'approved-answer' : 'rejected-answer'">
+          <i :class="(application?.agreedToEligibilityPolicy ?? true) ? 'bi bi-check-circle-fill' : 'bi bi-x-circle-fill'"></i>
+          {{ (application?.agreedToEligibilityPolicy ?? true) ? 'យល់ព្រម' : 'មិនយល់ព្រម' }}
         </div>
       </div>
 
@@ -404,9 +449,9 @@
           27. អ្នកតម្រូវឱ្យមានកុំព្យូទ័រប្រើប្រាស់ផ្ទាល់ខ្លួន
         </div>
 
-        <div class="approved-answer">
-          <i class="bi bi-check-circle-fill"></i>
-          យល់ព្រម
+        <div :class="(application?.agreedToCodeOfConduct ?? true) ? 'approved-answer' : 'rejected-answer'">
+          <i :class="(application?.agreedToCodeOfConduct ?? true) ? 'bi bi-check-circle-fill' : 'bi bi-x-circle-fill'"></i>
+          {{ (application?.agreedToCodeOfConduct ?? true) ? 'យល់ព្រម' : 'មិនយល់ព្រម' }}
         </div>
       </div>
 
@@ -417,9 +462,9 @@
           វគ្គសិក្សាអាហារូបករណ៍ដែលបានផ្តល់ឱ្យបានចប់សព្វគ្រប់
         </div>
 
-        <div class="approved-answer">
-          <i class="bi bi-check-circle-fill"></i>
-          យល់ព្រម
+        <div :class="(application?.agreedToAttendancePolicy ?? true) ? 'approved-answer' : 'rejected-answer'">
+          <i :class="(application?.agreedToAttendancePolicy ?? true) ? 'bi bi-check-circle-fill' : 'bi bi-x-circle-fill'"></i>
+          {{ (application?.agreedToAttendancePolicy ?? true) ? 'យល់ព្រម' : 'មិនយល់ព្រម' }}
         </div>
       </div>
 
@@ -430,9 +475,23 @@
           និងគោរពតាមលក្ខខណ្ឌរបស់អាហារូបករណ៍
         </div>
 
-        <div class="approved-answer">
-          <i class="bi bi-check-circle-fill"></i>
-          យល់ព្រម
+        <div :class="(application?.agreedToProgramCommitment ?? true) ? 'approved-answer' : 'rejected-answer'">
+          <i :class="(application?.agreedToProgramCommitment ?? true) ? 'bi bi-check-circle-fill' : 'bi bi-x-circle-fill'"></i>
+          {{ (application?.agreedToProgramCommitment ?? true) ? 'យល់ព្រម' : 'មិនយល់ព្រម' }}
+        </div>
+      </div>
+
+      <!-- Blacklist / Dropout Reason Alert (if present) -->
+      <div v-if="isBlacklisted || isDropout || application?.blacklistReason || application?.dropoutReason" class="question-card border-danger-subtle bg-danger-subtle bg-opacity-10 mt-3">
+        <div class="d-flex align-items-center gap-2 mb-2 text-danger fw-bold">
+          <i class="bi bi-exclamation-triangle-fill"></i>
+          <span>{{ isBlacklisted ? 'ព័ត៌មានបញ្ជីខ្មៅ (Blacklist Information)' : 'ព័ត៌មានបោះបង់ (Dropout Information)' }}</span>
+        </div>
+        <div class="mb-1 text-dark">
+          <strong>មូលហេតុ (Reason):</strong> {{ application?.blacklistReason || application?.dropoutReason || 'មិនមានបញ្ជាក់' }}
+        </div>
+        <div v-if="application?.blacklistNote || application?.dropoutNote" class="text-muted small">
+          <strong>កំណត់ចំណាំ (Note):</strong> {{ application?.blacklistNote || application?.dropoutNote }}
         </div>
       </div>
 
@@ -474,7 +533,7 @@
           @click="handleDropout"
           :disabled="isUpdating"
         >
-          <i class="bi bi-person-x-fill me-2"></i>
+          <i class="bi bi-person-dash-fill me-2"></i>
           បោះបង់
         </button>
 
@@ -486,7 +545,7 @@
           @click="handleReject"
           :disabled="isUpdating"
         >
-          <i class="bi bi-person-check-fill me-2"></i>
+          <i class="bi bi-x-circle-fill me-2"></i>
           ធ្លាក់
         </button>
         
@@ -521,13 +580,20 @@
         <!-- Reason & Note only for Blacklist and Dropout -->
         <template v-if="isReasonRequired">
           <div class="mb-3">
-            <label class="form-label">មូលហេតុ (Reason)</label>
+            <label class="form-label">
+              មូលហេតុ (Reason) <span class="text-danger">*</span>
+            </label>
             <textarea 
               v-model="actionReason" 
               class="form-control shadow-none border-secondary-subtle" 
+              :class="{ 'is-invalid border-danger': reasonError }"
               rows="3" 
               placeholder="បញ្ចូលមូលហេតុ..."
+              @input="reasonError = ''"
             ></textarea>
+            <div v-if="reasonError" class="text-danger small mt-1">
+              {{ reasonError }}
+            </div>
           </div>
           <div class="mb-3">
             <label class="form-label">កំណត់សម្គាល់ (Note - Optional)</label>
@@ -550,7 +616,7 @@
           class="btn btn-success px-4" 
           style="background-color: #357867; border-color: #357867;"
           @click="submitActionModal" 
-          :disabled="isUpdating"
+          :disabled="isUpdating || (isReasonRequired && !actionReason.trim())"
         >
           <span v-if="isUpdating" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
           យល់ព្រម
@@ -558,26 +624,126 @@
       </div>
     </BaseModal>
 
-    <!-- Teleport Full Image Preview Modal -->
+    <!-- Teleport File Preview Modal (Supports Image & PDF) -->
     <Teleport to="body">
       <div
-        v-if="previewImageUrl"
-        class="modal-backdrop-custom d-flex align-items-center justify-content-center"
+        v-if="showPreviewModal"
+        class="modal-backdrop-custom d-flex align-items-center justify-content-center p-3"
         @click.self="closePreview"
       >
-        <div class="position-relative bg-white rounded-4 p-2 shadow-lg preview-box" @click.stop>
-          <button
-            type="button"
-            class="btn-close position-absolute top-0 end-0 m-3 z-3 bg-white shadow-sm p-2 rounded-circle"
-            @click="closePreview"
-            aria-label="Close"
-          ></button>
-          <img
-            :src="previewImageUrl || defaultAvatar"
-            alt="Full Size Photo"
-            class="img-fluid rounded-3 preview-img"
-            @error="onPreviewImageError"
-          />
+        <!-- PDF Modal Container -->
+        <div
+          v-if="previewType === 'pdf'"
+          class="bg-white rounded-4 shadow-lg pdf-preview-container d-flex flex-column overflow-hidden position-relative"
+          @click.stop
+        >
+          <!-- Modal Header -->
+          <div class="d-flex align-items-center justify-content-between px-3 px-sm-4 py-3 border-bottom bg-light flex-shrink-0">
+            <div class="d-flex align-items-center gap-2 min-w-0 me-3">
+              <i class="bi bi-file-earmark-pdf-fill text-danger fs-5 flex-shrink-0"></i>
+              <span class="fw-bold text-dark text-truncate">{{ previewFileTitle }}</span>
+            </div>
+            <div class="d-flex align-items-center gap-2 flex-shrink-0">
+              <button
+                v-if="previewFileUrl"
+                type="button"
+                class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1"
+                @click="openInNewTab(previewFileUrl)"
+                title="បើកក្នុងផ្ទាំងថ្មី"
+              >
+                <i class="bi bi-box-arrow-up-right"></i>
+                <span class="d-none d-sm-inline">បើកក្នុងផ្ទាំងថ្មី</span>
+              </button>
+              <button
+                type="button"
+                class="btn-close"
+                @click="closePreview"
+                aria-label="Close"
+              ></button>
+            </div>
+          </div>
+
+          <!-- Modal Body with VuePdfEmbed -->
+          <div class="pdf-scroll-body flex-grow-1 overflow-auto p-2 p-md-4 position-relative">
+            <div v-if="isPdfLoading" class="d-flex flex-column align-items-center justify-content-center py-5" style="min-height: 350px;">
+              <div class="spinner-border text-success mb-3" role="status" style="width: 2.5rem; height: 2.5rem;">
+                <span class="visually-hidden">Loading PDF...</span>
+              </div>
+              <span class="text-white fw-medium">កំពុងដំណើរការផ្ទុកឯកសារ PDF...</span>
+            </div>
+            <div v-else-if="previewPdfSource" class="pdf-wrapper mx-auto">
+              <VuePdfEmbed
+                :source="previewPdfSource"
+                annotation-layer
+                text-layer
+                class="pdf-viewer-embed shadow rounded-2"
+              />
+            </div>
+            <div v-else class="text-center py-5 text-white">
+              <i class="bi bi-exclamation-triangle fs-1 text-warning d-block mb-2"></i>
+              <span>មិនអាចបង្ហាញឯកសារបានទេ។</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Image Modal Container -->
+        <div
+          v-else-if="previewType === 'image'"
+          class="bg-white rounded-4 shadow-lg image-preview-container d-flex flex-column overflow-hidden position-relative"
+          @click.stop
+        >
+          <!-- Modal Header -->
+          <div class="d-flex align-items-center justify-content-between px-3 px-sm-4 py-3 border-bottom bg-light flex-shrink-0">
+            <div class="d-flex align-items-center gap-2 min-w-0 me-3">
+              <i class="bi bi-file-earmark-image-fill text-primary fs-5 flex-shrink-0"></i>
+              <span class="fw-bold text-dark text-truncate">{{ previewFileTitle }}</span>
+            </div>
+            <div class="d-flex align-items-center gap-2 flex-shrink-0">
+              <button
+                v-if="previewFileUrl"
+                type="button"
+                class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1"
+                @click="openInNewTab(previewFileUrl)"
+                title="បើកក្នុងផ្ទាំងថ្មី"
+              >
+                <i class="bi bi-box-arrow-up-right"></i>
+                <span class="d-none d-sm-inline">បើកក្នុងផ្ទាំងថ្មី</span>
+              </button>
+              <button
+                type="button"
+                class="btn-close"
+                @click="closePreview"
+                aria-label="Close"
+              ></button>
+            </div>
+          </div>
+
+          <!-- Image Modal Body -->
+          <div class="image-scroll-body flex-grow-1 overflow-auto p-3 d-flex align-items-center justify-content-center position-relative">
+            <!-- Loading State (matching PDF style) -->
+            <div v-if="isloading" class="d-flex flex-column align-items-center justify-content-center py-5" style="min-height: 350px;">
+              <div class="spinner-border text-success mb-3" role="status" style="width: 2.5rem; height: 2.5rem;">
+                <span class="visually-hidden">Loading Image...</span>
+              </div>
+              <span class="text-secondary fw-medium">កំពុងដំណើរការផ្ទុករូបភាព...</span>
+            </div>
+
+            <!-- Image Content -->
+            <div v-else-if="previewImageUrl" class="d-flex align-items-center justify-content-center w-100 h-100">
+              <img
+                :src="previewImageUrl"
+                :alt="previewFileTitle || 'Full Size Photo'"
+                class="img-fluid rounded-3 preview-img shadow-sm"
+                @error="onPreviewImageError"
+              />
+            </div>
+
+            <!-- Fallback if failed -->
+            <div v-else class="text-center py-5 text-muted">
+              <i class="bi bi-exclamation-triangle fs-1 text-warning d-block mb-2"></i>
+              <span>មិនអាចបង្ហាញរូបភាពបានទេ។</span>
+            </div>
+          </div>
         </div>
       </div>
     </Teleport>
@@ -587,6 +753,9 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from "vue";
 import { useRouter } from "vue-router";
+import VuePdfEmbed from "vue-pdf-embed";
+import "vue-pdf-embed/dist/styles/annotationLayer.css";
+import "vue-pdf-embed/dist/styles/textLayer.css";
 import { useApplicationReview } from "@/composable/application/applicationReview/useApplicationReview";
 import BaseModal from "@/components/ui/base/BaseModal.vue";
 import bannerDetailBg from "@/assets/images/img/application_banner.png";
@@ -602,18 +771,249 @@ const showActionModal = ref(false);
 const actionType = ref("");
 const actionReason = ref("");
 const actionNote = ref("");
+const reasonError = ref("");
 
 // Preview and Download states
 const previewImageUrl = ref(null);
+const previewPdfSource = ref(null);
+const previewFileTitle = ref("");
+const previewFileUrl = ref("");
+const isPdfLoading = ref(false);
+const isloading = ref(false);
+const showPreviewModal = ref(false);
+const previewType = ref(""); // 'image' | 'pdf'
 const loadingFileId = ref(null);
 const downloadingFileId = ref(null);
 
+const photoFile = computed(() => {
+  return (application.value?.files || []).find(
+    (f) => String(f.fileType || f.type || "").toUpperCase() === "PHOTO"
+  );
+});
+
+const transcriptFile = computed(() => {
+  return (application.value?.files || []).find(
+    (f) => String(f.fileType || f.type || "").toUpperCase() === "TRANSCRIPT"
+  );
+});
+
+const otherFiles = computed(() => {
+  return (application.value?.files || []).filter((f) => {
+    const type = String(f.fileType || f.type || "").toUpperCase();
+    return type !== "PHOTO" && type !== "TRANSCRIPT";
+  });
+});
+
+const getFileUrl = (file) => {
+  if (!file) return "";
+  if (file.fileUrl) return file.fileUrl;
+  if (file.filePath) {
+    if (file.filePath.startsWith("http://") || file.filePath.startsWith("https://")) {
+      return file.filePath;
+    }
+    const clean = file.filePath.replace(/^\/+/, "");
+    return `https://ant-form-backend.g2.ant.com.kh/${clean}`;
+  }
+  return "";
+};
+
+// ------ how to khnow it is file pdf ------
+const isFilePdf = (file) => {
+  if (!file) return false;
+  if (file.mimeType === "application/pdf") return true;
+  const path = String(file.originalFilename || file.filePath || file.fileUrl || "").toLowerCase().split("?")[0];
+  return path.endsWith(".pdf") || path.includes(".pdf");
+};
+
+// ------ how to khnow it is file pdf or normal image ------
+const isFileImage = (file) => {
+  if (!file) return false;
+  if (file.mimeType && file.mimeType.startsWith("image/")) return true;
+  const path = String(file.originalFilename || file.filePath || file.fileUrl || "").toLowerCase().split("?")[0];
+  if (/\.(jpe?g|png|webp|gif|bmp|svg)$/i.test(path)) return true;
+  const type = String(file.fileType || file.type || "").toUpperCase();
+  return type === "PHOTO" || type === "STUDENT_CARD" || type === "ID_CARD";
+};
+
+// ------ Return Title of File Transcript ------
+const getTranscriptTitle = (file) => {
+  if (!file) return "ព្រឹត្តិបត្រពិន្ទុ ឬបណ្ណសម្គាល់ខ្លួន";
+  return file.originalFilename || "ព្រឹត្តិបត្រពិន្ទុ ឬបណ្ណសម្គាល់ខ្លួន";
+};
+
+// ------ return type of the file pdf or normal image ------
+const getTranscriptSubtitle = (file) => {
+  if (!file) return "";
+  if (isFilePdf(file)) return "ឯកសារ PDF (PDF Document)";
+  if (isFileImage(file)) return "រូបភាព (Image File)";
+  return "ឯកសារភ្ជាប់ (Attached Document)";
+};
+
+const formatReferralSource = (source) => {
+  if (!source) return "-";
+  const list = Array.isArray(source) ? source : [source];
+  const map = {
+    SOCIAL_MEDIA: "បណ្ដាញសង្គម (Social Media)",
+    FACEBOOK: "Facebook",
+    TELEGRAM: "Telegram",
+    FRIENDS: "មិត្តភក្តិ ឬអ្នកស្គាល់គ្នា (Friends/Word of mouth)",
+    UNIVERSITY: "សាកលវិទ្យាល័យ (University)",
+    WEBSITE: "គេហទំព័រ (Website)",
+    OTHER: "ផ្សេងៗ (Other)",
+  };
+  return list.map((item) => map[item] || item).join(", ") || "-";
+};
+
 const closePreview = () => {
   previewImageUrl.value = null;
+  previewPdfSource.value = null;
+  previewFileTitle.value = "";
+  previewFileUrl.value = "";
+  isPdfLoading.value = false;
+  isloading.value = false;
+  showPreviewModal.value = false;
+  previewType.value = "";
+};
+
+const openInNewTab = async (url) => {
+  if (!url) return;
+  try {
+    const objectUrl = await getSubmissionFileUrl(url);
+    window.open(objectUrl || url, "_blank");
+  } catch (err) {
+    window.open(url, "_blank");
+  }
 };
 
 const onPreviewImageError = (e) => {
   e.target.src = defaultAvatar;
+};
+
+const viewFile = async (file) => {
+  if (!file) return;
+
+  const fileUrl = getFileUrl(file);
+  let isPdf = isFilePdf(file);
+  let isImage = isFileImage(file);
+
+  if (!fileUrl) {
+    if (isImage) {
+      previewImageUrl.value = defaultAvatar;
+      previewType.value = "image";
+      isloading.value = false;
+      showPreviewModal.value = true;
+    }
+    return;
+  }
+
+  const fileKey = file.id || file.fileUrl || file.filePath || fileUrl;
+  loadingFileId.value = fileKey;
+  previewFileUrl.value = fileUrl;
+
+  try {
+    // If not definitively known from extension/mime, inspect blob MIME type
+    if (!isPdf && !isImage) {
+      try {
+        const blob = await avatarService.getSubmissionFileBlob(fileUrl);
+        if (blob.type === "application/pdf" || blob.type.includes("pdf")) {
+          isPdf = true;
+        } else if (blob.type.startsWith("image/")) {
+          isImage = true;
+        }
+      } catch (e) {
+        console.warn("Could not determine blob type in advance:", e);
+      }
+    }
+
+    previewFileTitle.value =
+      file.originalFilename ||
+      (isPdf ? "ឯកសារ PDF" : isImage ? "រូបភាព (Image)" : "ឯកសារភ្ជាប់");
+
+    if (isPdf) {
+      previewType.value = "pdf";
+      previewPdfSource.value = null;
+      isPdfLoading.value = true;
+      showPreviewModal.value = true;
+
+      // Exactly how PDF.vue fetches and prepares the source for VuePdfEmbed
+      const blob = await avatarService.getSubmissionFileBlob(fileUrl);
+      const arrayBuffer = await blob.arrayBuffer();
+      previewPdfSource.value = new Uint8Array(arrayBuffer);
+    } else if (isImage) {
+      previewType.value = "image";
+      previewImageUrl.value = null;
+      isloading.value = true;
+      showPreviewModal.value = true;
+
+      const url = await getSubmissionFileUrl(fileUrl);
+      previewImageUrl.value = (!url || url === DEFAULT_AVATAR) ? (fileUrl || defaultAvatar) : url;
+    } else {
+      const url = await getSubmissionFileUrl(fileUrl);
+      window.open(url || file.fileUrl || fileUrl, "_blank");
+    }
+  } catch (err) {
+    console.error("Failed to preview file:", err);
+    if (isPdf) {
+      window.open(file.fileUrl || fileUrl, "_blank");
+    } else if (isImage) {
+      previewImageUrl.value = file.fileUrl || fileUrl || defaultAvatar;
+    }
+  } finally {
+    loadingFileId.value = null;
+    isPdfLoading.value = false;
+    isloading.value = false;
+  }
+};
+
+const downloadFile = async (file, defaultName = "Document") => {
+  if (!file) return;
+  const fileUrl = getFileUrl(file);
+  if (!fileUrl) return;
+
+  const fileKey = file.id || file.fileUrl || file.filePath || fileUrl;
+  downloadingFileId.value = fileKey;
+  try {
+    const url = await getSubmissionFileUrl(fileUrl);
+    const finalUrl = (url && url !== DEFAULT_AVATAR) ? url : fileUrl;
+    if (!finalUrl) {
+      console.warn("Cannot download file, URL not available");
+      return;
+    }
+    const extMatch =
+      fileUrl.match(/\.([a-zA-Z0-9]+)(?:\?.*)?$/) ||
+      (file.originalFilename || "").match(/\.([a-zA-Z0-9]+)(?:\?.*)?$/);
+    const ext = extMatch
+      ? extMatch[1].toLowerCase()
+      : isFileImage(file)
+      ? "jpg"
+      : isFilePdf(file)
+      ? "pdf"
+      : "bin";
+    const studentName = application.value?.student?.khName || application.value?.student?.enName || "Student";
+    const cleanName = studentName.trim().replace(/\s+/g, "_");
+    const downloadName = file.originalFilename || `${defaultName}_${cleanName}.${ext}`;
+
+    const a = document.createElement("a");
+    a.href = finalUrl;
+    a.download = downloadName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  } catch (err) {
+    console.error("Failed to download file:", err);
+  } finally {
+    downloadingFileId.value = null;
+  }
+};
+
+const formatDate = (dateString) => {
+  if (!dateString) return '-';
+  const d = new Date(dateString);
+  if (isNaN(d.getTime())) return dateString;
+  const day = String(d.getDate()).padStart(2, "0");
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const year = d.getFullYear();
+  return `${day}/${month}/${year}`;
 };
 
 const isShortlisted = computed(() => {
@@ -671,8 +1071,19 @@ const computedBannerBg = computed(() => {
   return bannerDetailBg;
 });
 
+const handleKeyDown = (e) => {
+  if (e.key === "Escape" && showPreviewModal.value) {
+    closePreview();
+  }
+};
+
 onMounted(() => {
   fetchApplication();
+  window.addEventListener("keydown", handleKeyDown);
+});
+
+onUnmounted(() => {
+  window.removeEventListener("keydown", handleKeyDown);
 });
 
 const goBack = () => {
@@ -683,6 +1094,7 @@ const openActionModal = (type) => {
   actionType.value = type;
   actionReason.value = "";
   actionNote.value = "";
+  reasonError.value = "";
   showActionModal.value = true;
 };
 
@@ -692,10 +1104,15 @@ const handleReject = () => openActionModal("FAILED_SHORTLIST");
 const handleShortlist = () => openActionModal("SHORTLIST");
 
 const submitActionModal = async () => {
+  if (isReasonRequired.value && !actionReason.value.trim()) {
+    reasonError.value = "សូមបញ្ចូលមូលហេតុជាមុនសិន";
+    return;
+  }
+
   const payload = isReasonRequired.value
     ? {
-        reason: actionReason.value || undefined,
-        note: actionNote.value || undefined,
+        reason: actionReason.value.trim(),
+        note: actionNote.value.trim() || undefined,
       }
     : {};
 
@@ -703,175 +1120,6 @@ const submitActionModal = async () => {
   if (!isUpdating.value) {
     showActionModal.value = false;
   }
-};
-
-// File helpers & Handlers
-const getPhotoFile = () => {
-  if (!application.value) return null;
-  const files = application.value.files || [];
-  const photo = files.find(f => String(f.fileType).toUpperCase() === 'PHOTO');
-  if (photo) return photo;
-
-  const photoPath = application.value.student?.avatarPath || application.value.student?.photoUrl || application.value.photoUrl;
-  if (photoPath) {
-    return { fileType: 'PHOTO', fileUrl: photoPath, filePath: photoPath };
-  }
-  return null;
-};
-
-const getTranscriptFile = () => {
-  if (!application.value) return null;
-  const files = application.value.files || [];
-
-  // 1. Look for TRANSCRIPT, STUDENT_CARD, ID_CARD, etc. in files array
-  let transcript = files.find(f => {
-    const t = String(f.fileType || "").toUpperCase();
-    return t === 'TRANSCRIPT' || t.includes('TRANSCRIPT') || t === 'STUDENT_CARD' || t.includes('CARD') || t === 'CERTIFICATE';
-  });
-  if (transcript) return transcript;
-
-  // 2. If no specific type matched, find any file that is not PHOTO and not CV/RESUME
-  transcript = files.find(f => {
-    const t = String(f.fileType || "").toUpperCase();
-    return t !== 'PHOTO' && !t.includes('PHOTO') && !t.includes('CV') && !t.includes('RESUME');
-  });
-  if (transcript) return transcript;
-
-  // 3. Fallback to direct properties on application or student
-  const cardPath =
-    application.value.transcript ||
-    application.value.transcriptUrl ||
-    application.value.transcriptPath ||
-    application.value.studentIdCard ||
-    application.value.idCardUrl ||
-    application.value.student?.transcript ||
-    application.value.student?.transcriptUrl ||
-    application.value.student?.idCardUrl ||
-    application.value.student?.studentIdCard ||
-    application.value.student?.studentCard;
-
-  if (cardPath) {
-    return {
-      fileType: 'TRANSCRIPT',
-      fileUrl: cardPath,
-      filePath: cardPath,
-      originalFilename: String(cardPath).split('/').pop() || 'Transcript'
-    };
-  }
-  return null;
-};
-
-const getTranscriptTitle = (file) => {
-  if (!file) return "Student_Card / Transcript";
-  const name = file.originalFilename || file.fileName;
-  if (name) return name;
-  const type = String(file.fileType || "").toUpperCase();
-  if (type === "TRANSCRIPT" || type.includes("TRANSCRIPT")) return "Transcript";
-  if (type === "STUDENT_CARD" || type.includes("CARD")) return "Student_Card";
-  return "Transcript";
-};
-
-const getTranscriptSubtitle = (file) => {
-  if (!file) return "Attached document";
-  const path = String(file.filePath || file.fileUrl || file.originalFilename || "").toLowerCase();
-  if (path.endsWith(".pdf")) return "PDF Document";
-  if (/\.(jpe?g|png|webp|gif)$/i.test(path)) return "Image file";
-  return file.mimeType || "Document file";
-};
-
-const getTranscriptIcon = (file) => {
-  if (!file) return "bi bi-file-earmark-text";
-  const path = String(file.filePath || file.fileUrl || file.originalFilename || "").toLowerCase();
-  if (path.endsWith(".pdf")) return "bi bi-file-earmark-pdf";
-  if (/\.(jpe?g|png|webp|gif)$/i.test(path)) return "bi bi-file-earmark-image";
-  return "bi bi-file-earmark-text";
-};
-
-const getPhotoUrl = () => {
-  const f = getPhotoFile();
-  return f ? (f.fileUrl || f.filePath) : '';
-};
-
-const getTranscriptUrl = () => {
-  const f = getTranscriptFile();
-  return f ? (f.fileUrl || f.filePath) : '';
-};
-
-const viewFile = async (file) => {
-  if (!file) return;
-  const path = file.filePath || file.fileUrl;
-  const fileType = String(file.fileType || "").toUpperCase();
-  const isImage =
-    file.mimeType?.startsWith("image/") ||
-    /\.(jpe?g|png|webp|gif)$/i.test(path || "") ||
-    fileType === "PHOTO" ||
-    fileType === "STUDENT_CARD";
-
-  if (!path) {
-    if (isImage) {
-      previewImageUrl.value = defaultAvatar;
-    }
-    return;
-  }
-
-  const fileKey = file.id || path;
-  loadingFileId.value = fileKey;
-  try {
-    const url = await getSubmissionFileUrl(path);
-    if (isImage) {
-      previewImageUrl.value = (!url || url === DEFAULT_AVATAR) ? defaultAvatar : url;
-    } else {
-      window.open(url, "_blank");
-    }
-  } catch (err) {
-    console.error("Failed to view file:", err);
-    if (isImage) {
-      previewImageUrl.value = defaultAvatar;
-    }
-  } finally {
-    loadingFileId.value = null;
-  }
-};
-
-const downloadFile = async (file, defaultName = "Document") => {
-  if (!file) return;
-  const path = file.filePath || file.fileUrl;
-  if (!path) return;
-
-  const fileKey = file.id || path;
-  downloadingFileId.value = fileKey;
-  try {
-    const filename = path.split("/").pop().split("?")[0];
-    const blob = await avatarService.getSubmissionFileBlob(filename);
-    const blobUrl = URL.createObjectURL(blob);
-    const extMatch = path.match(/\.([a-zA-Z0-9]+)(?:\?.*)?$/);
-    const ext = extMatch ? extMatch[1].toLowerCase() : (String(file.fileType).toUpperCase() === 'PHOTO' ? 'jpg' : 'pdf');
-    const studentName = application.value?.student?.khName || application.value?.student?.enName || "Student";
-    const cleanName = studentName.trim().replace(/\s+/g, "_");
-    const downloadName = `${defaultName}_${cleanName}.${ext}`;
-
-    const a = document.createElement("a");
-    a.href = blobUrl;
-    a.download = downloadName;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
-  } catch (err) {
-    console.error("Failed to download file:", err);
-  } finally {
-    downloadingFileId.value = null;
-  }
-};
-
-const formatDate = (dateString) => {
-  if (!dateString) return '-';
-  const d = new Date(dateString);
-  if (isNaN(d.getTime())) return dateString;
-  const day = String(d.getDate()).padStart(2, "0");
-  const month = String(d.getMonth() + 1).padStart(2, "0");
-  const year = d.getFullYear();
-  return `${day}/${month}/${year}`;
 };
 
 const getEducationLevel = (lvl) => {
@@ -1226,6 +1474,30 @@ const getShift = (s) => {
   font-size: 16px;
 }
 
+.rejected-answer {
+  display: inline-flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  color: #dc2626;
+
+  background: rgba(220, 38, 38, 0.08);
+
+  border-radius: 8px;
+
+  padding: 8px 12px;
+
+  font-size: 14px;
+
+  font-weight: 600;
+}
+
+.rejected-answer i {
+  font-size: 16px;
+}
+
 
 /* =========================================
    FOOTER
@@ -1379,5 +1651,45 @@ const getShift = (s) => {
 .file-answer .btn-light:hover {
   background-color: #e2e8f0;
   color: #0f172a;
+}
+
+/* =========================================
+   PDF PREVIEW MODAL
+========================================= */
+
+.pdf-preview-container {
+  width: 92vw;
+  max-width: 960px;
+  height: 90vh;
+  max-height: 850px;
+  z-index: 1070;
+}
+
+.pdf-scroll-body {
+  background-color: #525659;
+}
+
+.pdf-wrapper {
+  max-width: 820px;
+  width: 100%;
+}
+
+.image-preview-container {
+  width: 92vw;
+  max-width: 900px;
+  height: auto;
+  max-height: 90vh;
+  z-index: 1070;
+}
+
+.image-scroll-body {
+  background-color: #f8fafc;
+  min-height: 250px;
+  max-height: calc(90vh - 65px);
+}
+
+.pdf-viewer-embed {
+  width: 100%;
+  background: #ffffff;
 }
 </style>

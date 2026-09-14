@@ -35,16 +35,30 @@ export const useAuthStore = defineStore("auth", () => {
 
   const isAuthenticated = computed(() => {return !!accessToken.value;});
 
+  const getUserAvatarPath = () => {
+    if (!user.value) return null;
+    return (
+      user.value.avatarPath ||
+      user.value.avatarUrl ||
+      user.value.avatar ||
+      user.value.photoUrl ||
+      user.value.filePath ||
+      user.value.fileUrl ||
+      null
+    );
+  };
+
   const loadUserAvatar = async () => {
-    if (user.value?.avatarPath) {
-      userAvatarUrl.value = await getAvatarUrl(user.value.avatarPath);
+    const avatar = getUserAvatarPath();
+    if (avatar) {
+      userAvatarUrl.value = await getAvatarUrl(avatar);
     } else {
       userAvatarUrl.value = DEFAULT_AVATAR;
     }
   };
 
   watch(
-    () => user.value?.avatarPath,
+    () => getUserAvatarPath(),
     () => {
       loadUserAvatar();
     },
@@ -133,6 +147,7 @@ export const useAuthStore = defineStore("auth", () => {
   const setAuthData = (data) => {
     accessToken.value = data.accessToken;
     user.value = data.user || null;
+    loadUserAvatar();
     // Only store access token
     // Refresh token is handled by HttpOnly cookie
     saveAuthData({
@@ -150,6 +165,7 @@ export const useAuthStore = defineStore("auth", () => {
       const result = response.data;
       if (result.success) {
         user.value = result.data;
+        await loadUserAvatar();
         
         saveAuthData({
           accessToken: accessToken.value,
@@ -169,6 +185,7 @@ export const useAuthStore = defineStore("auth", () => {
       const result = response.data;
       if (result.success) {
         user.value = result.data;
+        await loadUserAvatar();
         saveAuthData({
           accessToken: accessToken.value,
           user: user.value,
@@ -183,12 +200,13 @@ export const useAuthStore = defineStore("auth", () => {
   const uploadAvatar = async (file) => {
     isUploadAvatarLoading.value = true;
     try {
-      const oldPath = user.value?.avatarPath;
+      const oldPath = getUserAvatarPath();
       const response = await authService.uploadAvatar(file);
       const result = response.data;
       if (result.success) {
         invalidateAvatarCache(oldPath);
-        invalidateAvatarCache(result.data?.avatarPath);
+        const newPath = result.data?.avatarPath || result.data?.avatarUrl || result.data?.avatar;
+        invalidateAvatarCache(newPath);
         user.value = result.data;
         await loadUserAvatar();
         saveAuthData({
@@ -205,7 +223,7 @@ export const useAuthStore = defineStore("auth", () => {
   const deleteAvatar = async () => {
     isDeleteAvatarLoading.value = true;
     try {
-      const oldPath = user.value?.avatarPath;
+      const oldPath = getUserAvatarPath();
       const response = await authService.deleteAvatar();
       const result = response.data;
       if (result.success) {

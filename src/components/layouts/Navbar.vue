@@ -14,7 +14,8 @@
                     <div class="d-flex align-items-center gap-2">
                         <div class="profile-avatar position-relative">
                             <img :src="authStore.userAvatarUrl" alt="Profile" width="40" height="40"
-                                class="rounded-circle border border-secondary object-fit-cover" />
+                                class="rounded-circle border border-secondary object-fit-cover"
+                                @error="handleImageError" />
                             <span class="status-online"></span>
                         </div>
                         <div class="text-start">
@@ -34,7 +35,8 @@
                             <!-- Avatar -->
                             <div class="flex-shrink-0">
                                 <img :src="authStore.userAvatarUrl" alt="Avatar" width="50" height="50"
-                                    class="rounded-2 object-fit-cover border" />
+                                    class="rounded-2 object-fit-cover border"
+                                    @error="handleImageError" />
                             </div>
                             <!-- User Information -->
                             <div class="flex-grow-1 min-w-0">

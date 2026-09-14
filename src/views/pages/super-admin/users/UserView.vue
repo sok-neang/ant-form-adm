@@ -45,8 +45,11 @@
       </template>
       <template #cell-user="{ row }">
         <div class="d-flex align-items-center gap-3">
-          <img :src="row.avatarPath || '/src/assets/images/img/profile.webp'" :alt="row.name || 'User'" width="45"
-            height="45" class="rounded-circle object-fit-cover" />
+          <BaseAvatar
+            :src="row.avatarPath || row.avatarUrl || row.avatar"
+            :alt="row.name || 'User'"
+            :size="45"
+          />
 
           <div class="d-flex flex-column">
             <span class="fw-semibold text-dark">
@@ -139,6 +142,7 @@ import BaseTable from "@/components/ui/base/BaseTable.vue";
 import BaseInput from "@/components/ui/base/BaseInput.vue";
 import BaseSelect from "@/components/ui/base/BaseSelect.vue";
 import BaseButton from "@/components/ui/base/BaseButton.vue";
+import BaseAvatar from "@/components/ui/base/BaseAvatar.vue";
 
 import CreateUserModal from "./CreateUserModal.vue";
 import EditUserModal from "./EditUserModal.vue";
@@ -206,14 +210,17 @@ const data = reactive({
   name: "",
   email: "",
   password: "",
+  avatarPath: null,
 });
-const selectedUser = ref({ id: null, name: "", email: "", status: "", });
+const selectedUser = ref({ id: null, name: "", email: "", status: "", avatarPath: null });
 const openStatusModal = (user) => { 
   selectedUser.value = { 
     id: user.id, 
     name: user.name, 
     email: user.email, 
-    status: user.status, };
+    status: user.status,
+    avatarPath: user.avatarPath || user.avatarUrl || user.avatar,
+  };
 
     showStatusModal.value = true; 
   };
@@ -250,6 +257,7 @@ const handleCreateSuccess = (user) => {
   data.name = user.name;
   data.email = user.email;
   data.password = user.password;
+  data.avatarPath = user.avatarPath || user.avatarUrl || user.avatar || null;
 
   showCreateModal.value = false;
   showGeneratedPassword.value = true;
@@ -264,6 +272,7 @@ const handleResetPassword = async (user) => {
       data.name = user.name;
       data.email = user.email;
       data.password = result.data.plainPassword;
+      data.avatarPath = user.avatarPath || user.avatarUrl || user.avatar || null;
       showGeneratedPassword.value = true;
       return;
     }
@@ -292,6 +301,7 @@ const handleCloseGeneratedPassword = () => {
   data.name = '';
   data.email = '';
   data.password = '';
+  data.avatarPath = null;
   getUsers();
 };
 

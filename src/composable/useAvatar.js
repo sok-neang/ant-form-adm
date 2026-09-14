@@ -1,168 +1,240 @@
-import { ref, watch, isRef, onBeforeUnmount } from "vue";
+import { ref, watch, isRef } from "vue";
 import avatarService from "@/services/avatar.service";
 
 /**
- * Modern SVG fallback avatar (grey user silhouette)
+ * Default avatar
  */
 export const DEFAULT_AVATAR =
   "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'><circle cx='64' cy='64' r='64' fill='%23e2e8f0'/><circle cx='64' cy='46' r='24' fill='%2394a3b8'/><path d='M24 112c0-22 18-40 40-40s40 18 40 40' fill='%2394a3b8'/></svg>";
 
-// Global in-memory cache of object URLs: path -> blobUrl
+/**
+ * Cache avatar Blob URLs
+ * key: fileUrl
+ * value: blob URL
+ */
 const avatarBlobCache = new Map();
 
-// In-flight promise tracker to prevent duplicate requests
+/**
+ * Prevent duplicate avatar requests
+ */
 const inFlightRequests = new Map();
 
-// Cache of submission file object URLs: filename -> blobUrl
+/**
+ * Cache submission file Blob URLs
+ * key: fileUrl
+ * value: blob URL
+ */
 const submissionBlobCache = new Map();
+
+/**
+ * Prevent duplicate submission file requests
+ */
 const inFlightSubmissionRequests = new Map();
 
 /**
- * Fetch and cache a submission file URL (photo, transcript, etc.) with Bearer token authentication.
- * @param {string} path - Filename, relative path, or full file URL
- * @returns {Promise<string>} Object URL or fallback avatar
+ * Get a submission file as an object URL.
+ *
+ * IMPORTANT:
+ * Uses the complete fileUrl from backend.
+ *
+ * Example:
+ * https://ant-form-backend.g2.ant.com.kh/uploads/submissions/file.pdf
  */
-export async function getSubmissionFileUrl(path) {
-  if (!path) {
+export async function getSubmissionFileUrl(fileUrl) {
+  if (!fileUrl) {
     return DEFAULT_AVATAR;
   }
 
-  // If already a base64 or blob URL, return directly
-  if (path.startsWith("data:") || path.startsWith("blob:")) {
-    return path;
+  // Already an object/data URL
+  if (
+    fileUrl.startsWith("data:") ||
+    fileUrl.startsWith("blob:")
+  ) {
+    return fileUrl;
   }
 
-  // Normalize key by stripping path directory and queries
-  const filename = path.split("/").pop().split("?")[0];
+  // Use the complete backend fileUrl as cache key
+  const cacheKey = fileUrl;
 
-  // Return cached object URL if already loaded
-  if (submissionBlobCache.has(filename)) {
-    return submissionBlobCache.get(filename);
+  // Return cached URL
+  if (submissionBlobCache.has(cacheKey)) {
+    return submissionBlobCache.get(cacheKey);
   }
 
-  // Reuse ongoing request if another component is fetching the same file
-  if (inFlightSubmissionRequests.has(filename)) {
-    return inFlightSubmissionRequests.get(filename);
+  // Reuse existing request
+  if (inFlightSubmissionRequests.has(cacheKey)) {
+    return inFlightSubmissionRequests.get(cacheKey);
   }
 
   const fetchPromise = (async () => {
     try {
-      const blob = await avatarService.getSubmissionFileBlob(filename);
+      console.log(
+        "[useAvatar] Fetch submission file:",
+        fileUrl
+      );
+
+      // IMPORTANT:
+      // Send the FULL fileUrl to avatarService
+      const blob =
+        await avatarService.getSubmissionFileBlob(fileUrl);
+
       const objectUrl = URL.createObjectURL(blob);
-      submissionBlobCache.set(filename, objectUrl);
+
+      submissionBlobCache.set(cacheKey, objectUrl);
+
       return objectUrl;
     } catch (err) {
       console.warn(
-        `[useAvatar] Failed to load submission file "${filename}":`,
-        err?.response?.status || err.message
+        `[useAvatar] Failed to load submission file "${fileUrl}":`,
+        err?.response?.status || err?.message
       );
+
       return DEFAULT_AVATAR;
     } finally {
-      inFlightSubmissionRequests.delete(filename);
+      inFlightSubmissionRequests.delete(cacheKey);
     }
   })();
 
-  inFlightSubmissionRequests.set(filename, fetchPromise);
+  inFlightSubmissionRequests.set(cacheKey, fetchPromise);
+
   return fetchPromise;
 }
 
 /**
- * Fetch and cache an avatar URL with Bearer token authentication.
- * @param {string} path - Filename or path to avatar
- * @returns {Promise<string>} Object URL or fallback avatar
+ * Get an avatar as an object URL.
+ *
+ * Uses the complete fileUrl from backend.
  */
-export async function getAvatarUrl(path) {
-  if (!path) {
+export async function getAvatarUrl(fileUrl) {
+  if (!fileUrl) {
     return DEFAULT_AVATAR;
   }
 
-  // If already a base64 or blob URL, return directly
-  if (path.startsWith("data:") || path.startsWith("blob:")) {
-    return path;
+  // Already an object/data URL
+  if (
+    fileUrl.startsWith("data:") ||
+    fileUrl.startsWith("blob:")
+  ) {
+    return fileUrl;
   }
 
-  // If it's a submission file, route to getSubmissionFileUrl
-  if (path.includes("/uploads/submissions/") || path.includes("uploads/submissions/")) {
-    return getSubmissionFileUrl(path);
+  // External URL
+  // Example: Google profile image
+  const isHttpUrl =
+    fileUrl.startsWith("http://") ||
+    fileUrl.startsWith("https://");
+
+  const isBackendAvatar =
+    fileUrl.includes("/uploads/avatars/") ||
+    fileUrl.includes("uploads/avatars/") ||
+    fileUrl.includes("ant-form-backend");
+
+  // If it's an external image URL, use it directly
+  if (isHttpUrl && !isBackendAvatar) {
+    return fileUrl;
   }
 
-  // If external non-backend avatar URL (e.g. Google profile picture), return directly
-  const isBackendAvatar = path.includes("/uploads/avatars/") || !path.includes("://");
-  if (!isBackendAvatar) {
-    return path;
+  // Use complete URL as cache key
+  const cacheKey = fileUrl;
+
+  // Return cached URL
+  if (avatarBlobCache.has(cacheKey)) {
+    return avatarBlobCache.get(cacheKey);
   }
 
-  // Normalize key by stripping path directory and queries
-  const filename = path.split("/").pop().split("?")[0];
-
-  // Return cached object URL if already loaded
-  if (avatarBlobCache.has(filename)) {
-    return avatarBlobCache.get(filename);
-  }
-
-  // Reuse ongoing request if another component is fetching the same avatar
-  if (inFlightRequests.has(filename)) {
-    return inFlightRequests.get(filename);
+  // Reuse existing request
+  if (inFlightRequests.has(cacheKey)) {
+    return inFlightRequests.get(cacheKey);
   }
 
   const fetchPromise = (async () => {
     try {
-      const blob = await avatarService.getAvatarBlob(filename);
+      console.log(
+        "[useAvatar] Fetch avatar:",
+        fileUrl
+      );
+
+      // IMPORTANT:
+      // Send FULL fileUrl to service
+      const blob =
+        await avatarService.getAvatarBlob(fileUrl);
+
       const objectUrl = URL.createObjectURL(blob);
-      avatarBlobCache.set(filename, objectUrl);
+
+      avatarBlobCache.set(cacheKey, objectUrl);
+
       return objectUrl;
     } catch (err) {
-      console.warn(`[useAvatar] Failed to load avatar "${filename}":`, err?.response?.status || err.message);
+      console.warn(
+        `[useAvatar] Failed to load avatar "${fileUrl}":`,
+        err?.response?.status || err?.message
+      );
+
       return DEFAULT_AVATAR;
     } finally {
-      inFlightRequests.delete(filename);
+      inFlightRequests.delete(cacheKey);
     }
   })();
 
-  inFlightRequests.set(filename, fetchPromise);
+  inFlightRequests.set(cacheKey, fetchPromise);
+
   return fetchPromise;
 }
 
 /**
- * Invalidate a cached avatar (e.g. after user updates their avatar)
- * @param {string} path
+ * Remove avatar from cache
  */
-export function invalidateAvatarCache(path) {
-  if (!path) return;
-  const filename = path.split("/").pop().split("?")[0];
-  if (avatarBlobCache.has(filename)) {
-    const oldUrl = avatarBlobCache.get(filename);
-    if (oldUrl && oldUrl.startsWith("blob:")) {
-      URL.revokeObjectURL(oldUrl);
+export function invalidateAvatarCache(fileUrl) {
+  if (!fileUrl) {
+    for (const [, objectUrl] of avatarBlobCache.entries()) {
+      if (objectUrl?.startsWith("blob:")) {
+        URL.revokeObjectURL(objectUrl);
+      }
     }
-    avatarBlobCache.delete(filename);
+    avatarBlobCache.clear();
+    return;
+  }
+
+  const cacheKey = fileUrl;
+
+  if (avatarBlobCache.has(cacheKey)) {
+    const objectUrl = avatarBlobCache.get(cacheKey);
+
+    if (objectUrl?.startsWith("blob:")) {
+      URL.revokeObjectURL(objectUrl);
+    }
+
+    avatarBlobCache.delete(cacheKey);
   }
 }
 
 /**
- * Reusable Composable for Vue components
- * @param {import('vue').Ref<string> | string | null} initialPath
+ * Vue composable
  */
 export const useAvatar = (initialPath = null) => {
   const avatarUrl = ref(DEFAULT_AVATAR);
   const loading = ref(false);
   const error = ref(null);
 
-  const loadAvatar = async (path) => {
-    if (!path) {
+  const loadAvatar = async (fileUrl) => {
+    if (!fileUrl) {
       avatarUrl.value = DEFAULT_AVATAR;
       return DEFAULT_AVATAR;
     }
 
     loading.value = true;
     error.value = null;
+
     try {
-      const url = await getAvatarUrl(path);
+      const url = await getAvatarUrl(fileUrl);
+
       avatarUrl.value = url;
+
       return url;
     } catch (err) {
       error.value = err;
       avatarUrl.value = DEFAULT_AVATAR;
+
       return DEFAULT_AVATAR;
     } finally {
       loading.value = false;
@@ -173,10 +245,12 @@ export const useAvatar = (initialPath = null) => {
     if (isRef(initialPath)) {
       watch(
         initialPath,
-        (newVal) => {
-          loadAvatar(newVal);
+        (newValue) => {
+          loadAvatar(newValue);
         },
-        { immediate: true }
+        {
+          immediate: true,
+        }
       );
     } else {
       loadAvatar(initialPath);
@@ -187,6 +261,7 @@ export const useAvatar = (initialPath = null) => {
     avatarUrl,
     loading,
     error,
+
     loadAvatar,
     getAvatarUrl,
     getSubmissionFileUrl,

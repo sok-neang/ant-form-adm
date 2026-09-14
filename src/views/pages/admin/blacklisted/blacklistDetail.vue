@@ -230,7 +230,7 @@ const getBlacklistNote = (submission) => {
 };
 
 const getBlacklistedDate = (submission) => {
-  const d = submission?.blacklistedAt || submission?.updatedAt || submission?.createdAt;
+  const d = submission?.blacklistedAt || submission?.updatedAt || submission?.created_at;
   if (!d) return "";
   try {
     const dt = new Date(d);
@@ -272,15 +272,15 @@ const getBlacklistedDate = (submission) => {
 }
 
 .btn-shortlist {
-  color: #0284c7;
-  background-color: #f0f9ff;
-  border: 1px solid #bae6fd;
+  color: #ffd139;
+  background-color: #f7f9fc;
+  border: 1px solid #fdd72f;
 }
 
 .btn-shortlist:hover:not(:disabled) {
-  background-color: #0284c7;
+  background-color: #fdd72f;
   color: #ffffff;
-  border-color: #0284c7;
+  border-color: #fdd72f;
 }
 
 .btn-pass {

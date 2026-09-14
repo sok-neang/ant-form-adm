@@ -86,6 +86,38 @@
     </template>
      
    
+    <!-- C++ Score -->
+    <template #cell-score_technology="{ row }">
+      <span
+        class="badge rounded-pill px-3 py-2"
+        :class="
+          row.score_technology < 50
+            ? 'score-fail'
+            : row.score_technology < 70
+            ? 'score-medium'
+            : 'score-good'
+        "
+      >
+        {{ row.score_technology }}
+      </span>
+    </template>
+
+    <!-- Attendance Score (HTML / Dart) -->
+    <template #cell-score_attendance="{ row }">
+      <span
+        class="badge rounded-pill px-3 py-2"
+        :class="
+          row.score_attendance < 50
+            ? 'score-fail'
+            : row.score_attendance < 70
+            ? 'score-medium'
+            : 'score-good'
+        "
+      >
+        {{ row.score_attendance }}
+      </span>
+    </template>
+
     <!-- Total score  -->
     <template #cell-total_score="{ row }">
         <span
@@ -154,6 +186,8 @@ const columns = [
   { key: "year", label: "និស្សិតឆ្នាំ" },
   { key: "skill", label: "ជំនាញ" },
   { key: "study_shift", label: "វេនសិក្សា" },
+  { key: "score_technology", label: "C++" },
+  { key: "score_attendance", label: "HTML / Dart" },
   { key: "total_score", label: "ពិន្ទុមធ្យម" },
 ];
 
@@ -175,14 +209,33 @@ const loadSubmissions = async (page = 1) => {
     }
   }
   if (selectedScoreLevel.value) {
-    if (selectedScoreLevel.value === "highest" || selectedScoreLevel.value === "HIGH") {
+    const val = selectedScoreLevel.value;
+    if (val === "highest" || val === "HIGH") {
       params.scoreSort = "highest";
-    } else if (selectedScoreLevel.value === "lowest" || selectedScoreLevel.value === "LOW") {
+    } else if (val === "lowest" || val === "LOW") {
       params.scoreSort = "lowest";
-    } else if (selectedScoreLevel.value === "all" || selectedScoreLevel.value === "ALL") {
+    } else if (val === "highestCPP") {
+      params.cpp = "highest";
+      params.scoreSort = "highestCPP";
+    } else if (val === "lowestCPP") {
+      params.cpp = "lowest";
+      params.scoreSort = "lowestCPP";
+    } else if (val === "highestDART") {
+      params.dart = "highest";
+      params.scoreSort = "highestDART";
+    } else if (val === "lowestDART") {
+      params.dart = "lowest";
+      params.scoreSort = "lowestDART";
+    } else if (val === "highestHTML_CSS") {
+      params.html_css = "highest";
+      params.scoreSort = "highestHTML_CSS";
+    } else if (val === "lowestHTML_CSS") {
+      params.html_css = "lowest";
+      params.scoreSort = "lowestHTML_CSS";
+    } else if (val === "all" || val === "ALL") {
       params.scoreSort = "all";
     } else {
-      params.scoreSort = selectedScoreLevel.value;
+      params.scoreSort = val;
     }
   }
   if (searchQuery.value) params.search = searchQuery.value;

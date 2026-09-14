@@ -82,13 +82,20 @@
           <!-- Reason & Note only for Blacklist and Dropout -->
           <template v-if="isReasonRequired">
             <div class="mb-3">
-              <label class="form-label">មូលហេតុ (Reason)</label>
+              <label class="form-label">
+                មូលហេតុ (Reason) <span class="text-danger">*</span>
+              </label>
               <textarea 
                 v-model="actionReason" 
                 class="form-control shadow-none border-secondary-subtle" 
+                :class="{ 'is-invalid border-danger': reasonError }"
                 rows="3" 
                 placeholder="បញ្ចូលមូលហេតុ..."
+                @input="reasonError = ''"
               ></textarea>
+              <div v-if="reasonError" class="text-danger small mt-1">
+                {{ reasonError }}
+              </div>
             </div>
             <div class="mb-3">
               <label class="form-label">កំណត់សម្គាល់ (Note - Optional)</label>
@@ -111,7 +118,7 @@
             class="btn btn-success px-4" 
             style="background-color: #357867; border-color: #357867;"
             @click="submitActionModal" 
-            :disabled="isUpdating"
+            :disabled="isUpdating || (isReasonRequired && !actionReason.trim())"
           >
             <span v-if="isUpdating" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
             យល់ព្រម
@@ -139,6 +146,7 @@ const showActionModal = ref(false);
 const actionType = ref("");
 const actionReason = ref("");
 const actionNote = ref("");
+const reasonError = ref("");
 const currentSubmission = ref(null);
 
 const activeSubmissionId = computed(() => {
@@ -203,6 +211,7 @@ const openActionModal = (type) => {
   actionType.value = type;
   actionReason.value = "";
   actionNote.value = "";
+  reasonError.value = "";
   showActionModal.value = true;
 };
 
@@ -225,10 +234,15 @@ const promoteStatus = async (status, payload = {}) => {
 };
 
 const submitActionModal = async () => {
+  if (isReasonRequired.value && !actionReason.value.trim()) {
+    reasonError.value = "សូមបញ្ចូលមូលហេតុជាមុនសិន";
+    return;
+  }
+
   const payload = isReasonRequired.value
     ? {
-        reason: actionReason.value || undefined,
-        note: actionNote.value || undefined,
+        reason: actionReason.value.trim(),
+        note: actionNote.value.trim() || undefined,
       }
     : {};
 

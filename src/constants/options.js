@@ -94,16 +94,41 @@ export const resultStatusOptions = [
 export const scoreLevelOptions = [
   {
     value: "all",
-    label: "ពិន្ទុទាំងអស់",
+    label: "ពិន្ទុ",
   },
   {
     value: "highest",
-    label: "ពិន្ទុខ្ពស់ជាងគេ",
+    label: "ពិន្ទុមធ្យមខ្ពស់ជាងគេ",
   },
   {
     value: "lowest",
-    label: "ពិន្ទុទាបជាងគេ",
+    label: "ពិន្ទុមធ្យមទាបជាងគេ",
   },
+  {
+    value: "highestCPP",
+    label: "ពិន្ទុ C++ ខ្ពស់ជាងគេ",
+  },
+  {
+    value: "lowestCPP",
+    label: "ពិន្ទុ C++ ទាបជាងគេ",
+  },
+  {
+    value: "highestDART",
+    label: "ពិន្ទុ Dart ខ្ពស់ជាងគេ",
+  },
+  {
+    value: "lowestDART",
+    label: "ពិន្ទុ Dart ទាបជាងគេ",
+  },
+  {
+    value: "highestHTML_CSS",
+    label: "ពិន្ទុ HTML & CSS ខ្ពស់ជាងគេ",
+  },
+  {
+    value: "lowestHTML_CSS",
+    label: "ពិន្ទុ HTML&CSS ទាបជាងគេ",
+  },
+
 ];
 
 export const subjectOptions = [
@@ -139,5 +164,4 @@ export const evaluationStatusOptions = [
     label: "មិនទាន់បានវាយតម្លៃ",
   },
 ];
-
 

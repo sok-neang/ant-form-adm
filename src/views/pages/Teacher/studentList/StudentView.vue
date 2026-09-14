@@ -9,7 +9,8 @@
             <i :class="card.icon" class="fs-4"></i>
           </div>
           <div class="d-flex flex-column">
-            <h2 class="stat-value fw-bold mb-1" :class="`text-${card.color}`">
+            <BaseSkeleton v-if="statsLoading" width="60px" height="32px" class="mb-1" />
+            <h2 v-else class="stat-value fw-bold mb-1" :class="`text-${card.color}`">
               {{ card.value }}
             </h2>
             <span class="stat-title text-muted fw-semibold">{{ card.title }}</span>
@@ -18,222 +19,322 @@
       </div>
     </div>
 
-    <!-- SEARCH & FILTER ROW (SINGLE ROW) -->
-    <div class="filter-row d-flex align-items-center justify-content-between gap-3 mb-4 position-relative">
-      <!-- Search Input -->
-      <div class="search-pill-box d-flex align-items-center px-3 py-2 rounded-pill bg-white flex-shrink-0">
-        <i class="bi bi-search text-muted me-2"></i>
-        <input v-model="search" type="text" class="form-control border-0 bg-transparent shadow-none p-0"
-          placeholder="Search" />
-      </div>
+    <!-- BASE TABLE LIKE SHORTLIST -->
+    <BaseTable
+      :columns="columns"
+      :rows="students"
+      :pagination="pagination"
+      :loading="loading"
+      :show-actions="true"
+      @page-change="handlePageChange"
+    >
+      <template #search-filter>
+        <!-- Search Input -->
+        <div class="search-box position-relative">
+          <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
+          <input 
+            type="text" 
+            v-model="searchQuery" 
+            class="form-control rounded-pill border-success ps-5" 
+            placeholder="Search" 
+            style="width: 250px;"
+          >
+        </div>
 
-      <!-- BaseSelect Filters (Strictly 1 Row) -->
-      <div class="filter-selects-container d-flex align-items-center gap-2 flex-nowrap flex-shrink-0">
-        <!-- Evaluation Status Filter -->
-        <BaseSelect v-model="filters.evaluationStatus" :options="evaluationStatusOptions" option-label="label" option-value="value"
-          placeholder="ជ្រើសរើសស្ថានភាព" :clearable="false" style="width: 175px;" @change="() => getEvaluations(1)" />
+        <!-- Filters / Dropdown -->
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <BaseSelect
+            v-model="selectedEvaluationStatus"
+            :options="evaluationStatusOptions"
+            option-label="label"
+            option-value="value"
+            placeholder="ជ្រើសរើសស្ថានភាព"
+            :clearable="false"
+            style="width: 175px;"
+          />
+          <BaseSelect
+            v-model="selectedScoreLevel"
+            :options="scoreLevelOptions"
+            option-label="label"
+            option-value="value"
+            placeholder="ជ្រើសរើសកម្រិតពិន្ទុ"
+            :clearable="false"
+            style="width: 200px;"
+          />
+          <BaseSelect
+            v-model="selectedShift"
+            :options="shiftOptions"
+            option-label="label"
+            option-value="value"
+            placeholder="ជ្រើសរើសពេល"
+            :clearable="false"
+            style="width: 140px;"
+          />
+          <BaseSelect
+            v-model="selectedSpecialization"
+            :options="specializationOptions"
+            option-label="label"
+            option-value="value"
+            placeholder="ជ្រើសរើសមុខជំនាញ"
+            :clearable="false"
+            style="width: 175px;"
+          />
+        </div>
+      </template>
 
-        <!-- Specialization Filter -->
-        <BaseSelect v-model="filters.skill" :options="specializationOptions" option-label="label" option-value="value"
-          placeholder="ជ្រើសរើសជំនាញ" :clearable="false" style="width: 175px;" @change="() => getEvaluations(1)" />
+      <!-- Skill Column -->
+      <template #cell-skill="{ row }">
+        <span
+          class="badge rounded-pill px-3 py-2"
+          :style="{
+            color: row.skill === 'Web Development' ? '#357867' : '#6f42c1',
+            backgroundColor:
+              row.skill === 'Web Development'
+                ? 'rgba(53, 120, 103, 0.12)'
+                : 'rgba(111, 66, 193, 0.12)',
+          }"
+        >
+          {{ row.skill }}
+        </span>
+      </template>
 
-        <!-- Score Filter -->
-        <BaseSelect v-model="filters.score" :options="scoreLevelOptions" option-label="label" option-value="value"
-          placeholder="ជ្រើសរើសពិន្ទុ" :clearable="false" style="width: 155px;" @change="() => getEvaluations(1)" />
+      <!-- C++ Score Column -->
+      <template #cell-score_technology="{ row }">
+        <span
+          class="badge rounded-pill px-3 py-2"
+          :class="
+            row.score_technology < 50
+              ? 'score-fail'
+              : row.score_technology < 70
+              ? 'score-medium'
+              : 'score-good'
+          "
+        >
+          {{ row.score_technology }}
+        </span>
+      </template>
 
-        <!-- Shift Filter -->
-        <BaseSelect v-model="filters.shift" :options="shiftOptions" option-label="label" option-value="value"
-          placeholder="ជ្រើសរើសវេន" :clearable="false" style="width: 140px;" @change="() => getEvaluations(1)" />
-      </div>
-    </div>
+      <!-- HTML / Dart Score Column -->
+      <template #cell-score_attendance="{ row }">
+        <span
+          class="badge rounded-pill px-3 py-2"
+          :class="
+            row.score_attendance < 50
+              ? 'score-fail'
+              : row.score_attendance < 70
+              ? 'score-medium'
+              : 'score-good'
+          "
+        >
+          {{ row.score_attendance }}
+        </span>
+      </template>
 
-    <!-- TABLE CONTAINER -->
-    <div class="card border-0 rounded-4 shadow-sm overflow-hidden mb-4 position-relative" style="z-index: 1;">
-      <div class="table-responsive">
-        <table class="table align-middle custom-student-table mb-0">
-          <thead>
-            <tr>
-              <th class="text-center" style="width: 60px;">#</th>
-              <th>ឈ្មោះសិស្ស</th>
-              <th>ភេទ</th>
-              <th>ជំនាញ</th>
-              <th>វេនសិក្សា</th>
-              <th>ស្ថានភាពមុខវិជ្ជា</th>
-              <th class="text-center">ពិន្ទុសរុប</th>
-              <th class="text-center" style="width: 110px;">ការកំណត់</th>
-            </tr>
-          </thead>
+      <!-- Total Score Column -->
+      <template #cell-total_score="{ row }">
+        <span
+          class="badge rounded-pill px-3 py-2 fw-bold"
+          :class="
+            row.total_score < 50
+              ? 'score-fail'
+              : row.total_score < 70
+              ? 'score-medium'
+              : 'score-good'
+          "
+        >
+          {{ row.total_score }}
+        </span>
+      </template>
 
-          <tbody v-if="loading">
-            <tr v-for="n in 6" :key="n">
-              <td colspan="8" class="p-3">
-                <BaseSkeleton width="100%" height="24px" radius="6px" />
-              </td>
-            </tr>
-          </tbody>
+      <!-- Actions Column -->
+      <template #actions="{ row }">
+        <div class="d-flex justify-content-start align-items-center gap-2">
+          <!-- View Button -->
+          <button
+            type="button"
+            class="btn btn-action-outline action-btn action-view"
+            title="មើលលម្អិត"
+            @click="handleView(row)"
+          >
+            <i class="bi bi-eye"></i>
+          </button>
 
-          <tbody v-else-if="students.length === 0">
-            <tr>
-              <td colspan="8" class="text-center py-5 text-muted">
-                <i class="bi bi-inbox fs-1 d-block mb-2"></i>
-                មិនមានទិន្នន័យសិស្សទេ
-              </td>
-            </tr>
-          </tbody>
-
-          <tbody v-else>
-            <tr v-for="(student, index) in students" :key="student.id">
-              <!-- ID -->
-              <td class="text-center fw-semibold text-muted">
-                {{ ((pagination.current_page - 1) * pagination.per_page) + index + 1 }}
-              </td>
-
-              <!-- Name -->
-              <td class="fw-semibold text-dark">
-                {{ student.name }}
-              </td>
-
-              <!-- Gender -->
-              <td class="text-secondary">
-                {{ student.gender }}
-              </td>
-
-              <!-- Specialization -->
-              <td>
-                <span class="badge-pill px-3 py-1 rounded-pill fw-medium"
-                  :class="student.skill === 'Web Development' ? 'badge-web' : 'badge-mobile'">
-                  {{ student.skill }}
-                </span>
-              </td>
-
-              <!-- Study Shift -->
-              <td class="text-secondary">
-                {{ student.study_shift }}
-              </td>
-
-              <!-- Subject Status Badges -->
-              <td>
-                <div class="d-flex align-items-center gap-2 flex-wrap">
-                  <span v-for="sub in student.subjects" :key="sub.name"
-                    class="subject-badge px-3 py-1 rounded-pill d-inline-flex align-items-center gap-1"
-                    :class="sub.evaluated ? `subject-badge-${sub.color}` : 'subject-badge-pending'">
-                    <!-- Evaluated Checkmark -->
-                    <span v-if="sub.evaluated" class="badge-icon">✓</span>
-                    <!-- Pending Circle -->
-                    <span v-else class="badge-icon badge-icon-circle">○</span>
-                    <span>{{ sub.name }}</span>
-                  </span>
-                </div>
-              </td>
-
-              <!-- Total Score -->
-              <td class="text-center fw-bold" :class="student.total_score === 'N/A' ? 'text-muted' : 'text-score'">
-                {{ student.total_score }}
-              </td>
-
-              <!-- Actions -->
-              <td class="text-center">
-                <div class="d-flex align-items-center justify-content-center gap-2">
-                  <!-- View Button -->
-                  <button type="button" class="btn btn-action-outline" title="មើលលម្អិត" @click="handleView(student)">
-                    <i class="bi bi-eye"></i>
-                  </button>
-
-                  <!-- Edit / Evaluate Button -->
-                  <button v-if="student.is_evaluated" type="button" class="btn btn-action-outline"
-                    title="កែប្រែការវាយតម្លៃ" @click="handleEdit(student)">
-                    <i class="bi bi-pencil-square"></i>
-                  </button>
-
-                  <!-- Add / Pending Button -->
-                  <button v-else type="button" class="btn btn-action-outline" title="វាយតម្លៃសិស្ស"
-                    @click="handleAdd(student)">
-                    <i class="bi bi-plus-lg"></i>
-                  </button>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- PAGINATION (CENTER ALIGNED) -->
-    <div v-if="pagination.totalPages > 1" class="d-flex justify-content-center align-items-center gap-2 mt-4">
-      <button type="button" class="pagination-btn pagination-arrow" :disabled="pagination.current_page === 1"
-        @click="handlePageChange(pagination.current_page - 1)">
-        <i class="bi bi-chevron-left"></i>
-      </button>
-
-      <button v-for="page in visiblePages" :key="page" type="button" class="pagination-btn"
-        :class="{ active: pagination.current_page === page }" @click="handlePageChange(page)">
-        {{ page }}
-      </button>
-
-      <button type="button" class="pagination-btn pagination-arrow"
-        :disabled="pagination.current_page === pagination.totalPages"
-        @click="handlePageChange(pagination.current_page + 1)">
-        <i class="bi bi-chevron-right"></i>
-      </button>
-    </div>
+          <!-- Evaluate Button -->
+          <button
+            type="button"
+            class="btn btn-action-outline action-btn"
+            :title="row.is_evaluated ? 'កែប្រែការវាយតម្លៃ' : 'វាយតម្លៃសិស្ស'"
+            @click="handleEvaluate(row)"
+          >
+            <i :class="row.is_evaluated ? 'bi bi-pencil-square text-success' : 'bi bi-plus-lg text-success'"></i>
+          </button>
+        </div>
+      </template>
+    </BaseTable>
   </div>
 </template>
 
 <script setup>
-import { computed, onMounted } from "vue";
+import { ref, watch, onMounted, computed } from "vue";
 import { useRouter } from "vue-router";
-import BaseSkeleton from "@/components/ui/base/BaseSkeleton.vue";
+import BaseTable from "@/components/ui/base/BaseTable.vue";
 import BaseSelect from "@/components/ui/base/BaseSelect.vue";
+import BaseButton from "@/components/ui/base/BaseButton.vue";
+import BaseSkeleton from "@/components/ui/base/BaseSkeleton.vue";
 import {
-  evaluationStatusOptions,
+  shiftOptions,
   specializationOptions,
   scoreLevelOptions,
-  shiftOptions,
+  evaluationStatusOptions,
 } from "@/constants/options";
-import { useEvaluationList } from "@/composable/evaluation/useEvaluationList";
+import { useShortlist } from "@/composable/application/short list/useShortlist";
+import dashboardService from "@/services/dashboard.service";
 
 const router = useRouter();
-const { students, loading, search, filters, pagination, cards, getEvaluations } = useEvaluationList();
 
-const visiblePages = computed(() => {
-  const current = pagination.value.current_page || 1;
-  const total = pagination.value.totalPages || 1;
-  const pages = [];
-  const maxVisible = 5;
-  let start = Math.max(1, current - Math.floor(maxVisible / 2));
-  let end = Math.min(total, start + maxVisible - 1);
-  if (end - start + 1 < maxVisible) {
-    start = Math.max(1, end - maxVisible + 1);
+// Filters
+const selectedScoreLevel = ref("all");
+const selectedShift = ref("");
+const selectedSpecialization = ref("");
+const selectedEvaluationStatus = ref("");
+const searchQuery = ref("");
+
+// Stats State for Top Cards
+const statsLoading = ref(true);
+const summaryStats = ref({ total: 0, evaluated: 0, pending: 0 });
+
+const cards = computed(() => [
+  {
+    title: "សិស្សសរុប",
+    value: summaryStats.value.total ?? 0,
+    icon: "bi bi-people",
+    color: "primary",
+  },
+  {
+    title: "បានវាយតម្លៃ",
+    value: summaryStats.value.evaluated ?? 0,
+    icon: "bi bi-check-circle",
+    color: "success",
+  },
+  {
+    title: "មិនទាន់បានវាយតម្លៃ",
+    value: summaryStats.value.pending ?? 0,
+    icon: "bi bi-hourglass-split",
+    color: "warning",
+  },
+]);
+
+const fetchStats = async () => {
+  statsLoading.value = true;
+  try {
+    const res = await dashboardService.getStats();
+    if (res.data?.success && res.data?.data?.shortlistEvaluation) {
+      const s = res.data.data.shortlistEvaluation;
+      summaryStats.value = {
+        total: s.total ?? 0,
+        evaluated: s.evaluated ?? 0,
+        pending: s.pending ?? 0,
+      };
+    }
+  } catch (err) {
+    console.warn("Could not fetch shortlist evaluation stats:", err);
+  } finally {
+    statsLoading.value = false;
   }
-  for (let i = start; i <= end; i++) {
-    pages.push(i);
+};
+
+const {
+  loading,
+  students,
+  pagination,
+  fetchSubmissions,
+} = useShortlist();
+
+const columns = [
+  { key: "seq_num", label: "#" },
+  { key: "name", label: "ឈ្មោះសិស្ស" },
+  { key: "gender", label: "ភេទ" },
+  { key: "year", label: "និស្សិតឆ្នាំ" },
+  { key: "skill", label: "ជំនាញ" },
+  { key: "study_shift", label: "វេនសិក្សា" },
+  { key: "score_technology", label: "C++" },
+  { key: "score_attendance", label: "HTML / Dart" },
+  { key: "total_score", label: "ពិន្ទុមធ្យម" },
+];
+
+const loadSubmissions = async (page = 1) => {
+  const params = {
+    page,
+    limit: pagination.value.per_page || 10,
+  };
+
+  if (selectedShift.value) params.shift = selectedShift.value;
+  if (selectedSpecialization.value) params.program = selectedSpecialization.value;
+  if (selectedEvaluationStatus.value) params.evaluationStatus = selectedEvaluationStatus.value;
+
+  if (selectedScoreLevel.value) {
+    const val = selectedScoreLevel.value;
+    if (val === "highest" || val === "HIGH") {
+      params.scoreSort = "highest";
+    } else if (val === "lowest" || val === "LOW") {
+      params.scoreSort = "lowest";
+    } else if (val === "highestCPP") {
+      params.cpp = "highest";
+      params.scoreSort = "highestCPP";
+    } else if (val === "lowestCPP") {
+      params.cpp = "lowest";
+      params.scoreSort = "lowestCPP";
+    } else if (val === "highestDART") {
+      params.dart = "highest";
+      params.scoreSort = "highestDART";
+    } else if (val === "lowestDART") {
+      params.dart = "lowest";
+      params.scoreSort = "lowestDART";
+    } else if (val === "highestHTML_CSS") {
+      params.html_css = "highest";
+      params.scoreSort = "highestHTML_CSS";
+    } else if (val === "lowestHTML_CSS") {
+      params.html_css = "lowest";
+      params.scoreSort = "lowestHTML_CSS";
+    } else if (val === "all" || val === "ALL") {
+      params.scoreSort = "all";
+    } else {
+      params.scoreSort = val;
+    }
   }
-  return pages;
-});
+
+  if (searchQuery.value) params.search = searchQuery.value;
+
+  await fetchSubmissions(params);
+};
 
 const handlePageChange = (page) => {
-  if (page >= 1 && page <= pagination.value.totalPages) {
-    getEvaluations(page);
-  }
+  loadSubmissions(page);
 };
 
-const handleView = (student) => {
-  const id = student.submissionId || student.id;
-  router.push({ name: "student-detail", params: { submissionId: id } });
+const handleView = (row) => {
+  router.push({ name: "student-detail", params: { submissionId: row.id } });
 };
 
-const handleEdit = (student) => {
-  const id = student.submissionId || student.id;
-  router.push({ name: "student-evaluation", params: { submissionId: id } });
+const handleEvaluate = (row) => {
+  router.push({ name: "student-evaluation", params: { submissionId: row.id } });
 };
 
-const handleAdd = (student) => {
-  const id = student.submissionId || student.id;
-  router.push({ name: "student-evaluation", params: { submissionId: id } });
-};
+let searchTimeout;
+watch(searchQuery, () => {
+  clearTimeout(searchTimeout);
+  searchTimeout = setTimeout(() => {
+    loadSubmissions(1);
+  }, 500);
+});
+
+watch([selectedShift, selectedSpecialization, selectedScoreLevel, selectedEvaluationStatus], () => {
+  loadSubmissions(1);
+});
 
 onMounted(() => {
-  getEvaluations(1, true);
+  loadSubmissions();
+  fetchStats();
 });
 </script>
 
@@ -249,263 +350,66 @@ onMounted(() => {
 }
 
 .stat-icon-box {
-  width: 52px;
-  height: 52px;
+  width: 54px;
+  height: 54px;
+  flex-shrink: 0;
 }
 
 .stat-icon-primary {
-  background-color: #e0f2fe;
-  color: #0284c7;
+  background-color: rgba(53, 120, 103, 0.12);
+  color: #357867;
 }
 
 .stat-icon-success {
-  background-color: #dcfce7;
-  color: #16a34a;
+  background-color: rgba(25, 135, 84, 0.12);
+  color: #198754;
 }
 
 .stat-icon-warning {
-  background-color: #fef3c7;
-  color: #d97706;
+  background-color: rgba(255, 179, 31, 0.12);
+  color: #ffb31f;
 }
 
 .stat-value {
-  font-size: 1.85rem;
-  line-height: 1;
+  font-size: 1.75rem;
+  line-height: 1.2;
 }
 
-.stat-title {
-  font-size: 0.95rem;
+/* SCORE BADGES */
+.score-fail {
+  color: #e53e3e !important;
+  background-color: rgba(229, 62, 62, 0.12) !important;
 }
 
-/* SEARCH & FILTER */
-.filter-row {
-  position: relative;
-  z-index: 30;
-  overflow: visible !important;
+.score-medium {
+  color: #ffb31f !important;
+  background-color: rgba(255, 179, 31, 0.12) !important;
 }
 
-.filter-selects-container {
-  overflow: visible !important;
-}
-
-/* GREEN FILTER DROPDOWNS */
-.filter-selects-container :deep(.base-select) {
-  --bs-border: #2e7d6b;
-  --bs-focus: #2e7d6b;
-  --bs-focus-ring: rgba(46, 125, 107, 0.15);
-  --bs-icon: #2e7d6b;
-  --bs-radius: 10px;
-}
-
-.filter-selects-container :deep(.base-select__group) {
-  border: 1.5px solid #2e7d6b !important;
-  border-radius: 10px !important;
-  background-color: #ffffff;
-  height: 42px;
-  transition: all 0.2s ease;
-}
-
-.filter-selects-container :deep(.base-select__chevron) {
-  color: #2e7d6b !important;
-}
-
-.filter-selects-container :deep(.base-select__chevron svg) {
-  stroke-width: 2.2;
-}
-
-.filter-selects-container :deep(.ts-control) {
-  min-height: 40px !important;
-  height: 40px !important;
-  padding: 0 28px 0 12px !important;
-  color: #1f2430;
-  font-size: 0.9rem;
-  font-weight: 500;
-}
-
-.filter-selects-container :deep(.base-select.is-focused .base-select__group),
-.filter-selects-container :deep(.base-select.is-open .base-select__group) {
-  border-color: #2e7d6b !important;
-  box-shadow: 0 0 0 3px rgba(46, 125, 107, 0.15) !important;
-}
-
-.filter-selects-container :deep(.base-select.has-value .base-select__group) {
-  background-color: #e8f5f1 !important;
-  border-color: #2e7d6b !important;
-}
-
-.filter-selects-container :deep(.base-select.has-value .ts-control .item) {
-  color: #2e7d6b !important;
-  font-weight: 600;
-}
-
-.filter-selects-container :deep(.ts-dropdown) {
-  border: 1.5px solid #2e7d6b !important;
-  border-radius: 10px !important;
-  box-shadow: 0 10px 25px rgba(46, 125, 107, 0.12) !important;
-}
-
-.filter-selects-container :deep(.ts-dropdown .option.active),
-.filter-selects-container :deep(.ts-dropdown .option:hover) {
-  background-color: #e8f5f1 !important;
-  color: #2e7d6b !important;
-  font-weight: 600;
-}
-
-.search-pill-box {
-  border: 1.5px solid #2e7d6b;
-  min-width: 260px;
-  max-width: 320px;
-  height: 42px;
-}
-
-/* TABLE STYLING */
-.custom-student-table {
-  border-collapse: separate;
-  border-spacing: 0;
-}
-
-.custom-student-table thead {
-  background-color: #2e7d6b !important;
-}
-
-.custom-student-table thead th {
-  background-color: #2e7d6b !important;
-  color: #ffffff !important;
-  font-weight: 600;
-  font-size: 0.95rem;
-  padding: 14px 16px;
-  border: none;
-  white-space: nowrap;
-}
-
-.custom-student-table tbody td {
-  padding: 14px 16px;
-  border-bottom: 1px solid #f1f5f9;
-  font-size: 0.95rem;
-}
-
-.custom-student-table tbody tr:hover td {
-  background-color: #f8fafc;
-}
-
-/* SPECIALIZATION BADGES */
-.badge-pill {
-  font-size: 0.85rem;
-  display: inline-block;
-}
-
-.badge-web {
-  background-color: #ecfdf5;
-  color: #059669;
-}
-
-.badge-mobile {
-  background-color: #fff7ed;
-  color: #d97706;
-}
-
-/* SUBJECT STATUS BADGES */
-.subject-badge {
-  font-size: 0.8rem;
-  font-weight: 500;
-  border: 1px solid transparent;
-  background-color: #f8fafc;
-}
-
-.subject-badge-green {
-  border-color: #bbf7d0;
-  background-color: #f0fdf4;
-  color: #16a34a;
-}
-
-.subject-badge-blue {
-  border-color: #bfdbfe;
-  background-color: #eff6ff;
-  color: #2563eb;
-}
-
-.subject-badge-orange {
-  border-color: #fed7aa;
-  background-color: #fff7ed;
-  color: #d97706;
-}
-
-.subject-badge-pending {
-  border-color: #e2e8f0;
-  background-color: #f8fafc;
-  color: #94a3b8;
-}
-
-.badge-icon {
-  font-size: 0.8rem;
-  font-weight: bold;
-}
-
-.badge-icon-circle {
-  font-size: 0.75rem;
-}
-
-.text-score {
-  color: #d97706;
-  font-size: 1.05rem;
+.score-good {
+  color: #357867 !important;
+  background-color: rgba(53, 120, 103, 0.12) !important;
 }
 
 /* ACTION BUTTONS */
-.btn-action-outline {
+.action-btn {
   width: 34px;
   height: 34px;
-  padding: 0;
+  border-radius: 8px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1.5px solid #2e7d6b;
-  border-radius: 8px;
-  background-color: #ffffff;
-  color: #2e7d6b;
-  font-size: 0.95rem;
+  border: 1px solid #e2e8f0;
+  background-color: #fff;
   transition: all 0.2s ease;
 }
 
-.btn-action-outline:hover {
-  border-color: #2e7d6b;
-  color: #2e7d6b;
-  background-color: #e8f5f1;
-  transform: translateY(-1px);
+.action-btn:hover {
+  background-color: #f8fafc;
+  border-color: #cbd5e1;
 }
 
-/* PAGINATION */
-.pagination-btn {
-  min-width: 36px;
-  height: 36px;
-  padding: 0 10px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  border-radius: 8px;
-  background-color: #f1f5f9;
-  color: #475569;
-  font-weight: 600;
-  font-size: 0.9rem;
-  transition: all 0.2s ease;
-}
-
-.pagination-btn.active {
-  background-color: #2e7d6b;
-  color: #ffffff;
-}
-
-.pagination-btn:hover:not(.active):not(:disabled) {
-  background-color: #e2e8f0;
-}
-
-.pagination-btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-.pagination-arrow {
-  background-color: transparent;
-  color: #64748b;
+.action-view {
+  color: #3b82f6;
 }
 </style>

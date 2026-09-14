@@ -9,7 +9,7 @@ const activityLogService = {
   auditLogRestore(params = {}) {
     return api.get("/audit-logs/restorable", { params, });
   },
-  
+
 };
 
 export default activityLogService;

@@ -27,16 +27,13 @@
       </template>
 
       <!-- ================================================= -->
-      <!-- AUDIT: USER -->
-      <!-- ================================================= -->
       <template #cell-user="{ row }">
-        <!-- {{ row }} -->
         <div class="d-flex align-items-center gap-3">
-          <!-- <img
-            :src="row.avatar"
-            :alt="row.user"
-            class="user-avatar"
-          /> -->
+          <BaseAvatar
+            :src="row.user"
+            :alt="row.user?.name || 'User'"
+            :size="40"
+          />
 
           <div class="d-flex flex-column">
             <span class="fw-semibold text-dark">
@@ -159,6 +156,7 @@ import BaseTable from "@/components/ui/base/BaseTable.vue";
 import BaseInput from "@/components/ui/base/BaseInput.vue";
 import BaseSelect from "@/components/ui/base/BaseSelect.vue";
 import BaseModal from "@/components/ui/base/BaseModal.vue";
+import BaseAvatar from "@/components/ui/base/BaseAvatar.vue";
 import { formatDate } from "@/utils/dateFormat.js";
 import DetailActivityLog from "./DetailActivityLog .vue";
 

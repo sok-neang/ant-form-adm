@@ -16,6 +16,7 @@
                       :src="authStore.userAvatarUrl"
                       alt="Profile Avatar"
                       class="profile-avatar object-fit-cover w-100"
+                      @error="handleAvatarError"
                     />                    
                     <div class="avatar-overlay"></div>
                   </div>
@@ -301,6 +302,7 @@ import BaseSkeleton from '@/components/ui/base/BaseSkeleton.vue'
 import AvatarCropperModal from '@/components/ui/profile/AvatarCropperModal.vue'
 import { genderOptions } from '@/constants/options'
 import profileBanner from "@/assets/images/img/profile_banner.png"
+import defaultAvatar from "@/assets/images/img/default_avatar.png"
 
 import { useAppToast } from "@/composable/useAppToast";
 import { useAuthStore } from '@/stores/useAuthStore'
@@ -310,6 +312,10 @@ import BaseModal from '@/components/ui/base/BaseModal.vue'
 const router = useRouter();
 const toast = useAppToast();
 const authStore = useAuthStore()
+
+const handleAvatarError = (e) => {
+  e.target.src = defaultAvatar;
+};
 
 const disableFutureDates = (time) => {
   return time.getTime() > Date.now();

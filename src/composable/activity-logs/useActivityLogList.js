@@ -42,49 +42,49 @@ export const useActivityLogList = () => {
     restore: activityLogService.auditLogRestore,
   };
 
-const getData = async (type, page = 1) => {
-  const tab = tabs[type];
-  tab.loading = true;
+  const getData = async (type, page = 1) => {
+    const tab = tabs[type];
+    tab.loading = true;
 
-  try {
-    const params = {
-      page,
-    };
+    try {
+      const params = {
+        page,
+      };
 
-    // Search for current tab
-    if (tab.search?.trim()) {
-      params.search = tab.search.trim();
-    }
-
-    // Status filter
-    if (tab.filters.status) {
-      params.status = tab.filters.status;
-    }
-
-    const response = await services[type](params);
-
-    if (response.data?.success) {
-      if (type === "audit") {
-        tab.data = response.data.data || [];
-        tab.pagination = response.data.meta || {};
+      // Search for current tab
+      if (tab.search?.trim()) {
+        params.search = tab.search.trim();
       }
 
-      if (type === "login") {
-        tab.data = response.data.data?.records || [];
-        tab.pagination = response.data.data?.meta || {};
+      // Status filter
+      if (tab.filters.status) {
+        params.status = tab.filters.status;
       }
 
-      if (type === "restore") {
-        tab.data = response.data.data || [];
-        tab.pagination = response.data.meta || {};
+      const response = await services[type](params);
+
+      if (response.data?.success) {
+        if (type === "audit") {
+          tab.data = response.data.data || [];
+          tab.pagination = response.data.meta || {};
+        }
+
+        if (type === "login") {
+          tab.data = response.data.data?.records || [];
+          tab.pagination = response.data.data?.meta || {};
+        }
+
+        if (type === "restore") {
+          tab.data = response.data.data || [];
+          tab.pagination = response.data.meta || {};
+        }
       }
+
+      return response.data;
+    } finally {
+      tab.loading = false;
     }
-
-    return response.data;
-  } finally {
-    tab.loading = false;
-  }
-};
+  };
 
   return {
     tabs,

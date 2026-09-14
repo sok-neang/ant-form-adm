@@ -392,26 +392,126 @@
       </slot>
     </div>
 
-    <!-- Teleport Full Image Preview Modal -->
+    <!-- Teleport File Preview Modal (Supports Image & PDF) -->
     <Teleport to="body">
       <div
-        v-if="previewImageUrl"
-        class="modal-backdrop-custom d-flex align-items-center justify-content-center"
+        v-if="showPreviewModal"
+        class="modal-backdrop-custom d-flex align-items-center justify-content-center p-3"
         @click.self="closePreview"
       >
-        <div class="position-relative bg-white rounded-4 p-2 shadow-lg preview-box" @click.stop>
-          <button
-            type="button"
-            class="btn-close position-absolute top-0 end-0 m-3 z-3 bg-white shadow-sm p-2 rounded-circle"
-            @click="closePreview"
-            aria-label="Close"
-          ></button>
-          <img
-            :src="previewImageUrl || defaultAvatar"
-            alt="Full Size Photo"
-            class="img-fluid rounded-3 preview-img"
-            @error="onPreviewImageError"
-          />
+        <!-- PDF Modal Container -->
+        <div
+          v-if="previewType === 'pdf'"
+          class="bg-white rounded-4 shadow-lg pdf-preview-container d-flex flex-column overflow-hidden position-relative"
+          @click.stop
+        >
+          <!-- Modal Header -->
+          <div class="d-flex align-items-center justify-content-between px-3 px-sm-4 py-3 border-bottom bg-light flex-shrink-0">
+            <div class="d-flex align-items-center gap-2 min-w-0 me-3">
+              <i class="bi bi-file-earmark-pdf-fill text-danger fs-5 flex-shrink-0"></i>
+              <span class="fw-bold text-dark text-truncate">{{ previewFileTitle }}</span>
+            </div>
+            <div class="d-flex align-items-center gap-2 flex-shrink-0">
+              <button
+                v-if="previewFileUrl"
+                type="button"
+                class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1"
+                @click="openInNewTab(previewFileUrl)"
+                title="បើកក្នុងផ្ទាំងថ្មី"
+              >
+                <i class="bi bi-box-arrow-up-right"></i>
+                <span class="d-none d-sm-inline">បើកក្នុងផ្ទាំងថ្មី</span>
+              </button>
+              <button
+                type="button"
+                class="btn-close"
+                @click="closePreview"
+                aria-label="Close"
+              ></button>
+            </div>
+          </div>
+
+          <!-- Modal Body with VuePdfEmbed -->
+          <div class="pdf-scroll-body flex-grow-1 overflow-auto p-2 p-md-4 position-relative">
+            <div v-if="isPdfLoading" class="d-flex flex-column align-items-center justify-content-center py-5" style="min-height: 350px;">
+              <div class="spinner-border text-success mb-3" role="status" style="width: 2.5rem; height: 2.5rem;">
+                <span class="visually-hidden">Loading PDF...</span>
+              </div>
+              <span class="text-white fw-medium">កំពុងដំណើរការផ្ទុកឯកសារ PDF...</span>
+            </div>
+            <div v-else-if="previewPdfSource" class="pdf-wrapper mx-auto">
+              <VuePdfEmbed
+                :source="previewPdfSource"
+                annotation-layer
+                text-layer
+                class="pdf-viewer-embed shadow rounded-2"
+              />
+            </div>
+            <div v-else class="text-center py-5 text-white">
+              <i class="bi bi-exclamation-triangle fs-1 text-warning d-block mb-2"></i>
+              <span>មិនអាចបង្ហាញឯកសារបានទេ។</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Image Modal Container -->
+        <div
+          v-else-if="previewType === 'image'"
+          class="bg-white rounded-4 shadow-lg image-preview-container d-flex flex-column overflow-hidden position-relative"
+          @click.stop
+        >
+          <!-- Modal Header -->
+          <div class="d-flex align-items-center justify-content-between px-3 px-sm-4 py-3 border-bottom bg-light flex-shrink-0">
+            <div class="d-flex align-items-center gap-2 min-w-0 me-3">
+              <i class="bi bi-file-earmark-image-fill text-primary fs-5 flex-shrink-0"></i>
+              <span class="fw-bold text-dark text-truncate">{{ previewFileTitle }}</span>
+            </div>
+            <div class="d-flex align-items-center gap-2 flex-shrink-0">
+              <button
+                v-if="previewFileUrl"
+                type="button"
+                class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1"
+                @click="openInNewTab(previewFileUrl)"
+                title="បើកក្នុងផ្ទាំងថ្មី"
+              >
+                <i class="bi bi-box-arrow-up-right"></i>
+                <span class="d-none d-sm-inline">បើកក្នុងផ្ទាំងថ្មី</span>
+              </button>
+              <button
+                type="button"
+                class="btn-close"
+                @click="closePreview"
+                aria-label="Close"
+              ></button>
+            </div>
+          </div>
+
+          <!-- Image Modal Body -->
+          <div class="image-scroll-body flex-grow-1 overflow-auto p-3 d-flex align-items-center justify-content-center position-relative">
+            <!-- Loading State -->
+            <div v-if="isloading" class="d-flex flex-column align-items-center justify-content-center py-5" style="min-height: 350px;">
+              <div class="spinner-border text-success mb-3" role="status" style="width: 2.5rem; height: 2.5rem;">
+                <span class="visually-hidden">Loading Image...</span>
+              </div>
+              <span class="text-secondary fw-medium">កំពុងដំណើរការផ្ទុករូបភាព...</span>
+            </div>
+
+            <!-- Image Content -->
+            <div v-else-if="previewImageUrl" class="d-flex align-items-center justify-content-center w-100 h-100">
+              <img
+                :src="previewImageUrl"
+                :alt="previewFileTitle || 'Full Size Photo'"
+                class="img-fluid rounded-3 preview-img shadow-sm"
+                @error="onPreviewImageError"
+              />
+            </div>
+
+            <!-- Fallback if failed -->
+            <div v-else class="text-center py-5 text-muted">
+              <i class="bi bi-exclamation-triangle fs-1 text-warning d-block mb-2"></i>
+              <span>មិនអាចបង្ហាញរូបភាពបានទេ។</span>
+            </div>
+          </div>
         </div>
       </div>
     </Teleport>
@@ -422,8 +522,11 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, onUnmounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import VuePdfEmbed from "vue-pdf-embed";
+import "vue-pdf-embed/dist/styles/annotationLayer.css";
+import "vue-pdf-embed/dist/styles/textLayer.css";
 import BaseSkeleton from "@/components/ui/base/BaseSkeleton.vue";
 import evaluationService from "@/services/evaluation.service";
 import submissionService from "@/services/submission.service";
@@ -532,6 +635,13 @@ const evaluations = ref([]);
 // Photo / Avatar & Preview state
 const studentAvatar = ref(defaultAvatar);
 const previewImageUrl = ref(null);
+const previewPdfSource = ref(null);
+const previewFileTitle = ref("");
+const previewFileUrl = ref("");
+const isPdfLoading = ref(false);
+const isloading = ref(false);
+const showPreviewModal = ref(false);
+const previewType = ref(""); // 'image' | 'pdf'
 const loadingFileId = ref(null);
 const downloadingFileId = ref(null);
 
@@ -651,6 +761,10 @@ const onPreviewImageError = (e) => {
 
 const openAvatarPreview = () => {
   const current = studentAvatar.value;
+  previewFileTitle.value = "រូបថតសិស្ស (Student Photo)";
+  previewFileUrl.value = current;
+  previewType.value = "image";
+  showPreviewModal.value = true;
   if (!current || current === DEFAULT_AVATAR || current === defaultAvatar) {
     previewImageUrl.value = defaultAvatar;
   } else {
@@ -660,6 +774,41 @@ const openAvatarPreview = () => {
 
 const closePreview = () => {
   previewImageUrl.value = null;
+  previewPdfSource.value = null;
+  previewFileTitle.value = "";
+  previewFileUrl.value = "";
+  isPdfLoading.value = false;
+  isloading.value = false;
+  showPreviewModal.value = false;
+  previewType.value = "";
+};
+
+const openInNewTab = async (url) => {
+  if (!url) return;
+  try {
+    const objectUrl = await getSubmissionFileUrl(url);
+    window.open(objectUrl || url, "_blank");
+  } catch (err) {
+    window.open(url, "_blank");
+  }
+};
+
+const isFilePdf = (file) => {
+  if (!file) return false;
+  const path = String(file.filePath || file.fileUrl || file.originalFilename || "").toLowerCase();
+  const mime = String(file.mimeType || file.fileType || "").toLowerCase();
+  return mime.includes("pdf") || path.endsWith(".pdf") || path.includes(".pdf?");
+};
+
+const isFileImage = (file) => {
+  if (!file) return false;
+  const path = String(file.filePath || file.fileUrl || file.originalFilename || "").toLowerCase();
+  const mime = String(file.mimeType || file.fileType || "").toLowerCase();
+  return (
+    mime.startsWith("image/") ||
+    mime === "photo" ||
+    /\.(jpe?g|png|webp|gif|bmp|svg)(?:\?.*)?$/i.test(path)
+  );
 };
 
 const getFileIcon = (fileType) => {
@@ -717,34 +866,78 @@ const formatFileSize = (bytes) => {
 };
 
 const viewFile = async (file) => {
-  const path = file.filePath || file.fileUrl;
-  const isImage =
-    file.mimeType?.startsWith("image/") ||
-    /\.(jpe?g|png|webp|gif)$/i.test(path || "") ||
-    String(file.fileType).toUpperCase() === "PHOTO";
+  if (!file) return;
 
-  if (!path) {
+  const fileUrl = file.filePath || file.fileUrl;
+  let isPdf = isFilePdf(file);
+  let isImage = isFileImage(file);
+
+  if (!fileUrl) {
     if (isImage) {
+      previewFileTitle.value = getFileTitle(file.fileType);
       previewImageUrl.value = defaultAvatar;
+      previewType.value = "image";
+      isloading.value = false;
+      showPreviewModal.value = true;
     }
     return;
   }
 
   loadingFileId.value = file.id;
+  previewFileUrl.value = fileUrl;
+
   try {
-    const url = await getSubmissionFileUrl(path);
-    if (isImage) {
-      previewImageUrl.value = (!url || url === DEFAULT_AVATAR) ? defaultAvatar : url;
+    // If not definitively known from extension/mime, inspect blob MIME type
+    if (!isPdf && !isImage) {
+      try {
+        const blob = await avatarService.getSubmissionFileBlob(fileUrl);
+        if (blob.type === "application/pdf" || blob.type.includes("pdf")) {
+          isPdf = true;
+        } else if (blob.type.startsWith("image/")) {
+          isImage = true;
+        }
+      } catch (e) {
+        console.warn("Could not determine blob type in advance:", e);
+      }
+    }
+
+    previewFileTitle.value =
+      file.originalFilename ||
+      getFileTitle(file.fileType) ||
+      (isPdf ? "ឯកសារ PDF" : isImage ? "រូបភាព (Image)" : "ឯកសារភ្ជាប់");
+
+    if (isPdf) {
+      previewType.value = "pdf";
+      previewPdfSource.value = null;
+      isPdfLoading.value = true;
+      showPreviewModal.value = true;
+
+      const blob = await avatarService.getSubmissionFileBlob(fileUrl);
+      const arrayBuffer = await blob.arrayBuffer();
+      previewPdfSource.value = new Uint8Array(arrayBuffer);
+    } else if (isImage) {
+      previewType.value = "image";
+      previewImageUrl.value = null;
+      isloading.value = true;
+      showPreviewModal.value = true;
+
+      const url = await getSubmissionFileUrl(fileUrl);
+      previewImageUrl.value = (!url || url === DEFAULT_AVATAR) ? (fileUrl || defaultAvatar) : url;
     } else {
-      window.open(url, "_blank");
+      const url = await getSubmissionFileUrl(fileUrl);
+      window.open(url || file.fileUrl || fileUrl, "_blank");
     }
   } catch (err) {
-    console.error("Failed to view file:", err);
-    if (isImage) {
-      previewImageUrl.value = defaultAvatar;
+    console.error("Failed to preview file:", err);
+    if (isPdf) {
+      window.open(file.fileUrl || fileUrl, "_blank");
+    } else if (isImage) {
+      previewImageUrl.value = file.fileUrl || fileUrl || defaultAvatar;
     }
   } finally {
     loadingFileId.value = null;
+    isPdfLoading.value = false;
+    isloading.value = false;
   }
 };
 
@@ -934,8 +1127,19 @@ defineExpose({
   goBack,
 });
 
+const handleKeydown = (e) => {
+  if (e.key === "Escape" && showPreviewModal.value) {
+    closePreview();
+  }
+};
+
 onMounted(() => {
   fetchData();
+  window.addEventListener("keydown", handleKeydown);
+});
+
+onUnmounted(() => {
+  window.removeEventListener("keydown", handleKeydown);
 });
 </script>
 
@@ -1281,6 +1485,43 @@ onMounted(() => {
   min-width: 180px;
   min-height: 180px;
   object-fit: contain;
+}
+
+/* PDF & Image Modal Containers */
+.pdf-preview-container {
+  width: 92vw;
+  max-width: 960px;
+  height: 90vh;
+  max-height: 850px;
+  z-index: 1070;
+}
+
+.pdf-scroll-body {
+  background-color: #525659;
+}
+
+.pdf-wrapper {
+  max-width: 820px;
+  width: 100%;
+}
+
+.image-preview-container {
+  width: 92vw;
+  max-width: 900px;
+  height: auto;
+  max-height: 90vh;
+  z-index: 1070;
+}
+
+.image-scroll-body {
+  background-color: #f8fafc;
+  min-height: 250px;
+  max-height: calc(90vh - 65px);
+}
+
+.pdf-viewer-embed {
+  width: 100%;
+  background: #ffffff;
 }
 
 .file-icon-badge {
