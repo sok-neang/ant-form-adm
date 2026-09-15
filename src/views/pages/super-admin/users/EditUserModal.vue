@@ -77,7 +77,7 @@
           variant="bg-primary"
           custom-class="w-50 py-2 bg-primary text-light"
           :is-loading="loading"
-          loading-text="Updating..."
+          loading-text="កំពុងរក្សាទុក..."
           :disabled="loadingUser"
           @click="handleUpdate"
         >

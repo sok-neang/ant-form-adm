@@ -34,7 +34,7 @@
             placeholder="ជ្រើសរើសស្ថានភាព" :clearable="false" style="width: 150px" />
           <BaseSelect v-model="filter.role" :options="roleOptions" option-label="label" option-value="value"
             placeholder="ជ្រើសរើសតួនាទី" :clearable="false" style="width: 150px" />
-          <BaseButton type="submit" variant="" custom-class="bg-primary text-light" @click="showCreateModal = true">
+          <BaseButton type="submit" loadingText="កំពុងដំណើរការ..." variant="" custom-class="bg-primary text-light" @click="showCreateModal = true">
             បង្កើតគណនី
             <template #icon>
               <i class="bi bi-plus-circle"></i>

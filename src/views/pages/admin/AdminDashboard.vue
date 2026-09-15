@@ -16,9 +16,11 @@
         <!-- Illustration -->
         <div class="col-lg-5 text-center">
           <img
-            src="/src/assets/images/img/handcoding-cuate.png"
+            src="/src/assets/images/img/handcoding-cuate.webp"
             alt="Welcome"
             class="welcome-image"
+            loading="lazy"
+            decoding="async"
           />
         </div>
       </div>
@@ -90,14 +92,16 @@
       <div class="col-12 col-md-3">
         <BaseStatCard v-if="!loading"
           label="សិស្សជ័យលាភី (Final Result)" 
-          :value="statsData?.evaluation?.passed?.total || 0" 
+          :value="(statsData?.evaluation?.passed?.total) + (statsData?.reserved?.total) || 0" 
           valueClass="text-dark"
           icon="bi bi-trophy-fill"
           iconBgClass="bg-primary-subtle"
           iconColor="#0d6efd"
           :stats="[
-            { label: 'ប្រុស', value: getGenderCount(statsData?.evaluation?.passed?.byGender, 'MALE') },
-            { label: 'ស្រី', value: getGenderCount(statsData?.evaluation?.passed?.byGender, 'FEMALE') }
+            { label: 'ប្រុស', value: getGenderCount(statsData?.evaluation?.passed?.byGender, 'MALE') + 
+                                    getGenderCount(statsData?.reserved?.byGender, 'MALE') },
+            { label: 'ស្រី', value: getGenderCount(statsData?.evaluation?.passed?.byGender, 'FEMALE') + 
+                                    getGenderCount(statsData?.reserved?.byGender, 'FEMALE')}
           ]"
         />
         <div v-else class="card border-0 shadow-sm rounded-4 p-3 h-100">
@@ -345,6 +349,41 @@
         </div>
       </div>
 
+      <!-- Blacklist -->
+      <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+        <div class="d-flex align-items-center gap-2 mb-3">
+          <div class="bg-danger rounded-circle" style="width: 12px; height: 12px;"></div>
+          <h6 class="fw-bold mb-0">សិស្សបញ្ជីខ្មៅ & សិស្សដែលបោះបង់ ( Black List & Dropout )</h6>
+        </div>
+        
+        <div class="row g-3">
+          <!-- Blacklist Cards -->
+          <div class="col-12 col-md-4" v-for="(cardData, idx) in blacklistCardsList" :key="'blacklist-'+idx">
+            <BaseStatCard v-if="!loading"
+              :label="cardData.label" 
+              :value="cardData.value()" 
+              valueClass="text-dark"
+              :icon="cardData.icon"
+              iconBgClass="bg-danger bg-opacity-10"
+              iconColor="#dc3545"
+              :stats="cardData.stats()"
+            />
+            <div v-else class="card border-0 shadow-sm rounded-4 p-3 h-100">
+              <div class="d-flex align-items-center mb-3 gap-3">
+                <div class="bg-danger bg-opacity-10 rounded p-2 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                  <i :class="cardData.icon" class="fs-4" style="color: #dc3545"></i>
+                </div>
+                <span class="text-muted fw-bold">{{ cardData.label }}</span>
+              </div>
+              <BaseSkeleton width="50%" height="32px" class="mb-3" />
+              <div class="d-flex gap-4 mt-auto">
+                <div class="d-flex align-items-center gap-2"><span class="small text-muted">ប្រុស</span><BaseSkeleton width="24px" height="16px" /></div>
+                <div class="d-flex align-items-center gap-2"><span class="small text-muted">ស្រី</span><BaseSkeleton width="24px" height="16px" /></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -398,7 +437,50 @@ const chartData = computed(() => {
 
   let dataGroup = statsData.value.submissions;
   if (activeChartTab.value === 'shortlist') dataGroup = statsData.value.shortlist?.passed;
-  if (activeChartTab.value === 'evaluation') dataGroup = statsData.value.evaluation?.passed;
+  if (activeChartTab.value === 'evaluation') {
+    const passed = statsData.value.evaluation?.passed || {};
+    const reserved = statsData.value.reserved || {};
+
+    const passedMale = passed.byGender?.find(g => g.gender === 'MALE') || {};
+    const passedFemale = passed.byGender?.find(g => g.gender === 'FEMALE') || {};
+    const reservedMale = reserved.byGender?.find(g => g.gender === 'MALE') || {};
+    const reservedFemale = reserved.byGender?.find(g => g.gender === 'FEMALE') || {};
+
+    const combinedByGender = [
+      {
+        gender: 'MALE',
+        total: (passedMale.total || 0) + (reservedMale.total || 0),
+        web: (passedMale.web || 0) + (reservedMale.web || 0),
+        mobile: (passedMale.mobile || 0) + (reservedMale.mobile || 0),
+      },
+      {
+        gender: 'FEMALE',
+        total: (passedFemale.total || 0) + (reservedFemale.total || 0),
+        web: (passedFemale.web || 0) + (reservedFemale.web || 0),
+        mobile: (passedFemale.mobile || 0) + (reservedFemale.mobile || 0),
+      },
+    ];
+
+    const yearKeys = ['YEAR_1', 'YEAR_2', 'YEAR_3', 'YEAR_4', 'YEAR_5'];
+    const combinedByYearOfStudy = yearKeys.map(key => {
+      const pYear = passed.byYearOfStudy?.find(y => y.yearOfStudy === key) || {};
+      const rYear = reserved.byYearOfStudy?.find(y => y.yearOfStudy === key) || {};
+      return {
+        yearOfStudy: key,
+        total: (pYear.total || 0) + (rYear.total || 0),
+        web: (pYear.web || 0) + (rYear.web || 0),
+        mobile: (pYear.mobile || 0) + (rYear.mobile || 0),
+      };
+    });
+
+    dataGroup = {
+      total: (passed.total || 0) + (reserved.total || 0),
+      web: (passed.web || 0) + (reserved.web || 0),
+      mobile: (passed.mobile || 0) + (reserved.mobile || 0),
+      byGender: combinedByGender,
+      byYearOfStudy: combinedByYearOfStudy,
+    };
+  }
   
   if (!dataGroup) return null;
 
@@ -446,7 +528,7 @@ const chartData = computed(() => {
 const getGenderCount = (byGenderArr, gender) => {
   if (!byGenderArr) return 0;
   const item = byGenderArr.find(g => g.gender === gender);
-  return item ? item.count || item.total || 0 : 0;
+  return item ? (item.total ?? item.count ?? ((Number(item.web) || 0) + (Number(item.mobile) || 0)) ?? 0) : 0;
 }
 
 // Map configuration array to clean up the detailed stat cards HTML
@@ -507,28 +589,47 @@ const shortlistCardsList = computed(() => [
 const finalCardsList = computed(() => [
   {
     label: "សិស្សទាំងអស់", icon: "bi bi-people-fill",
-    value: () => statsData.value?.evaluation?.passed?.total || 0,
+    value: () => (statsData.value?.evaluation?.passed?.total || 0) + (statsData.value?.reserved?.total || 0) || 0,
     stats: () => [
-      { label: 'ជាប់', value: (statsData.value?.evaluation?.passed?.total || 0) - (statsData.value?.reserved?.total || 0)},
+      { label: 'ជាប់', value: ((statsData.value?.evaluation?.passed?.total) || 0)},
       { label: 'បម្រុង', value: statsData.value?.reserved?.total || 0 }
     ]
   },
   {
     label: "Web Development", icon: "bi bi-book-half",
-    value: () => statsData.value?.evaluation?.passed?.web || 0,
+    value: () => (statsData.value?.evaluation?.passed?.web || 0) + (statsData.value?.reserved?.web || 0) || 0,
     stats: () => [
-      { label: 'ជាប់', value: (statsData.value?.evaluation?.passed?.web || 0) - (statsData.value?.reserved?.web || 0)},
+      { label: 'ជាប់', value: statsData.value?.evaluation?.passed?.web || 0},
       { label: 'បម្រុង', value: statsData.value?.reserved?.web || 0 }
     ]
   },
   {
     label: "Mobile App", icon: "bi bi-code-slash",
-    value: () => statsData.value?.evaluation?.passed?.mobile || 0,
+    value: () => (statsData.value?.evaluation?.passed?.mobile || 0) + (statsData.value?.reserved?.mobile || 0) || 0,
     stats: () => [
-      { label: 'ជាប់', value: (statsData.value?.evaluation?.passed?.mobile || 0) - (statsData.value?.reserved?.mobile || 0)},
+      { label: 'ជាប់', value: (statsData.value?.evaluation?.passed?.mobile || 0) },
       { label: 'បម្រុង', value: statsData.value?.reserved?.mobile || 0 }
     ]
   }
+]);
+
+const blacklistCardsList = computed(() => [
+  {
+    label: "សិស្សបញ្ជីខ្មៅទាំងអស់", icon: "bi bi-people-fill",
+    value: () => statsData.value?.blacklist?.total || 0,
+    stats: () => [
+      { label: 'ប្រុស', value: getGenderCount(statsData.value?.blacklist?.byGender, 'MALE') },
+      { label: 'ស្រី', value: getGenderCount(statsData.value?.blacklist?.byGender, 'FEMALE') }
+    ]
+  },
+  {
+    label: "សិស្សដែលបោះបង់", icon: "bi bi-people-fill",
+    value: () => statsData.value?.dropout?.total || 0,
+    stats: () => [
+      { label: 'ប្រុស', value: getGenderCount(statsData.value?.dropout?.byGender, 'MALE') },
+      { label: 'ស្រី', value: getGenderCount(statsData.value?.dropout?.byGender, 'FEMALE') }
+    ]
+  },
 ]);
 
 onMounted(() => {

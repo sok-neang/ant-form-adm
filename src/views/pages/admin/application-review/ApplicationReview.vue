@@ -525,18 +525,6 @@
           បញ្ជីខ្មៅ
         </button>
 
-        <!-- Dropout -->
-        <button
-          v-if="!isDropout && !isBlacklisted"
-          type="button"
-          class="btn blacklist-btn px-4"
-          @click="handleDropout"
-          :disabled="isUpdating"
-        >
-          <i class="bi bi-person-dash-fill me-2"></i>
-          បោះបង់
-        </button>
-
         <!-- Reject -->
         <button
           v-if="!isFailedShortlist && !isBlacklisted"
@@ -760,9 +748,9 @@ import "vue-pdf-embed/dist/styles/annotationLayer.css";
 import "vue-pdf-embed/dist/styles/textLayer.css";
 import { useApplicationReview } from "@/composable/application/applicationReview/useApplicationReview";
 import BaseModal from "@/components/ui/base/BaseModal.vue";
-import bannerDetailBg from "@/assets/images/img/application_banner.png";
-import bannerBlacklistBg from "@/assets/images/img/banner_blacklist.png";
-import defaultAvatar from "@/assets/images/img/default_avatar.png";
+import bannerDetailBg from "@/assets/images/img/application_banner.webp";
+import bannerBlacklistBg from "@/assets/images/img/banner_blacklist.webp";
+import defaultAvatar from "@/assets/images/img/default_avatar.webp";
 import avatarService from "@/services/avatar.service";
 import { getSubmissionFileUrl, DEFAULT_AVATAR } from "@/composable/useAvatar";
 

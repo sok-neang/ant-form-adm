@@ -121,7 +121,7 @@ import DetailStudent from "@/components/ui/detailStudent.vue";
 import BaseModal from "@/components/ui/base/BaseModal.vue";
 import submissionService from "@/services/submission.service";
 import { useAppToast } from "@/composable/useAppToast";
-import bannerBlacklistBg from "@/assets/images/img/banner_blacklist.png";
+import bannerBlacklistBg from "@/assets/images/img/banner_blacklist.webp";
 
 const route = useRoute();
 const router = useRouter();

@@ -36,6 +36,8 @@ export const useUserList = () => {
     try {
       const params = {
         page,
+        sortBy: "createdAt",
+        sortOrder: "DESC",
       };
       if (search.value.trim() !== "") {
         params.search = search.value.trim();

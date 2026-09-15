@@ -57,7 +57,7 @@
 
 <script setup>
 import DetailStudent from "@/components/ui/detailStudent.vue";
-import bannerBlacklistBg from "@/assets/images/img/banner_blacklist.png";
+import bannerBlacklistBg from "@/assets/images/img/banner_blacklist.webp";
 
 const getDropoutReason = (submission) => {
   return (

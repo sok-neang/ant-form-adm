@@ -77,7 +77,7 @@ import { ref, onMounted, onBeforeUnmount } from "vue";
 import { useLayoutStore } from "@/stores/layout";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useRouter } from "vue-router";
-import default_avatar from "@/assets/images/img/default_avatar.png"
+import default_avatar from "@/assets/images/img/default_avatar.webp"
 const router = useRouter()
 const authStore = useAuthStore();
 const layoutStore = useLayoutStore();

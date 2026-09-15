@@ -32,7 +32,7 @@
           បោះបង់
         </BaseButton>
         <BaseButton type="submit" variant="bg-primary" custom-class="w-50 py-2 bg-primary text-light"
-          :is-loading="loading" loading-text="Signing in..." @click="handleCreate">
+          :is-loading="loading" loading-text="កំពុងបង្កើត..." @click="handleCreate">
           បង្កើតគណនី
         </BaseButton>
       </div>

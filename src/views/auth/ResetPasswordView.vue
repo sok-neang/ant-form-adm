@@ -6,7 +6,7 @@
         class="auth-image d-flex justify-content-center align-items-center"
       >
         <img
-          src="/src/assets/images/auth/img-reset-password.png"
+          src="/src/assets/images/auth/img-reset-password.webp"
           alt="Reset Password"
         />
       </div>
@@ -18,7 +18,7 @@
     <!-- Logo -->
     <div class="logo mb-3 text-center">
       <img
-        src="/src/assets/logo.png"
+        src="/src/assets/logo.webp"
         alt="ANT"
       />
     </div>

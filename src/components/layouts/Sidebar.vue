@@ -7,8 +7,8 @@
             <!-- Logo -->
             <div class="sidebar-logo">
                 <RouterLink to="/">
-                    <img v-if="layoutStore.isAsideOpen" src="/src/assets/logo.png" alt="ANT Logo" class="logo-full" />
-                    <img v-else src="/src/assets/logo.png" alt="ANT Logo" class="logo-small" />
+                    <img v-if="layoutStore.isAsideOpen" src="/src/assets/logo.webp" alt="ANT Logo" class="logo-full" />
+                    <img v-else src="/src/assets/logo.webp" alt="ANT Logo" class="logo-small" />
                 </RouterLink>
             </div>
 
@@ -62,7 +62,7 @@
         <div ref="dropdownRef" class="sidebar-bottom-section" :class="{ 'img-collapsed': !!openDropdownMenu }" v-show="layoutStore.isAsideOpen">
             <!-- images -->
             <div class="img-sidebar text-center px-3">
-                <img src="/src/assets/images/img/sidebar.png" alt="Sidebar" class="img-fluid rounded-3 sidebar-illustration" />
+                <img src="/src/assets/images/img/sidebar.webp" alt="Sidebar" class="img-fluid rounded-3 sidebar-illustration" loading="lazy" decoding="async" />
             </div>
         </div>
     </aside>
