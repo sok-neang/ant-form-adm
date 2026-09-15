@@ -63,6 +63,18 @@ textarea {
   border-radius: 0 5px 5px 0 ;
 }
 
+.form-control:focus,
+.form-select:focus,
+textarea:focus {
+  border-color: var(--bs-primary) !important;
+  outline: 0 !important;
+}
+
+.input-group:focus-within .input-group-text,
+.input-group:focus-within .box-icon-password {
+  border-color: var(--bs-primary) !important;
+}
+
 .border-primary{
   border-bottom: 1px solid var(--bs-primary) !important;
 }

@@ -92,6 +92,8 @@
         <BaseButton
           variant="bg-primary"
           :is-loading="isLoading"
+          :loading-text="'កំពុងរក្សាទុក...'"
+          :disabled="isLoading"
           customClass="px-4 py-2 rounded-pill fw-500 text-white"
           iconPosition="left"
           @click="handleSave"
@@ -190,7 +192,6 @@ const handleSave = () => {
     return;
   }
   emit("save", result.canvas);
-  emit("update:show", false);
 };
 </script>
 

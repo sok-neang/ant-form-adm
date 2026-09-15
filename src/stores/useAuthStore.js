@@ -313,6 +313,12 @@ export const useAuthStore = defineStore("auth", () => {
     qrCodeDataUri,
     totpSecret,
 
+    // Loading States
+    isUpdateProfileLoading,
+    isUploadAvatarLoading,
+    isDeleteAvatarLoading,
+    isLogoutLoading,
+
     // Actions
     login,
     verifyCodeOtp,

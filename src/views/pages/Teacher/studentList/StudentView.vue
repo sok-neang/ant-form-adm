@@ -3,7 +3,7 @@
     <!-- TOP SUMMARY CARDS (3 CARDS) -->
     <div class="row g-3 mb-4">
       <div v-for="card in cards" :key="card.title" class="col-md-4">
-        <div class="stat-card py-3 px-4 rounded-4 bg-white d-flex align-items-center gap-3 shadow-sm h-100">
+        <div class="stat-card py-3 px-4 rounded-4 bg-white d-flex align-items-center gap-3 h-100">
           <div class="stat-icon-box rounded-4 d-flex align-items-center justify-content-center"
             :class="`stat-icon-${card.color}`">
             <i :class="card.icon" class="fs-4"></i>
@@ -346,7 +346,7 @@ onMounted(() => {
 
 /* TOP STAT CARDS */
 .stat-card {
-  border: 1px solid #f1f5f9;
+  border: 1px solid #2e8669;
   transition: all 0.2s ease;
 }
 

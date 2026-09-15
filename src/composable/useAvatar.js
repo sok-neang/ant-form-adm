@@ -68,11 +68,6 @@ export async function getSubmissionFileUrl(fileUrl) {
 
   const fetchPromise = (async () => {
     try {
-      console.log(
-        "[useAvatar] Fetch submission file:",
-        fileUrl
-      );
-
       // IMPORTANT:
       // Send the FULL fileUrl to avatarService
       const blob =
@@ -149,10 +144,6 @@ export async function getAvatarUrl(fileUrl) {
 
   const fetchPromise = (async () => {
     try {
-      console.log(
-        "[useAvatar] Fetch avatar:",
-        fileUrl
-      );
 
       // IMPORTANT:
       // Send FULL fileUrl to service

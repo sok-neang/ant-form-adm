@@ -4,13 +4,15 @@
     <div class="d-flex align-items-center gap-3 mb-4">
       <button
         type="button"
-        class="btn-back d-inline-flex align-items-center gap-2 px-3 py-2 rounded-pill bg-white shadow-sm border text-dark fw-semibold"
+        class="btn-back d-inline-flex align-items-center gap-2 px-3 py-2 rounded-pill bg-white border"
         @click="goBack"
       >
         <i class="bi bi-chevron-left small"></i>
         <span>ត្រឡប់</span>
       </button>
-      <h3 class="fw-bold mb-0 text-dark title-kh">ការវាយតម្លៃ</h3>
+      <h3 class="fw-bold mb-0 text-dark title-kh">
+        {{ isUpdateEvaluation ? "កែប្រែការវាយតម្លៃ" : "ការវាយតម្លៃ" }}
+      </h3>
     </div>
 
     <!-- LOADING STATE -->
@@ -150,11 +152,13 @@
           <button
             type="button"
             class="btn btn-submit-eval w-100 py-3 rounded-3 fw-bold text-white d-flex align-items-center justify-content-center gap-2"
-            :disabled="submitting"
+            :disabled="!canSubmit"
             @click="handleSubmit"
           >
             <span v-if="submitting" class="spinner-border spinner-border-sm" role="status"></span>
-            <span class="fs-6">បញ្ជូនការវាយតម្លៃ</span>
+            <span class="fs-6">
+              {{ isUpdateEvaluation ? "កែប្រែការវាយតម្លៃ" : "បញ្ជូនការវាយតម្លៃ" }}
+            </span>
           </button>
         </div>
       </div>
@@ -166,11 +170,12 @@
           <div class="card border-0 rounded-4 shadow-sm bg-white p-4">
             <div class="d-flex align-items-center gap-3 mb-4">
               <img
-                :src="studentAvatar"
+                :src="studentAvatar || defaultAvatar"
                 alt="Student Avatar"
                 width="50"
                 height="50"
                 class="rounded-circle object-fit-cover shadow-sm bg-light"
+                @error="onAvatarError"
               />
               <h5 class="fw-bold mb-0 text-dark">
                 {{ studentDisplayName }}
@@ -253,15 +258,17 @@
 </template>
 
 <script setup>
-import { computed, onMounted } from "vue";
+import { ref, computed, watch, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import BaseSkeleton from "@/components/ui/base/BaseSkeleton.vue";
 import { useEvaluationForm } from "@/composable/evaluation/useEvaluationForm";
+import { getSubmissionFileUrl, DEFAULT_AVATAR } from "@/composable/useAvatar";
 import bannerBg from "@/assets/images/teacher/bg_overall_avg_score.png";
 import cppLogo from "@/assets/images/teacher/cpp.svg";
 import dartLogo from "@/assets/images/teacher/dart.svg";
 import html5Logo from "@/assets/images/teacher/html5.svg";
 import css3Logo from "@/assets/images/teacher/css3.svg";
+import defaultAvatar from "@/assets/images/img/default_avatar.png";
 
 const route = useRoute();
 const router = useRouter();
@@ -272,10 +279,15 @@ const {
   submitting,
   submission,
   student,
+  evaluations,
   activeSubject,
   subjectTabs,
   currentForm,
   liveScores,
+  isUpdateEvaluation,
+  hasFormChanged,
+  isFormValid,
+  canSubmit,
   fetchEvaluationData,
   addQuickTag,
   submitEvaluation,
@@ -304,9 +316,47 @@ const studentDisplayName = computed(() => {
   return student.value?.khName || student.value?.enName || submission.value?.name || "-";
 });
 
-const studentAvatar = computed(() => {
-  return student.value?.avatarPath || "/src/assets/images/img/profile.webp";
-});
+const studentAvatar = ref(defaultAvatar);
+
+const onAvatarError = (e) => {
+  e.target.src = defaultAvatar;
+  studentAvatar.value = defaultAvatar;
+};
+
+const loadStudentAvatar = async () => {
+  const photoFile = (submission.value?.files || []).find(
+    (f) => String(f.fileType).toUpperCase() === "PHOTO"
+  );
+  const photoPath =
+    photoFile?.fileUrl ||
+    photoFile?.filePath ||
+    student.value?.avatarPath ||
+    student.value?.photoUrl;
+
+  if (photoPath) {
+    try {
+      const url = await getSubmissionFileUrl(photoPath);
+      if (!url || url === DEFAULT_AVATAR) {
+        studentAvatar.value = defaultAvatar;
+      } else {
+        studentAvatar.value = url;
+      }
+    } catch (err) {
+      console.warn("Failed to load student photo in evaluation:", err);
+      studentAvatar.value = defaultAvatar;
+    }
+  } else {
+    studentAvatar.value = defaultAvatar;
+  }
+};
+
+watch(
+  [() => submission.value, () => student.value],
+  () => {
+    loadStudentAvatar();
+  },
+  { immediate: true }
+);
 
 const studentSpecialization = computed(() => {
   const p = submission.value?.program;
@@ -323,17 +373,17 @@ const studentGender = computed(() => {
 });
 
 const studentUniversity = computed(() => {
-  return student.value?.university?.name || student.value?.university?.code || student.value?.university || "-";
+  return student.value?.university?.name || student.value?.university?.code || student.value?.universityOther || student.value?.university || "-";
 });
 
 const studentYear = computed(() => {
   const y = submission.value?.yearOfStudy || student.value?.yearOfStudy;
   if (!y) return "-";
-  if (y === "YEAR_1" || y === 1 || y === "1") return "១";
-  if (y === "YEAR_2" || y === 2 || y === "2") return "២";
-  if (y === "YEAR_3" || y === 3 || y === "3") return "៣";
-  if (y === "YEAR_4" || y === 4 || y === "4") return "៤";
-  if (y === "YEAR_5" || y === 5 || y === "5") return "៥";
+  if (y === "YEAR_1" || y === 1 || y === "1") return "1";
+  if (y === "YEAR_2" || y === 2 || y === "2") return "2";
+  if (y === "YEAR_3" || y === 3 || y === "3") return "3";
+  if (y === "YEAR_4" || y === 4 || y === "4") return "4";
+  if (y === "YEAR_5" || y === 5 || y === "5") return "5";
   return String(y).replace(/^YEAR_?/i, "");
 });
 
@@ -359,6 +409,14 @@ const goBack = () => {
 const handleSubmit = async () => {
   await submitEvaluation();
 };
+
+watch(
+  isUpdateEvaluation,
+  (val) => {
+    document.title = val ? "កែប្រែការវាយតម្លៃ" : "ការវាយតម្លៃ";
+  },
+  { immediate: true }
+);
 
 onMounted(() => {
   fetchEvaluationData();
@@ -446,6 +504,10 @@ onMounted(() => {
   transition: all 0.2s ease;
 }
 
+.form-control-score::placeholder {
+  color: #d3d5d8;
+}
+
 .form-control-score:focus {
   border-color: #2e7d6b;
   box-shadow: 0 0 0 3px rgba(46, 125, 107, 0.15);
@@ -518,8 +580,12 @@ onMounted(() => {
 }
 
 .btn-submit-eval:disabled {
-  opacity: 0.7;
+  opacity: 0.55;
+  background-color: #87bea6;
+  border-color: transparent;
   cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 /* RIGHT COLUMN - SCORE PROGRESS BARS */

@@ -32,8 +32,8 @@
                 <i :class="card.icon" class="fs-4"></i>
             </div>
             <!-- Data Point Skeleton vs Actual Value -->
-            <BaseSkeleton v-if="isUserStatsLoading" width="60px" height="32px" />
-            <h2 v-else class="fw-bold mb-0 text-dark">{{ card.value }}</h2>
+            <BaseSkeleton v-if="isUserStatsLoading" width="60px" height="32px" radius="8px" />
+            <h2 v-else class="fw-bold mb-0 text-success">{{ card.value }}</h2>
         </div>
         <!-- Static Titles -->
         <p class="text-muted mb-1 fw-bold">
@@ -88,7 +88,7 @@ import BaseSkeleton from '@/components/ui/base/BaseSkeleton.vue';
 import dashboardService from '@/services/dashboard.service.js';
 
 const summaries = ref(null);
-const isUserStatsLoading = ref(true); // Default to true to trigger skeleton on mount
+const isUserStatsLoading = ref(true);
 
 const fetchUserStats = async () => {
   isUserStatsLoading.value = true;
@@ -117,15 +117,15 @@ const loadingCards = [
     color: "primary",
   },
   {
-    kh_title: "អ្នកគ្រប់គ្រង",
-    en_title: "Admin",
-    icon: "bi bi-person-check-fill",
+    kh_title: "អ្នកគ្រប់គ្រងទាំងអស់",
+    en_title: "Total Admins",
+    icon: "bi bi-person-gear",
     color: "success",
   },
   {
-    kh_title: "គ្រូបង្រៀន",
-    en_title: "Teacher",
-    icon: "bi bi-book-fill",
+    kh_title: "គ្រូបង្រៀនទាំងអស់",
+    en_title: "Total Teachers",
+    icon: "bi bi-person-workspace",
     color: "warning",
   }
 ];
@@ -138,7 +138,7 @@ const dynamicCards = computed(() => {
     {
       kh_title: "អ្នកប្រើប្រាស់សរុប",
       en_title: "Total Users",
-      value: summaries.value.total || 0,
+      value: summaries.value.total ?? 0,
       icon: "bi bi-people-fill",
       color: "primary",
     }
@@ -154,21 +154,21 @@ const dynamicCards = computed(() => {
       let color = "secondary";
 
       if (item.role === 'ADMIN') {
-        khTitle = "អ្នកគ្រប់គ្រង";
-        enTitle = "Admin";
-        icon = "bi bi-person-check-fill";
+        khTitle = "អ្នកគ្រប់គ្រងទាំងអស់";
+        enTitle = "Total Admins";
+        icon = "bi bi-person-gear";
         color = "success";
       } else if (item.role === 'TEACHER') {
-        khTitle = "គ្រូបង្រៀន";
-        enTitle = "Teacher";
-        icon = "bi bi-book-fill";
+        khTitle = "គ្រូបង្រៀនទាំងអស់";
+        enTitle = "Total Teachers";
+        icon = "bi bi-person-workspace";
         color = "warning";
       }
 
       cards.push({
         kh_title: khTitle,
         en_title: enTitle,
-        value: item.count,
+        value: item.count ?? 0,
         icon: icon,
         color: color,
       });

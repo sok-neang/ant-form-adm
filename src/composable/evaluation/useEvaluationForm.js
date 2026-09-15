@@ -23,6 +23,104 @@ export const useEvaluationForm = (submissionId) => {
     DART: { technicalScore: "", attendanceScore: "", comment: "" },
   });
 
+  // Pristine snapshot of forms for dirty-checking
+  const originalForms = ref({
+    CPP: { technicalScore: "", attendanceScore: "", comment: "" },
+    HTML_CSS: { technicalScore: "", attendanceScore: "", comment: "" },
+    DART: { technicalScore: "", attendanceScore: "", comment: "" },
+  });
+
+  const isMatchingSubject = (evalSubject, targetSubject) => {
+    const s = String(evalSubject || "").toUpperCase();
+    const t = String(targetSubject || "").toUpperCase();
+    if (t === "CPP") {
+      return s === "CPP" || s === "C++" || s.includes("CPP");
+    }
+    if (t === "HTML_CSS") {
+      return s.includes("HTML") || s.includes("CSS");
+    }
+    if (t === "DART") {
+      return s.includes("DART");
+    }
+    return s === t;
+  };
+
+  // Check if active subject has already been evaluated
+  const isUpdateEvaluation = computed(() => {
+    return evaluations.value?.some((e) => isMatchingSubject(e.subject, activeSubject.value));
+  });
+
+  const normalizeScore = (val) => {
+    if (val === "" || val == null) return "";
+    const n = Number(val);
+    return isNaN(n) ? String(val).trim() : String(n);
+  };
+
+  // Check if teacher has changed any old values for the active subject
+  const hasFormChanged = computed(() => {
+    const orig = originalForms.value[activeSubject.value];
+    const curr = currentForm.value;
+    if (!orig || !curr) return false;
+
+    const origTech = normalizeScore(orig.technicalScore);
+    const currTech = normalizeScore(curr.technicalScore);
+
+    const origAtt = normalizeScore(orig.attendanceScore);
+    const currAtt = normalizeScore(curr.attendanceScore);
+
+    const origComment = (orig.comment || "").trim();
+    const currComment = (curr.comment || "").trim();
+
+    const techChanged = origTech !== currTech;
+    const attChanged = origAtt !== currAtt;
+    const commentChanged = origComment !== currComment;
+
+    return techChanged || attChanged || commentChanged;
+  });
+
+  // Check if the current form has valid inputs
+  const isFormValid = computed(() => {
+    const form = currentForm.value;
+    if (!form) return false;
+
+    const techStr = String(form.technicalScore ?? "").trim();
+    const attStr = String(form.attendanceScore ?? "").trim();
+    const commentStr = String(form.comment ?? "").trim();
+
+    // Scores cannot be empty
+    if (techStr === "" || attStr === "") {
+      return false;
+    }
+
+    const tech = Number(techStr);
+    const att = Number(attStr);
+
+    if (isNaN(tech) || tech < 0 || tech > 100) {
+      return false;
+    }
+
+    if (isNaN(att) || att < 0 || att > 100) {
+      return false;
+    }
+
+    // Comment is required
+    if (!commentStr) {
+      return false;
+    }
+
+    return true;
+  });
+
+  // Submit button should be enabled ONLY if scores are entered AND (for updates) values have changed
+  const canSubmit = computed(() => {
+    if (submitting.value) return false;
+    if (!isFormValid.value) return false;
+    if (isUpdateEvaluation.value && !hasFormChanged.value) {
+      return false;
+    }
+    return true;
+  });
+
   // Allowed subjects based on student program
   const subjectTabs = computed(() => {
     const program = submission.value?.program || "WEB_DEVELOPMENT";
@@ -93,6 +191,13 @@ export const useEvaluationForm = (submissionId) => {
       student.value = mergedStudent;
       evaluations.value = mergedEvaluations;
 
+      // Reset forms
+      forms.value = {
+        CPP: { technicalScore: "", attendanceScore: "", comment: "" },
+        HTML_CSS: { technicalScore: "", attendanceScore: "", comment: "" },
+        DART: { technicalScore: "", attendanceScore: "", comment: "" },
+      };
+
       // Populate form data from existing evaluations
       if (evaluations.value.length > 0) {
         evaluations.value.forEach((ev) => {
@@ -104,14 +209,17 @@ export const useEvaluationForm = (submissionId) => {
 
           if (forms.value[targetKey]) {
             forms.value[targetKey] = {
-              technicalScore: ev.technicalScore != null ? ev.technicalScore : "",
-              attendanceScore: ev.attendanceScore != null ? ev.attendanceScore : "",
+              technicalScore: ev.technicalScore != null ? String(ev.technicalScore) : "",
+              attendanceScore: ev.attendanceScore != null ? String(ev.attendanceScore) : "",
               comment: ev.comment || "",
               id: ev.id,
             };
           }
         });
       }
+
+      // Snapshot pristine forms for dirty checking
+      originalForms.value = JSON.parse(JSON.stringify(forms.value));
 
       // Ensure active subject matches allowed subjects
       const validKeys = subjectTabs.value.map((t) => t.key);
@@ -223,10 +331,9 @@ export const useEvaluationForm = (submissionId) => {
       };
 
       // Check if this subject has already been evaluated
-      const existingEval = evaluations.value.find((e) => {
-        const s = (e.subject || "").toUpperCase();
-        return s === activeSubject.value || (activeSubject.value === "CPP" && s.includes("CPP")) || (activeSubject.value === "HTML_CSS" && (s.includes("HTML") || s.includes("CSS"))) || (activeSubject.value === "DART" && s.includes("DART"));
-      });
+      const existingEval = evaluations.value.find((e) =>
+        isMatchingSubject(e.subject, activeSubject.value)
+      );
 
       let response;
       if (existingEval) {
@@ -236,7 +343,11 @@ export const useEvaluationForm = (submissionId) => {
       }
 
       if (response.data?.success) {
-        toast.success("បានបញ្ជូនការវាយតម្លៃដោយជោគជ័យ!");
+        toast.success(
+          existingEval
+            ? "បានកែប្រែការវាយតម្លៃដោយជោគជ័យ!"
+            : "បានបញ្ជូនការវាយតម្លៃដោយជោគជ័យ!"
+        );
         await fetchEvaluationData();
         return true;
       } else {
@@ -265,6 +376,10 @@ export const useEvaluationForm = (submissionId) => {
     forms,
     currentForm,
     liveScores,
+    isUpdateEvaluation,
+    hasFormChanged,
+    isFormValid,
+    canSubmit,
     fetchEvaluationData,
     addQuickTag,
     submitEvaluation,

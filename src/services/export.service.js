@@ -50,7 +50,12 @@ export async function downloadExportFile(type, filters = {}) {
 
   try {
     const response = await (type === 'final'
-      ? exportService.getFinalExport(cleanParams)
+      ? exportService.getFinalExport(cleanParams).catch(async (err) => {
+          if (err.response?.status === 404) {
+            return exportService.getShortlistExport({ ...cleanParams, status: cleanParams.status || 'final' });
+          }
+          throw err;
+        })
       : exportService.getShortlistExport(cleanParams));
 
     // 1. Extract suggested filename from Content-Disposition header

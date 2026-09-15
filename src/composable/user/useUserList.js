@@ -6,7 +6,7 @@ export const useUserList = () => {
   const summaries = ref([]);
   const pagination = ref({});
   const loading = ref(false);
-  const isUserStatsLoading = ref(false);
+  const isUserStatsLoading = ref(true);
   const error = ref(null);
   const search = ref("");
 
@@ -22,9 +22,7 @@ export const useUserList = () => {
       const response = await userService.getSummaries();  
       if (response.data?.success) {
         summaries.value = response.data.data; 
-      }
-      console.log(response.data.data);
-      
+      }      
       return response.data;
     } catch (err) {
       throw err;
@@ -103,6 +101,7 @@ export const useUserList = () => {
     summaries,
     pagination,
     loading,
+    isUserStatsLoading,
     error,
     search,
     filter,

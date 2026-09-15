@@ -14,9 +14,10 @@
       <!-- Modal -->
       <div
         class="modal-dialog modal-dialog-centered d-flex justify-content-center"
-        :class="sizeClass"
+        :class="[sizeClass, customClass]"
+        :style="dialogStyle"
       >
-        <div class="modal-content">
+        <div class="modal-content" :style="contentStyle">
           <!-- Header -->
           <div class="modal-header">
             <slot name="header"></slot>
@@ -68,6 +69,16 @@ const props = defineProps({
     default: "md",
   },
 
+  width: {
+    type: String,
+    default: "",
+  },
+
+  customClass: {
+    type: String,
+    default: "",
+  },
+
   showClose: {
     type: Boolean,
     default: true,
@@ -87,10 +98,26 @@ const emit = defineEmits([
 const sizeClass = computed(() => {
   return {
     sm: "modal-sm",
-    md: "",
+    md: "modal-md",
     lg: "modal-lg",
     xl: "modal-xl",
-  }[props.size];
+  }[props.size] || (props.size ? `modal-${props.size}` : "modal-md");
+});
+
+const dialogStyle = computed(() => {
+  const styles = {};
+  if (props.width) {
+    styles.maxWidth = props.width;
+  }
+  return styles;
+});
+
+const contentStyle = computed(() => {
+  const styles = {};
+  if (props.width) {
+    styles.maxWidth = props.width;
+  }
+  return styles;
 });
 
 const close = () => {
@@ -157,6 +184,24 @@ onBeforeUnmount(() => {
   position: relative;
   z-index: 1;
   margin: auto;
+  width: 100%;
+  max-width: 550px;
+}
+
+.modal-dialog.modal-sm {
+  max-width: 400px;
+}
+
+.modal-dialog.modal-md {
+  max-width: 550px;
+}
+
+.modal-dialog.modal-lg {
+  max-width: 660px;
+}
+
+.modal-dialog.modal-xl {
+  max-width: 900px;
 }
 
 .modal-content {
@@ -164,7 +209,7 @@ onBeforeUnmount(() => {
   border-radius: 16px;
   overflow: hidden;
   box-shadow: 0 15px 45px rgba(0, 0, 0, 0.18);
-  width: 550px;
+  width: 100%;
   background: #fff;
 }
 

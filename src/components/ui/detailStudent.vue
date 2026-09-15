@@ -1074,6 +1074,7 @@ const universityText = computed(() => {
   return (
     student.value?.university?.name ||
     student.value?.university?.code ||
+    student.value?.universityOther ||
     student.value?.university ||
     "-"
   );

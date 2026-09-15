@@ -319,9 +319,6 @@ router.beforeEach((to) => {
 
   const isAuthenticated = authStore.isAuthenticated;
 
-  console.log("Route:", to.fullPath);
-  console.log("Authenticated:", isAuthenticated);
-
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
   const requiresGuest = to.matched.some(record => record.meta.requiresGuest);
 

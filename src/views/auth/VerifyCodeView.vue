@@ -146,8 +146,6 @@ const handleVerifyOTP = async () => {
     // Unexpected response
     toast.error("ទិន្នន័យផ្ទៀងផ្ទាត់មិនត្រឹមត្រូវ");
   } catch (error) {
-    console.log(error.response);
-    
     const backendData = error.response?.data;
     toast.error(backendData?.message || "លេខកូដផ្ទៀងផ្ទាត់មិនត្រឹមត្រូវ");
   }

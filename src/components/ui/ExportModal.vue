@@ -60,7 +60,7 @@
 
       <!-- Description with bold highlight -->
       <p class="export-success-desc mb-4 px-3">
-        <template v-if="isFinalChoice">
+        <template v-if="selectedStatus === 'final'">
           ទិន្នន័យបេក្ខជនជ័យលាភី <span class="fw-bold export-success-highlight">សរុប {{ finalTotalCount }} នាក់</span> (ជាប់ {{ passCount }} នាក់, បម្រុង {{ effectiveReservedCount }} នាក់) ត្រូវបានទាញយកដោយជោគជ័យ។
         </template>
         <template v-else>
@@ -69,29 +69,33 @@
       </p>
 
       <!-- 4 Details Cards Grid -->
-      <div class="row g-2 w-100 mb-2 px-2">
-        <div class="col-3">
-          <div class="export-stat-card">
-            <div class="export-stat-label">ជំនាញ</div>
-            <div class="export-stat-value text-truncate">{{ selectedProgramLabel }}</div>
-          </div>
-        </div>
-        <div class="col-3">
-          <div class="export-stat-card">
-            <div class="export-stat-label">វេន</div>
-            <div class="export-stat-value text-truncate">{{ selectedShiftLabel }}</div>
-          </div>
-        </div>
-        <div class="col-3">
-          <div class="export-stat-card">
-            <div class="export-stat-label">ទម្រង់</div>
-            <div class="export-stat-value text-truncate text-uppercase">{{ selectedFormat }}</div>
-          </div>
-        </div>
-        <div class="col-3">
-          <div class="export-stat-card">
-            <div class="export-stat-label">{{ isFinalChoice ? 'ប្រភេទ' : 'ក្រុម' }}</div>
-            <div class="export-stat-value text-truncate">{{ isFinalChoice ? 'ជាប់ & បម្រុង' : `G${selectedGroupIndex}` }}</div>
+      <div class="row justify-content-center w-100 mb-2 px-2">
+        <div class="col-9">
+          <div class="row ">
+              <div class="col-3">
+              <div class="export-stat-card">
+                <div class="export-stat-label">ជំនាញ</div>
+                <div class="export-stat-value text-truncate">{{ selectedProgramLabel }}</div>
+              </div>
+            </div>
+            <div class="col-3">
+              <div class="export-stat-card">
+                <div class="export-stat-label">វេន</div>
+                <div class="export-stat-value text-truncate">{{ selectedShiftLabel }}</div>
+              </div>
+            </div>
+            <div class="col-3">
+              <div class="export-stat-card">
+                <div class="export-stat-label">ទម្រង់</div>
+                <div class="export-stat-value text-truncate text-uppercase">{{ selectedFormat }}</div>
+              </div>
+            </div>
+            <div class="col-3">
+              <div class="export-stat-card">
+                <div class="export-stat-label">{{ selectedStatus === 'final' ? 'ប្រភេទ' : 'ក្រុម' }}</div>
+                <div class="export-stat-value text-truncate">{{ selectedStatus === 'final' ? 'ជាប់ & បម្រុង' : `G${selectedGroupIndex}` }}</div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -106,12 +110,12 @@
         <div class="col-12 col-md-6 d-flex flex-column gap-3">
           <!-- Final Choice Overview Banner -->
           <div
-            v-if="isFinalChoice"
+            v-if="selectedStatus === 'final'"
             class="export-stat-card-banner export-stat-banner-final p-3 rounded-3"
           >
             <div class="d-flex align-items-center justify-content-between mb-2">
               <div class="d-flex align-items-center gap-2">
-                <div class="stat-icon-circle bg-warning-subtle text-warning-emphasis">
+                <div class="stat-icon-circle bg-success-subtle text-success">
                   <i class="bi bi-award-fill"></i>
                 </div>
                 <div>
@@ -120,9 +124,9 @@
                 </div>
               </div>
               <div class="d-flex align-items-center gap-1">
-                <span v-if="isLoadingCounts" class="spinner-border spinner-border-sm text-secondary me-1" role="status"></span>
-                <span class="badge bg-dark text-white fw-bold px-2 py-1">
-                  សរុប {{ passCount + reservedCount }} នាក់
+                <span v-if="isLoadingCounts" class="spinner-border spinner-border-sm text-success me-1" role="status"></span>
+                <span v-else class="badge bg-success-subtle text-success border border-success-subtle fw-bold px-2.5 py-1">
+                  សរុប {{ finalTotalCount }} នាក់
                 </span>
               </div>
             </div>
@@ -131,7 +135,7 @@
               <div class="col-6">
                 <div class="p-2 rounded-2 bg-white border d-flex align-items-center justify-content-between">
                   <div class="d-flex align-items-center gap-1.5">
-                    <span class="status-indicator bg-success"></span>
+                    <span class="status-indicator bg-success me-2"></span>
                     <span class="small fw-semibold text-muted">ជាប់</span>
                   </div>
                   <span class="fw-bold text-success small">{{ passCount }} នាក់</span>
@@ -140,10 +144,10 @@
               <div class="col-6">
                 <div class="p-2 rounded-2 bg-white border d-flex align-items-center justify-content-between">
                   <div class="d-flex align-items-center gap-1.5">
-                    <span class="status-indicator bg-warning"></span>
+                    <span class="status-indicator bg-warning me-2"></span>
                     <span class="small fw-semibold text-muted">បម្រុង</span>
                   </div>
-                  <span class="fw-bold text-warning-emphasis small">{{ reservedCount }} នាក់</span>
+                  <span class="fw-bold text-warning-emphasis small">{{ effectiveReservedCount }} នាក់</span>
                 </div>
               </div>
             </div>
@@ -177,8 +181,8 @@
             </div>
           </div>
 
-          <!-- Group Config & Group Selector (Shortlist Only) -->
-          <template v-if="!isFinalChoice">
+          <!-- Shortlist Mode: Group Config & Group Selector -->
+          <template v-if="selectedStatus === 'shortlist'">
             <!-- Group Size Input -->
             <div>
               <label class="form-label fw-semibold export-label mb-1.5 d-flex align-items-center justify-content-between">
@@ -223,9 +227,9 @@
           <template v-else>
             <div>
               <label class="form-label fw-semibold export-label mb-1.5 d-flex align-items-center justify-content-between">
-                <span><i class="bi bi-sliders text-primary me-1"></i>កំណត់ចំនួនបេក្ខជនបម្រុង</span>
+                <span><i class="bi bi-sliders text-success me-2"></i>កំណត់ចំនួនបេក្ខជនបម្រុង</span>
                 <span class="text-muted fw-normal small">
-                  បម្រុងសរុប៖ <strong class="text-warning-emphasis">{{ reservedCount }}</strong> នាក់
+                  បម្រុងសរុប: <strong class="text-warning-emphasis">{{ reservedCount }}</strong> នាក់
                 </span>
               </label>
               <input
@@ -237,7 +241,7 @@
                 :placeholder="`ទាំងអស់ (${reservedCount} នាក់)`"
               />
               <div class="form-text text-muted small mt-1">
-                <i class="bi bi-info-circle me-1"></i>ទុកទទេ = ជ្រើសយកទាំងអស់ ({{ reservedCount }} នាក់)
+                <i class="bi bi-info-circle me-2"></i>ទុកទទេ = ជ្រើសយកទាំងអស់ ({{ reservedCount }} នាក់)
               </div>
             </div>
           </template>
@@ -252,7 +256,7 @@
                 <div>
                   <div class="summary-title fw-bold">ទិន្នន័យទាញយក</div>
                   <div class="summary-subtitle text-muted text-truncate" style="max-width: 190px;">
-                    <template v-if="isFinalChoice">
+                    <template v-if="selectedStatus === 'final'">
                       ជាប់ {{ passCount }} + បម្រុង {{ effectiveReservedCount }}
                     </template>
                     <template v-else>
@@ -263,10 +267,10 @@
               </div>
               <div class="text-end">
                 <div class="summary-count fw-bold">
-                  {{ isFinalChoice ? finalTotalCount : activeRowCount }}
+                  {{ selectedStatus === 'final' ? finalTotalCount : activeRowCount }}
                 </div>
                 <div class="summary-unit text-muted">
-                  {{ isFinalChoice ? 'នាក់' : 'ជួរ' }}
+                  {{ selectedStatus === 'final' ? 'នាក់' : 'ជួរ' }}
                 </div>
               </div>
             </div>
@@ -324,7 +328,7 @@
           </div>
 
           <!-- Course Requirement Dates (Shortlist Only) -->
-          <div v-if="!isFinalChoice" class="date-box-card p-3 rounded-3 border">
+          <div v-if="selectedStatus === 'shortlist'" class="date-box-card p-3 rounded-3 border">
             <div class="small fw-bold text-dark mb-2.5 d-flex align-items-center justify-content-between">
               <span><i class="bi bi-calendar-range text-success me-2"></i>កាលបរិច្ឆេទចូលរៀន ២សប្ដាហ៍</span>
               <span class="badge bg-secondary-subtle text-secondary fw-normal">2 Weeks</span>
@@ -363,7 +367,7 @@
           <!-- Document Export Date -->
           <div>
             <label class="form-label fw-semibold export-label mb-1.5 d-flex align-items-center justify-content-between">
-              <span><i class="bi bi-calendar-event text-success me-2"></i>កាលបរិច្ឆេទលើឯកសារ</span>
+              <span><i class="bi bi-calendar-event text-success me-2"></i>កាលបរិច្ឆេទលើកឯកសារ</span>
               <span class="text-muted fw-normal small">ថ្ងៃទាញយក / ហត្ថលេខា</span>
             </label>
             <el-date-picker
@@ -497,11 +501,15 @@ const props = defineProps({
   },
   initialProgram: {
     type: String,
-    default: 'MOBILE_APP',
+    default: '',
   },
   initialShift: {
     type: String,
-    default: 'MORNING',
+    default: '',
+  },
+  initialStatus: {
+    type: String,
+    default: '',
   },
   totalCount: {
     type: Number,
@@ -523,8 +531,9 @@ const isLoadingCounts = ref(false);
 
 // Live candidate counts from server
 const shortlistCount = ref(props.totalCount || 0);
-const passCount = ref(props.exportType === 'final' ? props.totalCount || 0 : 0);
+const passCount = ref(0);
 const reservedCount = ref(0);
+const reserveLimit = ref(null);
 
 // Dropdown Options
 const programOptions = [
@@ -539,13 +548,49 @@ const shiftOptions = [
   { value: "AFTERNOON", label: "រសៀល" },
 ];
 
+// Status Options: ជ្រើសសម្រាំង and លទ្ធផលចុងក្រោយ
 const statusOptions = [
   { value: "shortlist", label: "ជ្រើសសម្រាំង" },
   { value: "final", label: "លទ្ធផលចុងក្រោយ" },
 ];
 
-// Determine if the currently chosen option is Final (contains both Pass and Reserved)
-const isFinalChoice = computed(() => selectedStatus.value === 'final');
+// Dual-prop visibility binding
+const isOpenModel = computed(() => props.show || props.isOpen);
+
+// Form States
+const today = new Date().toISOString().split('T')[0];
+const exportDate = ref(today);
+const startDate = ref('');
+const resolveInitialStatus = () => {
+  if (props.exportType === 'final') return 'final';
+  if (props.exportType === 'shortlist') return 'shortlist';
+  if (props.initialStatus === 'final' || ['PASS', 'RESERVED', 'PASSED'].includes(props.initialStatus)) {
+    return 'final';
+  }
+  return 'shortlist';
+};
+
+const endDate = ref('');
+const groupSize = ref(20);
+const selectedGroupIndex = ref(1);
+const selectedProgram = ref(props.initialProgram || '');
+const selectedShift = ref(props.initialShift || '');
+const selectedStatus = ref(resolveInitialStatus());
+const selectedFormat = ref('pdf');
+
+// Effective reserved count based on optional admin limit
+const effectiveReservedCount = computed(() => {
+  const limit = reserveLimit.value;
+  if (limit !== null && limit !== undefined && limit !== '' && !isNaN(Number(limit))) {
+    const num = Number(limit);
+    if (num >= 0) return Math.min(num, reservedCount.value);
+  }
+  return reservedCount.value;
+});
+
+const finalTotalCount = computed(() => {
+  return passCount.value + effectiveReservedCount.value;
+});
 
 // Computed readable labels for the success summary
 const selectedProgramLabel = computed(() => {
@@ -563,36 +608,6 @@ const selectedStatusLabel = computed(() => {
   return opt ? opt.label : 'ជ្រើសសម្រាំង';
 });
 
-// Dual-prop visibility binding
-const isOpenModel = computed(() => props.show || props.isOpen);
-
-// Form States
-const today = new Date().toISOString().split('T')[0];
-const exportDate = ref(today);
-const startDate = ref('');
-const endDate = ref('');
-const reserveLimit = ref(null);
-const groupSize = ref(20);
-const selectedGroupIndex = ref(1);
-const selectedProgram = ref(props.initialProgram || 'MOBILE_APP');
-const selectedShift = ref(props.initialShift || 'MORNING');
-const selectedStatus = ref(props.exportType === 'final' ? 'final' : 'shortlist');
-const selectedFormat = ref('pdf');
-
-// Effective reserved count based on optional admin limit
-const effectiveReservedCount = computed(() => {
-  const limit = reserveLimit.value;
-  if (limit !== null && limit !== undefined && limit !== '' && !isNaN(Number(limit))) {
-    const num = Number(limit);
-    if (num >= 0) return Math.min(num, reservedCount.value);
-  }
-  return reservedCount.value;
-});
-
-const finalTotalCount = computed(() => {
-  return passCount.value + effectiveReservedCount.value;
-});
-
 // Auto-fill end date to +14 days if not manually set
 const onStartDateChange = (val) => {
   if (val && !endDate.value) {
@@ -602,31 +617,80 @@ const onStartDateChange = (val) => {
   }
 };
 
+// Helper to extract query-filtered total from API responses
+const extractCount = (settledRes) => {
+  if (!settledRes || settledRes.status !== 'fulfilled') return null;
+  const resData = settledRes.value?.data;
+  if (!resData) return null;
+
+  const meta = resData.data?.pagination || resData.pagination;
+  if (meta) {
+    // Priority 1: 'total' is the query-filtered count!
+    if (meta.total !== undefined && meta.total !== null && !isNaN(Number(meta.total))) {
+      return Number(meta.total);
+    }
+    // Priority 2: 'count'
+    if (meta.count !== undefined && meta.count !== null && !isNaN(Number(meta.count))) {
+      return Number(meta.count);
+    }
+    // Priority 3: 'totalSubmissions' (fallback only if total is missing)
+    if (meta.totalSubmissions !== undefined && meta.totalSubmissions !== null && !isNaN(Number(meta.totalSubmissions))) {
+      return Number(meta.totalSubmissions);
+    }
+  }
+
+  // Fallback if data is raw array
+  if (Array.isArray(resData.data)) return resData.data.length;
+  if (Array.isArray(resData.data?.submissions)) return resData.data.submissions.length;
+  if (Array.isArray(resData.submissions)) return resData.submissions.length;
+
+  return null;
+};
+
 // Fetch live total candidate counts according to selected program and shift
 const fetchTotalCounts = async () => {
   isLoadingCounts.value = true;
   try {
-    const params = { limit: 1 };
-    if (selectedProgram.value) params.program = selectedProgram.value;
-    if (selectedShift.value) params.shift = selectedShift.value;
+    const queryParams = { page: 1, limit: 1 };
+    if (selectedProgram.value) queryParams.program = selectedProgram.value;
+    if (selectedShift.value) queryParams.shift = selectedShift.value;
 
-    const [shortlistRes, passRes, reservedRes] = await Promise.allSettled([
-      submissionService.getShortlist(params),
-      submissionService.getPassFinalResult(params),
-      submissionService.getReservedFinalResult(params),
+    const [
+      shortlistRes,
+      passRes,
+      reservedRes,
+      allPassedPassRes,
+      allPassedReservedRes,
+    ] = await Promise.allSettled([
+      submissionService.getShortlist(queryParams),
+      submissionService.getPassFinalResult(queryParams),
+      submissionService.getReservedFinalResult(queryParams),
+      submissionService.getAllFinalResult({ ...queryParams, status: 'PASS' }),
+      submissionService.getAllFinalResult({ ...queryParams, status: 'RESERVED' }),
     ]);
 
-    if (shortlistRes.status === 'fulfilled' && shortlistRes.value?.data?.success) {
-      const meta = shortlistRes.value.data.data?.pagination;
-      shortlistCount.value = meta?.totalSubmissions ?? meta?.total ?? 0;
+    // Shortlist count
+    const slCount = extractCount(shortlistRes);
+    if (slCount !== null) {
+      shortlistCount.value = slCount;
     }
-    if (passRes.status === 'fulfilled' && passRes.value?.data?.success) {
-      const meta = passRes.value.data.data?.pagination;
-      passCount.value = meta?.totalSubmissions ?? meta?.total ?? 0;
+
+    // Final Passed count (try getPassFinalResult first, fallback to getAllFinalResult with status PASS)
+    const pCount = extractCount(passRes);
+    const altPCount = extractCount(allPassedPassRes);
+    if (pCount !== null) {
+      passCount.value = pCount;
+    } else if (altPCount !== null) {
+      passCount.value = altPCount;
     }
-    if (reservedRes.status === 'fulfilled' && reservedRes.value?.data?.success) {
-      const meta = reservedRes.value.data.data?.pagination;
-      reservedCount.value = meta?.totalSubmissions ?? meta?.total ?? 0;
+
+    // Final Reserved count (try getReservedFinalResult first, fallback to getAllFinalResult with status RESERVED)
+    const rCount = extractCount(reservedRes);
+    const altRCount = extractCount(allPassedReservedRes);
+    if (rCount !== null) {
+      reservedCount.value = rCount;
+    } else if (altRCount !== null) {
+      reservedCount.value = altRCount;
     }
   } catch (err) {
     console.error('Error fetching candidate counts for export:', err);
@@ -636,15 +700,16 @@ const fetchTotalCounts = async () => {
 };
 
 // Re-fetch counts when filters change
-watch([selectedProgram, selectedShift], () => {
+watch([selectedProgram, selectedShift, selectedStatus], () => {
   if (isOpenModel.value) {
+    selectedGroupIndex.value = 1;
     fetchTotalCounts();
   }
 });
 
-// Active total count based on active status selection
+// Active total count for Shortlist mode
 const activeTotalCount = computed(() => {
-  if (isFinalChoice.value) {
+  if (selectedStatus.value === 'final') {
     return finalTotalCount.value;
   }
   return shortlistCount.value;
@@ -656,9 +721,9 @@ watch(
   (open) => {
     if (open) {
       isSuccess.value = false;
-      if (props.initialProgram !== undefined) selectedProgram.value = props.initialProgram;
-      if (props.initialShift !== undefined) selectedShift.value = props.initialShift;
-      selectedStatus.value = props.exportType === 'final' ? 'final' : 'shortlist';
+      selectedProgram.value = props.initialProgram || '';
+      selectedShift.value = props.initialShift || '';
+      selectedStatus.value = resolveInitialStatus();
       selectedGroupIndex.value = 1;
       if (!groupSize.value || groupSize.value < 1) groupSize.value = 20;
       exportDate.value = today;
@@ -666,20 +731,23 @@ watch(
       endDate.value = '';
       reserveLimit.value = null;
 
-      // Seed initial fallback count if available
-      if (props.totalCount) {
+      if (props.totalCount && !props.initialProgram && !props.initialShift) {
         if (props.exportType === 'final') {
           passCount.value = props.totalCount;
         } else {
           shortlistCount.value = props.totalCount;
         }
+      } else {
+        passCount.value = 0;
+        shortlistCount.value = 0;
+        reservedCount.value = 0;
       }
       fetchTotalCounts();
     }
   }
 );
 
-// Dynamic Group Generation dividing the actual available total students equally
+// Dynamic Group Generation dividing the actual available total students equally (Shortlist)
 const computedGroups = computed(() => {
   const size = Math.max(1, Number(groupSize.value) || 20);
   const total = activeTotalCount.value;
@@ -757,7 +825,7 @@ const handleClose = () => {
 const handleDownload = async () => {
   isDownloading.value = true;
   try {
-    const targetType = isFinalChoice.value ? 'final' : 'shortlist';
+    const targetType = selectedStatus.value === 'final' ? 'final' : 'shortlist';
 
     const payload = {
       format: selectedFormat.value,
@@ -777,6 +845,7 @@ const handleDownload = async () => {
       const limit = reserveLimit.value;
       if (limit !== null && limit !== undefined && limit !== '' && !isNaN(Number(limit))) {
         payload.reserveLimit = Number(limit);
+        payload.reserveCount = Number(limit);
       }
     }
 
@@ -841,8 +910,8 @@ const handleDownload = async () => {
 }
 
 .export-stat-banner-final {
-  background: linear-gradient(135deg, #fffbf5 0%, #fef8ec 100%);
-  border: 1px solid #fed7aa !important;
+    background: linear-gradient(135deg, #f8faf9 0%, #f0f7f5 100%);
+    border: 1px solid #d4ede4 !important;
 }
 
 .stat-icon-circle {
@@ -895,66 +964,64 @@ const handleDownload = async () => {
 .export-input:focus {
   border-color: #2e7d6b;
   box-shadow: 0 0 0 3px rgba(46, 125, 107, 0.12);
-  background-color: #ffffff;
 }
-
-
 
 /* ====================================
    SUMMARY PREVIEW CARD
    ==================================== */
 .export-summary-card {
-  background: linear-gradient(135deg, #f8faf9 0%, #f0f7f5 100%);
-  border: 1px solid #d4ede4 !important;}
+  background-color: #f8fafc;
+  border: 1.5px dashed #cbd5e1;
+}
 
 .summary-icon-box {
-  width: 42px;
-  height: 42px;
-  background-color: #ffffff;
+  width: 38px;
+  height: 38px;
   border-radius: 10px;
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
   color: #2e7d6b;
-  font-size: 20px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+  font-size: 18px;
 }
 
 .summary-title {
-  color: #1e3a34;
-  font-size: 0.88rem;
+  color: #1e293b;
+  font-size: 0.86rem;
 }
 
 .summary-subtitle {
-  font-size: 0.78rem;
+  font-size: 0.76rem;
 }
 
 .summary-count {
-  color: #2e7d6b;
-  font-size: 1.6rem;
+  font-size: 1.35rem;
   line-height: 1;
+  color: #2e7d6b;
 }
 
 .summary-unit {
-  font-size: 0.78rem;
-  color: #64748b;
+  font-size: 0.74rem;
+  margin-top: 2px;
 }
 
 /* ====================================
-   FORMAT CARDS (PDF / WORD)
+   FORMAT CARDS
    ==================================== */
 .format-card {
   background-color: #ffffff;
-  border: 1.5px solid #e2e8f0;
   cursor: pointer;
   transition: all 0.2s ease;
+  user-select: none;
 }
 
 .format-card:hover {
-  border-color: #cbd5e1;
+  border-color: #94a3b8 !important;
   background-color: #f8fafc;
 }
 
 .format-card.active {
-  background-color: #f0f9f6 !important;
-  box-shadow: 0 0 0 1px #2e7d6b;
+  border-color: #2e7d6b !important;
+  background-color: #f0fdf9;
 }
 
 .format-card-icon {
@@ -965,178 +1032,46 @@ const handleDownload = async () => {
   align-items: center;
   justify-content: center;
   font-size: 16px;
-  flex-shrink: 0;
 }
 
 /* ====================================
-   BASE SELECT DROPDOWN OVERRIDES
+   SUCCESS VIEW
    ==================================== */
-:deep(.base-select) {
-  --bs-radius: 10px;
-  --bs-border: #e2e8f0;
-  --bs-focus: #2e7d6b;
-  --bs-focus-ring: rgba(46, 125, 107, 0.12);
-  --bs-text: #2e7d6b;
-}
-
-:deep(.base-select__group) {
-  border: 1.5px solid #e2e8f0 !important;
-  border-radius: 10px !important;
-  transition: all 0.2s ease !important;
-  background-color: #ffffff !important;
-}
-
-:deep(.base-select.is-focused .base-select__group) {
-  border-color: #2e7d6b !important;
-  box-shadow: 0 0 0 3px rgba(46, 125, 107, 0.12) !important;
-}
-
-:deep(.base-select__group .ts-control) {
-  font-weight: 600 !important;
-  color: #334155 !important;
-  font-size: 0.84rem !important;
-  min-height: 40px !important;
-  padding: 0 26px 0 12px !important;
-  border-radius: 10px !important;
-}
-
-:deep(.base-select__chevron) {
-  color: #64748b !important;
-  right: 10px !important;
-}
-
-:deep(.base-select__placeholder) {
-  display: none !important;
-}
-
-:deep(.ts-dropdown) {
-  border-radius: 10px !important;
-  border: 1px solid #e2e8f0 !important;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08) !important;
-  overflow: hidden !important;
-  z-index: 1060 !important;
-  margin-top: 4px !important;
-}
-
-:deep(.ts-dropdown .option) {
-  padding: 8px 12px !important;
-  font-size: 0.84rem !important;
-  font-weight: 500 !important;
-  color: #334155 !important;
-  cursor: pointer !important;
-}
-
-:deep(.ts-dropdown .option.active),
-:deep(.ts-dropdown .option:hover) {
-  background-color: #f0f9f6 !important;
-  color: #2e7d6b !important;
-  font-weight: 600 !important;
-}
-
-:deep(.ts-dropdown .option.selected) {
-  background-color: #e8f5f1 !important;
-  color: #1e3a34 !important;
-  font-weight: 700 !important;
-}
-
-/* ====================================
-   ELEMENT PLUS DATE PICKER OVERRIDES
-   ==================================== */
-.export-date-picker {
-  --el-color-primary: #2e7d6b !important;
-  --el-input-focus-border-color: #2e7d6b !important;
-  --el-input-hover-border-color: #2e7d6b !important;
-  --el-input-border-color: #e2e8f0 !important;
-  height: 42px !important;
-  width: 100% !important;
-}
-
-.export-date-picker :deep(.el-input__wrapper) {
-  border-radius: 10px !important;
-  border: 1.5px solid #e2e8f0 !important;
-  box-shadow: none !important;
-  outline: none !important;
-  transition: all 0.2s ease !important;
-  padding: 0 12px !important;
-}
-
-.export-date-picker :deep(.el-input__wrapper:hover) {
-  border-color: #2e7d6b !important;
-}
-
-.export-date-picker :deep(.el-input__wrapper.is-focus),
-.export-date-picker :deep(.el-input__wrapper:focus),
-.export-date-picker :deep(.el-input__wrapper:focus-within) {
-  border-color: #2e7d6b !important;
-  box-shadow: 0 0 0 1px #2e7d6b inset, 0 0 0 3px rgba(46, 125, 107, 0.12) !important;
-  outline: none !important;
-}
-
-.export-date-picker :deep(.el-input__inner) {
-  font-weight: 600 !important;
-  color: #1e293b !important;
-  font-size: 0.88rem !important;
-}
-
-.export-date-picker :deep(.el-input__inner:focus) {
-  outline: none !important;
-  box-shadow: none !important;
-}
-
-.export-date-picker :deep(.el-input__prefix) {
-  color: #2e7d6b !important;
-  font-size: 15px !important;
-}
-
-/* ====================================
-   SUCCESS SCREEN STYLES
-   ==================================== */
-.export-success-container {
-  padding: 20px 0;
-}
-
 .export-success-icon-box {
-  width: 76px;
-  height: 76px;
-  background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+  width: 68px;
+  height: 68px;
   border-radius: 50%;
-  color: #2e7d6b;
-  box-shadow: 0 10px 20px rgba(46, 125, 107, 0.15);
 }
 
 .export-success-title {
   color: #1e293b;
-  font-size: 1.3rem;
-  letter-spacing: -0.2px;
+  font-size: 1.35rem;
 }
 
 .export-success-desc {
-  font-size: 16px;
   color: #64748b;
+  font-size: 0.9rem;
+  line-height: 1.5;
 }
 
 .export-success-highlight {
   color: #2e7d6b;
-  font-weight: 700;
 }
 
 .export-stat-card {
   background-color: #f8fafc;
   border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 10px 4px;
-  text-align: center;
-  transition: all 0.2s ease;
+  border-radius: 10px;
+  padding: 10px 8px;
 }
 
 .export-stat-label {
   color: #64748b;
-  font-weight: 500;
   margin-bottom: 2px;
 }
 
 .export-stat-value {
-  font-size: 0.92rem;
+  font-size: 0.86rem;
   font-weight: 700;
   color: #1e293b;
 }

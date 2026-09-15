@@ -19,15 +19,36 @@
                       @error="handleAvatarError"
                     />                    
                     <div class="avatar-overlay"></div>
+
+                    <!-- Loading Spinner Overlay -->
+                    <div
+                      v-if="authStore.isUploadAvatarLoading || authStore.isDeleteAvatarLoading"
+                      class="position-absolute top-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center bg-dark bg-opacity-50 text-white rounded-circle"
+                      style="z-index: 5;"
+                    >
+                      <span class="spinner-border spinner-border-sm mb-1" role="status"></span>
+                      <span style="font-size: 10px;">{{ authStore.isUploadAvatarLoading ? 'កំពុងផ្ទុក...' : 'កំពុងលុប...' }}</span>
+                    </div>
                   </div>
                 </div>
                 <div class="avatar-actions position-absolute d-flex flex-column gap-2">
-                  <button @click="showDeleteAvatarModal = true" class="btn btn-light btn-sm rounded-circle shadow-sm border avatar-action-btn delete-avatar-btn text-danger">
+                  <button 
+                    @click="showDeleteAvatarModal = true" 
+                    :disabled="authStore.isUploadAvatarLoading || authStore.isDeleteAvatarLoading"
+                    class="btn btn-light btn-sm rounded-circle shadow-sm border avatar-action-btn delete-avatar-btn text-danger"
+                    title="លុបរូបភាព"
+                  >
                     <i class="bi bi-trash"></i>
                   </button>
                   <input type="file" ref="fileInputRef" class="d-none" accept="image/*" @change="onFileSelected" />
-                  <button @click="triggerFileInput" class="btn btn-light btn-sm rounded-circle shadow-sm border avatar-action-btn edit-avatar-btn text-teal">
-                    <i class="bi bi-camera"></i>
+                  <button 
+                    @click="triggerFileInput" 
+                    :disabled="authStore.isUploadAvatarLoading || authStore.isDeleteAvatarLoading"
+                    class="btn btn-light btn-sm rounded-circle shadow-sm border avatar-action-btn edit-avatar-btn text-teal"
+                    title="ផ្លាស់ប្តូររូបភាព"
+                  >
+                    <span v-if="authStore.isUploadAvatarLoading" class="spinner-border spinner-border-sm text-teal" role="status"></span>
+                    <i v-else class="bi bi-camera"></i>
                   </button>
                 </div>
               </div>
@@ -82,10 +103,12 @@
                     @click="toggleEdit"
                     :variant="isEditing ? 'bg-primary' : 'outline-primary'" 
                     :is-loading="authStore.isUpdateProfileLoading"
+                    :loading-text="'កំពុងរក្សាទុក...'"
+                    :disabled="authStore.isUpdateProfileLoading"
                     :customClass="isEditing ? 'rounded-3 px-4 py-2 fw-500 border text-white' : 'btn-edit-profile rounded-3 px-4 py-2 fw-500 border bg-white text-primary'" 
                     iconPosition="left">
                     <template v-if="!authStore.isUpdateProfileLoading" #icon>
-                      <i class="bi" :class="isEditing ? 'bi-pencil-square' : 'bi-pencil-square'"></i>
+                      <i class="bi" :class="isEditing ? 'bi-check-lg' : 'bi-pencil-square'"></i>
                     </template>
                     {{ isEditing ? 'រក្សាទុក' : 'កែប្រែ' }}
                   </BaseButton>
@@ -93,6 +116,7 @@
                   <BaseButton 
                     v-if="isEditing"
                     @click="cancelEdit"
+                    :disabled="authStore.isUpdateProfileLoading"
                     :variant="'outline-secondary'" 
                     :customClass="'rounded-3 px-4 py-2 fw-500 border bg-white text-secondary'" 
                     iconPosition="left">
@@ -179,7 +203,7 @@
                 </div>
                 <div class="col-md-6 d-flex flex-column justify-content-end mt-4 mt-md-0">
                   <label class="form-label d-none d-md-block mb-2">&nbsp;</label>
-                  <BaseButton variant="danger" :is-loading="authStore.isLogoutLoading" @click="onLogout" customClass="w-100 rounded-3 py-2 fw-500 justify-content-between px-4 text-white" iconPosition="right">
+                  <BaseButton variant="danger" :is-loading="authStore.isLogoutLoading" :loading-text="'កំពុងចាកចេញ...'" @click="onLogout" customClass="w-100 rounded-3 py-2 fw-500 justify-content-between px-4 text-white" iconPosition="right">
                     <template v-if="!authStore.isLogoutLoading" #icon>
                       <i class="bi bi-arrow-right-circle fs-5"></i>
                     </template>
@@ -212,8 +236,8 @@
       </div>
       <template #footer>
         <div class="d-flex w-100 gap-3 justify-content-end">
-          <BaseButton @click="showDeleteAvatarModal = false" customClass="px-4 py-2 rounded-pill fw-500 border-0 bg-light text-secondary">បោះបង់</BaseButton>
-          <BaseButton @click="onDeleteAvatar" :is-loading="authStore.isDeleteAvatarLoading" variant="danger" customClass="px-4 py-2 rounded-pill fw-500 text-white">លុប</BaseButton>
+          <BaseButton @click="showDeleteAvatarModal = false" :disabled="authStore.isDeleteAvatarLoading" customClass="px-4 py-2 rounded-pill fw-500 border-0 bg-light text-secondary">បោះបង់</BaseButton>
+          <BaseButton @click="onDeleteAvatar" :is-loading="authStore.isDeleteAvatarLoading" :loading-text="'កំពុងលុប...'" variant="danger" customClass="px-4 py-2 rounded-pill fw-500 text-white">លុប</BaseButton>
         </div>
       </template>
     </BaseModal>
@@ -414,13 +438,17 @@ const toggleEdit = async () => {
       const response = await authStore.updateProfile(payload);
       if (response?.success) {
         toast.success("កែប្រែទម្រង់ប្រវត្តិរូបភាពដោយជោគជ័យ");
+        isEditing.value = false;
+      } else {
+        toast.error(response?.message || "បរាជ័យក្នុងការកែប្រែប្រវត្តិរូបភាព");
       }
     } catch (error) {
       toast.error("បរាជ័យក្នុងការកែប្រែប្រវត្តិរូបភាព");
     }
+    return;
   }
-  isEditing.value = !isEditing.value;
-}
+  isEditing.value = true;
+};
 
 //----------> handle logout
 const onLogout = async () => {

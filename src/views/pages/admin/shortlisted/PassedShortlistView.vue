@@ -145,7 +145,8 @@
       export-type="shortlist"
       :initial-program="selectedSpecialization"
       :initial-shift="selectedShift"
-      :total-count="totalSubmissions || 100"
+      initial-status="shortlist"
+      :total-count="totalSubmissions || 0"
     />
   </div>
 </template>

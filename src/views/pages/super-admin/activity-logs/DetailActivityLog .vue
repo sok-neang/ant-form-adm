@@ -37,7 +37,7 @@ const actionClass = computed(() => {
   <BaseModal :show="props.show" title="ព័ត៌មានលម្អិតកំណត់ហេតុ" size="lg" @close="handleClose">
     <template #header>
       <div class="d-flex align-items-center gap-3">
-        <div class="d-flex align-items-center justify-content-center bg-primary-subtle text-primary rounded-3" style="width: 42px; height: 42px;">
+        <div class="d-flex align-items-center justify-content-center bg-success-subtle text-success rounded-3" style="width: 42px; height: 42px;">
           <i class="bi bi-shield-check fs-3"></i>
         </div>
 
@@ -45,7 +45,7 @@ const actionClass = computed(() => {
           <h5 class="modal-title fw-bold mb-1">
             កំណត់ហេតុសវនកម្ម
           </h5>
-          <p class="text-muted mb-0 small">
+          <p class="text-muted mb-0">
             ព័ត៌មានលម្អិតអំពីសកម្មភាពរបស់អ្នកប្រើប្រាស់
           </p>
         </div>
@@ -102,7 +102,7 @@ const actionClass = computed(() => {
           <div v-if="props.log?.targetTable || props.log?.tableName" class="col-md-6">
             <div class="info-card">
               <span class="label">តារាងគោលដៅ (Target Table)</span>
-              <span class="value text-primary font-monospace">
+              <span class="value text-primary">
                 {{ props.log?.targetTable || props.log?.tableName }}
               </span>
             </div>
@@ -111,7 +111,7 @@ const actionClass = computed(() => {
           <div v-if="props.log?.targetId || props.log?.recordId" class="col-md-6">
             <div class="info-card">
               <span class="label">លេខសម្គាល់កំណត់ត្រា (Record ID)</span>
-              <span class="value text-muted font-monospace small">
+              <span class="value text-muted small">
                 {{ props.log?.targetId || props.log?.recordId }}
               </span>
             </div>

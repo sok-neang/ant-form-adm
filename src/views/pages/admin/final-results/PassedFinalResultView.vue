@@ -145,7 +145,8 @@
       export-type="final"
       :initial-program="selectedSpecialization"
       :initial-shift="selectedShift"
-      :total-count="totalSubmissions || 100"
+      initial-status="final"
+      :total-count="totalSubmissions || 0"
     />
   </div>
 </template>

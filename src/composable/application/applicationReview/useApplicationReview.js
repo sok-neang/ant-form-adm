@@ -37,7 +37,6 @@ export function useApplicationReview() {
         });
       }
       application.value = appData;
-      console.log("Mapped application data:", application.value);
     } catch (error) {
       console.error("Error fetching application details:", error);
     } finally {

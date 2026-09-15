@@ -1,13 +1,14 @@
 <template>
   <div class="container-fluid">
     <div class="row g-3 mb-4">
-      <BaseCard v-for="card in userCards">
+      <BaseCard v-for="card in userCards" :key="card.kh_title">
         <div class="d-flex align-items-center justify-content-between mb-3">
           <div class="info-icon" :class="`bg-${card.color}-subtle text-${card.color}`">
             <i :class="card.icon"></i>
           </div>
           <!-- Value -->
-          <h2 class="fw-bold mb-0 text-success fw-bold">{{ card.value }}</h2>
+          <BaseSkeleton v-if="isUserStatsLoading" width="60px" height="32px" radius="8px" />
+          <h2 v-else class="fw-bold mb-0 text-success">{{ card.value }}</h2>
         </div>
         <!-- Title -->
         <p class="text-muted mb-1 fw-bold">
@@ -17,7 +18,6 @@
           {{ card.kh_title }}
         </p>
       </BaseCard>
-
     </div>
 
     <BaseTable :columns="columns" :rows="users" :pagination="pagination" :loading="loading" :show-actions="true"
@@ -138,6 +138,7 @@
 import { ref, onMounted, reactive, computed } from "vue";
 
 import BaseCard from "@/components/ui/base/BaseCard.vue";
+import BaseSkeleton from "@/components/ui/base/BaseSkeleton.vue";
 import BaseTable from "@/components/ui/base/BaseTable.vue";
 import BaseInput from "@/components/ui/base/BaseInput.vue";
 import BaseSelect from "@/components/ui/base/BaseSelect.vue";
@@ -156,14 +157,11 @@ import { roleOptions, statusOptions } from "@/constants/options.js";
 import { useAppToast } from "@/composable/useAppToast";
 import userService from "@/services/user.service.js";
 
-const { users, summaries, pagination, loading, search, filter, error, getUsers, getUserSummaries, resetPassword } = useUserList();
+const { users, summaries, pagination, loading, isUserStatsLoading, search, filter, error, getUsers, getUserSummaries, resetPassword } = useUserList();
 
-onMounted(async() => {
-    await getUsers();
-    await getUserSummaries();
-})
-console.log(summaries.value);
-
+onMounted(async () => {
+  await Promise.all([getUsers(), getUserSummaries()]);
+});
 
 const showCreateModal = ref(false);
 const showEditModal = ref(false)

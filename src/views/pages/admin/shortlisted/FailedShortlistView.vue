@@ -50,10 +50,10 @@
                 style="width: 190px"
             />
           <BaseButton
-            type="submit"
+            type="button"
             variant=""
             custom-class="bg-primary text-light"
-            @click=""
+            @click="isExportModalOpen = true"
           >
             ទាញយក
             <template #icon>
@@ -138,6 +138,16 @@
     </div>
     </template>
     </BaseTable>
+
+    <!-- Export Modal -->
+    <ExportModal
+      v-model:is-open="isExportModalOpen"
+      export-type="shortlist"
+      :initial-program="selectedSpecialization"
+      :initial-shift="selectedShift"
+      initial-status="shortlist"
+      :total-count="pagination.total || 0"
+    />
   </div>
 </template>
 <script setup>
@@ -147,10 +157,13 @@ import BaseTable from "@/components/ui/base/BaseTable.vue";
 import BaseInput from "@/components/ui/base/BaseInput.vue";
 import BaseSelect from "@/components/ui/base/BaseSelect.vue";
 import BaseButton from "@/components/ui/base/BaseButton.vue";
+import ExportModal from "@/components/ui/ExportModal.vue";
 import { shiftOptions, specializationOptions, scoreLevelOptions } from "@/constants/options";
 import { useFailedShortlist } from "@/composable/application/short list/useFailedShortlist";
 
 const router = useRouter();
+
+const isExportModalOpen = ref(false);
 
 // Filters
 const selectedScoreLevel = ref("all");

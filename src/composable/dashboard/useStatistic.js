@@ -13,8 +13,6 @@ export function useStatistic() {
             if (response.data?.success) {
                 statsData.value = response.data.data;
             }
-            console.log(response);
-            
         } catch (error) {
             console.error("Error fetching user statistics:", error);
         } finally {

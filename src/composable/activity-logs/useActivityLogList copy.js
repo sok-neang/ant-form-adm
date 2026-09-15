@@ -46,9 +46,7 @@ export const useActivityLogList = () => {
       const response = await activityLogService.loginHistory(params);
       if (response.data?.success) {
         loginHistory.value = response.data.data.records;
-        pagination.value = response.data.data.meta;
-        console.log(pagination.value);
-        
+        pagination.value = response.data.data.meta;        
       }
       return response.data;
     } catch (err) {
@@ -67,10 +65,7 @@ export const useActivityLogList = () => {
       };
       const response = await activityLogService.auditLogRestore(params);
       if (response.data?.success) {
-        auditLogRestore.value = response.data.data;
-        console.log(response.data.data);
-        // pagination.value = response.data.data.meta;
-        
+        auditLogRestore.value = response.data.data;        
       }
       return response.data;
     } catch (err) {

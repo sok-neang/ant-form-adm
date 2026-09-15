@@ -180,8 +180,6 @@ const handleResetPassword = async () => {
   try {
     const response = await authStore.changeDefaultPassword(formData);
 
-    console.log("RESET PASSWORD RESPONSE:", response);
-
     if (response.success) {
       toast.success(
         "ពាក្យសម្ងាត់ត្រូវបានផ្លាស់ប្តូរដោយជោគជ័យ"
@@ -189,9 +187,7 @@ const handleResetPassword = async () => {
       authStore.clearTwoFactor();
       router.push("/");
     }
-} catch (error) {
-  console.log(error);
-  
+} catch (error) {  
   const backendData = error.response?.data;
   if (backendData?.errors) {
     applyBackendErrors(backendData.errors);

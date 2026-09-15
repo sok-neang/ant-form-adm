@@ -139,7 +139,6 @@ const handleLogin = async () => {
       return;
     }
   } catch (error) {
-  console.log(error);
   
   const backendData = error.response?.data;
   // Field-level validation errors
@@ -149,9 +148,6 @@ const handleLogin = async () => {
   // General backend error
   const errorMessages = {
     "Invalid email or password.": "អុីម៉ែល ឬពាក្យសម្ងាត់មិនត្រឹមត្រូវ សូមព្យាយាមម្តងទៀត",
-    // "Account is inactive.": "គណនីរបស់អ្នកត្រូវបានបិទដំណើរការ",
-    // "Account is suspended.": "គណនីរបស់អ្នកត្រូវបានផ្អាក",
-    // "Too many login attempts.": "ការព្យាយាមចូលប្រើប្រាស់ច្រើនដងពេក",
   };
 
     const message = errorMessages[backendData?.message] || backendData?.message || "ការចូលប្រើប្រាស់បរាជ័យ"; 

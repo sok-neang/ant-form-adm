@@ -149,7 +149,7 @@
   />
 
   <!-- Confirm Restore Modal -->
-  <BaseModal :show="showRestoreModal" size="md" title="បញ្ជាក់ការស្ដារទិន្នន័យ" @close="closeRestoreModal">
+  <BaseModal :show="showRestoreModal" size="lg" title="បញ្ជាក់ការស្ដារទិន្នន័យ" @close="closeRestoreModal">
     <template #header>
       <div class="d-flex align-items-center gap-3">
         <div class="d-flex align-items-center justify-content-center bg-warning-subtle text-warning rounded-3" style="width: 42px; height: 42px;">
@@ -166,20 +166,20 @@
       <p class="mb-3">តើអ្នកពិតជាចង់ស្ដារកំណត់ត្រានេះត្រឡប់ទៅស្ថានភាពដើមវិញមែនទេ?</p>
 
       <div class="p-3 bg-light rounded-3 mb-3 small">
-        <div class="d-flex justify-content-between py-1 border-bottom">
-          <span class="text-muted">តារាងគោលដៅ (Table):</span>
-          <span class="fw-semibold text-primary font-monospace">{{ getRestoreTable(restoreTarget) }}</span>
+        <div class="d-flex justify-content-between align-items-center py-1 border-bottom gap-3">
+          <span class="text-muted text-nowrap">តារាងគោលដៅ (Table):</span>
+          <span class="fw-semibold text-primary">{{ getRestoreTable(restoreTarget) }}</span>
         </div>
-        <div class="d-flex justify-content-between py-1 border-bottom">
-          <span class="text-muted">សកម្មភាពដើម (Action):</span>
+        <div class="d-flex justify-content-between align-items-center py-1 border-bottom gap-3">
+          <span class="text-muted text-nowrap">សកម្មភាពដើម (Action):</span>
           <span class="fw-semibold text-danger">{{ restoreTarget?.action || 'N/A' }}</span>
         </div>
-        <div v-if="restoreTarget?.message" class="d-flex justify-content-between py-1 border-bottom">
-          <span class="text-muted">សារ (Message):</span>
-          <span class="fw-semibold text-dark">{{ restoreTarget?.message }}</span>
+        <div v-if="restoreTarget?.message" class="d-flex justify-content-between align-items-start py-1 border-bottom gap-3">
+          <span class="text-muted text-nowrap">សារ (Message):</span>
+          <span class="fw-semibold text-dark text-end text-break">{{ restoreTarget?.message }}</span>
         </div>
-        <div class="d-flex justify-content-between py-1">
-          <span class="text-muted">ពេលវេលា (Time):</span>
+        <div class="d-flex justify-content-between align-items-center py-1 gap-3">
+          <span class="text-muted text-nowrap">ពេលវេលា (Time):</span>
           <span class="text-dark">{{ formatDate(restoreTarget?.createdAt) }}</span>
         </div>
       </div>

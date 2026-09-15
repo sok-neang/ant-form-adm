@@ -18,7 +18,6 @@ export const useUserForm = (mode = "create") => {
 
   // Choose schema based on mode
   const schema = mode === "edit"? editUserSchema: createUserSchema;
-  // console.log(form);
   
   const {
     errors,
