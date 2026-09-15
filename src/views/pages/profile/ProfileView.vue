@@ -325,8 +325,8 @@ import BaseSelect from '@/components/ui/base/BaseSelect.vue'
 import BaseSkeleton from '@/components/ui/base/BaseSkeleton.vue'
 import AvatarCropperModal from '@/components/ui/profile/AvatarCropperModal.vue'
 import { genderOptions } from '@/constants/options'
-import profileBanner from "@/assets/images/img/profile_banner.png"
-import defaultAvatar from "@/assets/images/img/default_avatar.png"
+import profileBanner from "@/assets/images/img/profile_banner.webp"
+import defaultAvatar from "@/assets/images/img/default_avatar.webp"
 
 import { useAppToast } from "@/composable/useAppToast";
 import { useAuthStore } from '@/stores/useAuthStore'

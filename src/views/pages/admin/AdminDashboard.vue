@@ -16,9 +16,11 @@
         <!-- Illustration -->
         <div class="col-lg-5 text-center">
           <img
-            src="/src/assets/images/img/handcoding-cuate.png"
+            src="/src/assets/images/img/handcoding-cuate.webp"
             alt="Welcome"
             class="welcome-image"
+            loading="lazy"
+            decoding="async"
           />
         </div>
       </div>

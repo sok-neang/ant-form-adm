@@ -539,9 +539,9 @@ import cppLogo from "@/assets/images/teacher/cpp.svg";
 import dartLogo from "@/assets/images/teacher/dart.svg";
 import html5Logo from "@/assets/images/teacher/html5.svg";
 import css3Logo from "@/assets/images/teacher/css3.svg";
-import defaultAvatar from "@/assets/images/img/default_avatar.png";
-import bannerDetailBg from "@/assets/images/img/banner_detail.png";
-import bannerBlacklistBg from "@/assets/images/img/banner_blacklist.png";
+import defaultAvatar from "@/assets/images/img/default_avatar.webp";
+import bannerDetailBg from "@/assets/images/img/banner_detail.webp";
+import bannerBlacklistBg from "@/assets/images/img/banner_blacklist.webp";
 
 const props = defineProps({
   submissionId: {
@@ -617,7 +617,7 @@ const isBlacklistOrDropout = computed(() => {
   return false;
 });
 
-// Default banner background fallback to banner_detail.png or banner_blacklist.png
+// Default banner background fallback to banner_detail.webp or banner_blacklist.webp
 const computedBannerBg = computed(() => {
   if (props.bannerSrc) return props.bannerSrc;
   if (isBlacklistOrDropout.value) return bannerBlacklistBg;

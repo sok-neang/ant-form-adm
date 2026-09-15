@@ -760,9 +760,9 @@ import "vue-pdf-embed/dist/styles/annotationLayer.css";
 import "vue-pdf-embed/dist/styles/textLayer.css";
 import { useApplicationReview } from "@/composable/application/applicationReview/useApplicationReview";
 import BaseModal from "@/components/ui/base/BaseModal.vue";
-import bannerDetailBg from "@/assets/images/img/application_banner.png";
-import bannerBlacklistBg from "@/assets/images/img/banner_blacklist.png";
-import defaultAvatar from "@/assets/images/img/default_avatar.png";
+import bannerDetailBg from "@/assets/images/img/application_banner.webp";
+import bannerBlacklistBg from "@/assets/images/img/banner_blacklist.webp";
+import defaultAvatar from "@/assets/images/img/default_avatar.webp";
 import avatarService from "@/services/avatar.service";
 import { getSubmissionFileUrl, DEFAULT_AVATAR } from "@/composable/useAvatar";
 

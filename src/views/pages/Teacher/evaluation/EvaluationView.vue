@@ -263,12 +263,12 @@ import { useRoute, useRouter } from "vue-router";
 import BaseSkeleton from "@/components/ui/base/BaseSkeleton.vue";
 import { useEvaluationForm } from "@/composable/evaluation/useEvaluationForm";
 import { getSubmissionFileUrl, DEFAULT_AVATAR } from "@/composable/useAvatar";
-import bannerBg from "@/assets/images/teacher/bg_overall_avg_score.png";
+import bannerBg from "@/assets/images/teacher/bg_overall_avg_score.webp";
 import cppLogo from "@/assets/images/teacher/cpp.svg";
 import dartLogo from "@/assets/images/teacher/dart.svg";
 import html5Logo from "@/assets/images/teacher/html5.svg";
 import css3Logo from "@/assets/images/teacher/css3.svg";
-import defaultAvatar from "@/assets/images/img/default_avatar.png";
+import defaultAvatar from "@/assets/images/img/default_avatar.webp";
 
 const route = useRoute();
 const router = useRouter();

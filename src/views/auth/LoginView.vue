@@ -4,7 +4,7 @@
     <template #left>
       <div class="auth-image d-flex justify-content-center align-items-center">
         <img
-          src="/src/assets/images/auth/img-login.png"
+          src="/src/assets/images/auth/img-login.webp"
           alt="ANT Login"
         />
       </div>
@@ -17,7 +17,7 @@
         <!-- Logo -->
         <div class="logo-login mb-2 text-center">
           <img
-            src="/src/assets/logo.png"
+            src="/src/assets/logo.webp"
             alt="ANT"
           />
         </div>
