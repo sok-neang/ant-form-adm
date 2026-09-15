@@ -5,7 +5,7 @@
       <div class="d-flex align-items-center gap-3">
         <!-- Icon -->
         <div class="d-flex align-items-center justify-content-center
-                bg-primary-subtle text-primary rounded-3" style="width: 42px; height: 42px;">
+                bg-success-subtle text-success rounded-3" style="width: 42px; height: 42px;">
           <i class="bi bi-person-plus-fill fs-5"></i>
         </div>
         <!-- Title -->

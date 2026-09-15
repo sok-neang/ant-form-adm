@@ -204,6 +204,9 @@ onBeforeUnmount(() => {
   max-width: 900px;
 }
 
+.btn-close:focus {
+  box-shadow: 0 0 0 2px rgba(166, 211, 193, 0.619) !important;
+}
 .modal-content {
   border: none;
   border-radius: 16px;

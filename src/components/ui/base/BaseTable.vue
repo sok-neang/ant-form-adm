@@ -189,7 +189,7 @@ const emit = defineEmits([
 ]);
 
 const currentPage = ref(
-  props.pagination?.current_page ?? 1
+  props.pagination?.current_page ?? props.pagination?.page ?? 1
 );
 
 /**
@@ -197,7 +197,7 @@ const currentPage = ref(
  * after API request, update current page.
  */
 watch(
-  () => props.pagination?.current_page,
+  () => props.pagination?.current_page ?? props.pagination?.page,
   (page) => {
     if (page) {
       currentPage.value = page;

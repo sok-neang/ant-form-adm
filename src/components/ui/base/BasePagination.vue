@@ -1,5 +1,5 @@
 <template>
-  <div v-if="pagination && pagination.totalPages > 1"
+  <div v-if="shouldShowPagination"
     class="base-pagination d-flex flex-column flex-md-row align-items-center justify-content-between gap-3">
     <!-- Result information -->
     <div class="base-pagination__info text-muted fs-6">
@@ -8,7 +8,7 @@
       ដល់
       <strong>{{ endItem }}</strong>
       នៃ
-      <strong>{{ pagination.total }}</strong>
+      <strong>{{ total }}</strong>
       ទិន្នន័យ
     </div>
 
@@ -70,34 +70,61 @@ const currentPage = defineModel("page", {
 });
 
 /**
+ * Total records
+ */
+const total = computed(() => {
+  const val = props.pagination?.total ?? props.pagination?.totalItems ?? props.pagination?.count;
+  return val != null && !isNaN(Number(val)) ? Number(val) : 0;
+});
+
+/**
+ * Items per page
+ */
+const perPage = computed(() => {
+  const val = props.pagination?.per_page ?? props.pagination?.limit ?? props.pagination?.pageSize;
+  return val && !isNaN(Number(val)) && Number(val) > 0 ? Number(val) : 10;
+});
+
+/**
  * Total pages
- *
- * Backend:
- * totalPages
  */
 const totalPages = computed(() => {
-  return Number(props.pagination.totalPages || 1);
+  const val = props.pagination?.totalPages ?? props.pagination?.total_pages ?? props.pagination?.last_page;
+  if (val != null && !isNaN(Number(val)) && Number(val) > 0) {
+    return Number(val);
+  }
+  if (total.value > 0 && perPage.value > 0) {
+    return Math.max(1, Math.ceil(total.value / perPage.value));
+  }
+  return 1;
+});
+
+/**
+ * Whether pagination should be displayed
+ */
+const shouldShowPagination = computed(() => {
+  if (!props.pagination) return false;
+  return totalPages.value > 1 || total.value > 0;
 });
 
 /**
  * First item number
  */
 const startItem = computed(() => {
-  if (!props.pagination.total) {
+  if (total.value === 0) {
     return 0;
   }
 
-  return (currentPage.value - 1) * props.pagination.per_page + 1;
+  return (currentPage.value - 1) * perPage.value + 1;
 });
 
 /**
  * Last item number
  */
 const endItem = computed(() => {
-  const end =
-    currentPage.value * props.pagination.per_page;
+  const end = currentPage.value * perPage.value;
 
-  return Math.min(end, props.pagination.total);
+  return Math.min(end, total.value);
 });
 
 /**

@@ -75,20 +75,38 @@ export const useActivityLogList = () => {
       const response = await services[type](params);
 
       if (response.data?.success) {
+        const rawData = response.data.data;
+        let rawMeta = null;
+
         if (type === "audit") {
-          tab.data = response.data.data || [];
-          tab.pagination = response.data.meta || {};
+          tab.data = Array.isArray(rawData) ? rawData : (rawData?.records || rawData?.logs || rawData?.data || []);
+          rawMeta = response.data.meta || response.data.pagination || (rawData && !Array.isArray(rawData) ? (rawData.meta || rawData.pagination) : null) || {};
+        } else if (type === "login") {
+          tab.data = rawData?.records || (Array.isArray(rawData) ? rawData : []);
+          rawMeta = rawData?.meta || response.data.meta || response.data.pagination || {};
+        } else if (type === "restore") {
+          tab.data = Array.isArray(rawData) ? rawData : (rawData?.records || rawData?.logs || rawData?.data || []);
+          rawMeta = response.data.meta || response.data.pagination || (rawData && !Array.isArray(rawData) ? (rawData.meta || rawData.pagination) : null) || {};
         }
 
-        if (type === "login") {
-          tab.data = response.data.data?.records || [];
-          tab.pagination = response.data.data?.meta || {};
-        }
+        const limit = Number(rawMeta.limit || rawMeta.per_page || 10);
+        const pageNum = Number(rawMeta.page || rawMeta.current_page || params.page || 1);
+        const total = Number(rawMeta.total ?? rawMeta.totalItems ?? rawMeta.count ?? (Array.isArray(tab.data) ? tab.data.length : 0));
+        const totalPages = Number(rawMeta.totalPages || rawMeta.total_pages || rawMeta.last_page || Math.max(1, Math.ceil(total / limit)));
 
-        if (type === "restore") {
-          tab.data = response.data.data || [];
-          tab.pagination = response.data.meta || {};
-        }
+        tab.pagination = {
+          ...rawMeta,
+          current_page: pageNum,
+          page: pageNum,
+          per_page: limit,
+          limit: limit,
+          total: total,
+          totalItems: total,
+          totalPages: totalPages,
+          last_page: totalPages,
+          from: total === 0 ? 0 : (pageNum - 1) * limit + 1,
+          to: Math.min(pageNum * limit, total),
+        };
       }
 
       return response.data;
