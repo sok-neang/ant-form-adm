@@ -50,6 +50,17 @@
               <i class="bi bi-arrow-clockwise"></i>
             </template>
           </BaseButton>
+          <BaseButton
+            type="button"
+            variant=""
+            custom-class="bg-primary text-light"
+            @click="isExportModalOpen = true"
+          >
+            ទាញយក
+            <template #icon>
+              <i class="bi bi-download"></i>            
+            </template>
+          </BaseButton>
         </div>
     </template>
     <template #cell-skill="{ row }">
@@ -80,6 +91,16 @@
       </div>
     </template>
     </BaseTable>
+
+    <!-- Export Modal -->
+    <ExportModal
+      v-model:is-open="isExportModalOpen"
+      export-type="shortlist"
+      :initial-program="selectedTrack"
+      :initial-shift="selectedShift"
+      initial-status="shortlist"
+      :total-count="totalSubmissions || 0"
+    />
   </div>
 </template>
 <script setup>
@@ -89,6 +110,7 @@ import BaseTable from "@/components/ui/base/BaseTable.vue";
 import BaseInput from "@/components/ui/base/BaseInput.vue";
 import BaseSelect from "@/components/ui/base/BaseSelect.vue";
 import BaseButton from "@/components/ui/base/BaseButton.vue";
+import ExportModal from "@/components/ui/ExportModal.vue";
 import { shiftOptions, specializationOptions } from "@/constants/options";
 import { usePassedApplicationList } from "@/composable/application/all submission/usePassedApplicationList";
 
@@ -98,6 +120,7 @@ const router = useRouter();
 const selectedShift = ref("");
 const selectedTrack = ref("");
 const searchQuery = ref("");
+const isExportModalOpen = ref(false);
 
 const {
   loading,
