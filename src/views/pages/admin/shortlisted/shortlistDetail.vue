@@ -43,17 +43,28 @@
           បោះបង់
         </button>
         <button
-          v-if="getStatusInfo(currentSubmission).text !== 'ធ្លាក់ក្នុងជ្រើសសម្រាំង'"
+          v-if="!isFailed"
           type="button"
           class="btn reject-btn px-4"
           @click="openActionModal('FAILED_EVALUATION')"
           :disabled="isUpdating"
         >
-          <i class="bi bi-person-check-fill me-2"></i>
+          <i class="bi bi-person-x-fill me-2"></i>
           ធ្លាក់
         </button>
         <button
-          v-if="getStatusInfo(currentSubmission).text !== 'ជាប់ក្នុងជ្រើសសម្រាំង'"
+          v-if="!isReserved"
+          type="button"
+          class="btn text-white px-4"
+          style="background-color: #f59e0b; border-color: #f59e0b;"
+          @click="openActionModal('RESERVED')"
+          :disabled="isUpdating"
+        >
+          <i class="bi bi-person-lines-fill me-2"></i>
+          បម្រុង
+        </button>
+        <button
+          v-if="!isPassed"
           type="button"
           class="btn shortlist-btn px-4 text-white"
           style="background-color: #357867;"
@@ -169,6 +180,11 @@ const getStatusInfo = (sub) => {
       text: "ជាប់ក្នុងជ្រើសសម្រាំង",
       style: "background-color: #ecfdf5; color: #059669; font-size: 0.85rem;"
     };
+  } else if (s === "RESERVED" || s === "RESERVE") {
+    return {
+      text: "ជាប់បម្រុង",
+      style: "background-color: #fffbeb; color: #d97706; font-size: 0.85rem;"
+    };
   } else {
     return {
       text: "ជ្រើសសម្រាំង",
@@ -176,6 +192,21 @@ const getStatusInfo = (sub) => {
     };
   }
 };
+
+const isPassed = computed(() => {
+  const s = String(currentSubmission.value?.status || "").toUpperCase();
+  return s === "PASS" || s === "PASSED";
+});
+
+const isReserved = computed(() => {
+  const s = String(currentSubmission.value?.status || "").toUpperCase();
+  return s === "RESERVED" || s === "RESERVE";
+});
+
+const isFailed = computed(() => {
+  const s = String(currentSubmission.value?.status || "").toUpperCase();
+  return s === "FAILED_EVALUATION" || s === "FAIL" || s === "FAILED";
+});
 
 const status = computed(() => getStatusInfo(currentSubmission.value));
 
@@ -186,6 +217,7 @@ const isReasonRequired = computed(() => {
 const actionModalTitle = computed(() => {
   if (actionType.value === "BLACKLIST") return "បញ្ជាក់បញ្ជីខ្មៅ (Blacklist)";
   if (actionType.value === "DROPOUT") return "បញ្ជាក់បោះបង់ (Dropout)";
+  if (actionType.value === "RESERVED") return "បញ្ជាក់បម្រុង (Reserve)";
   if (actionType.value === "FAILED_EVALUATION" || actionType.value === "FAIL") return "បញ្ជាក់ការធ្លាក់ (Fail)";
   if (actionType.value === "PASS" || actionType.value === "PASSED") return "បញ្ជាក់ការជាប់ (Pass)";
   return "បញ្ជាក់";
@@ -197,6 +229,9 @@ const actionModalPrompt = computed(() => {
   }
   if (actionType.value === "DROPOUT") {
     return "តើអ្នកពិតជាចង់ផ្លាស់ប្តូរបេក្ខជននេះទៅជាបោះបង់ (Dropout) មែនទេ?";
+  }
+  if (actionType.value === "RESERVED") {
+    return "តើអ្នកពិតជាចង់ផ្លាស់ប្តូរស្ថានភាពបេក្ខជននេះទៅជា «ជាប់បម្រុង» មែនទេ?";
   }
   if (actionType.value === "FAILED_EVALUATION" || actionType.value === "FAIL") {
     return "តើអ្នកពិតជាចង់ផ្លាស់ប្តូរស្ថានភាពបេក្ខជននេះទៅជា «ធ្លាក់» មែនទេ?";
