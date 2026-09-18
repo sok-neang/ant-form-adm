@@ -238,13 +238,13 @@ const isSidebarOpen = computed(() => {
 const currentRole = computed(() => {
     if (authStore.user?.role) return authStore.user.role;
     try {
-        const stored = sessionStorage.getItem("user");
+        const stored = localStorage.getItem("user") || sessionStorage.getItem("user");
         if (stored) {
             const parsed = JSON.parse(stored);
             return parsed?.role || "";
         }
     } catch (e) {
-        console.warn("Failed to parse user from sessionStorage:", e);
+        console.warn("Failed to parse user from storage:", e);
     }
     return "";
 });

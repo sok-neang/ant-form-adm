@@ -49,6 +49,7 @@ const router = createRouter({
       meta: {
         title: "ការផ្ទៀងផ្ទាត់ពីរដំណាក់កាល",
         requiresGuest: true,
+         requiresInterimToken: true,
       },
     },
 
@@ -59,6 +60,7 @@ const router = createRouter({
       meta: {
         title: "ផ្ទៀងផ្ទាត់កូដ",
         requiresGuest: true,
+        requiresInterimToken: true,
       },
     },
 
@@ -69,6 +71,7 @@ const router = createRouter({
       meta: {
         title: "កំណត់ពាក្យសម្ងាត់ឡើងវិញ",
         requiresGuest: true,
+        requiresInterimToken: true,
       },
     },
 
@@ -312,6 +315,13 @@ const router = createRouter({
         },
       ],
     },
+    {
+      path: "/:pathMatch(.*)*",
+      redirect: () => {
+        const authStore = useAuthStore();
+        return authStore.isAuthenticated ? "/" : "/auth/login";
+      },
+    },
   ]
 })
 router.beforeEach((to) => {
@@ -321,15 +331,21 @@ router.beforeEach((to) => {
 
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
   const requiresGuest = to.matched.some(record => record.meta.requiresGuest);
+  const requiresInterimToken = to.matched.some((record) => record.meta.requiresInterimToken);
+  
+  // 1. User IS logged in → cannot access auth pages (login, 2fa, verify-code, etc.)
+  if (requiresGuest && isAuthenticated) {
+    return { name: "dashboard" };
+  }
 
-  // User is NOT logged in → cannot access protected pages
+  // 2. User is NOT logged in → cannot access protected pages
   if (requiresAuth && !isAuthenticated) {
     return { name: "login" };
   }
 
-  // User IS logged in → cannot access auth pages
-  if (requiresGuest && isAuthenticated) {
-    return { name: "dashboard" };
+  // 3. Prevent accessing 2FA/Reset steps without a login interimToken
+  if (requiresInterimToken && !authStore.interimToken) {
+    return { name: "login" };
   }
 
   return true;

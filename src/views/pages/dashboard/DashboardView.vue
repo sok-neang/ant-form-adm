@@ -19,7 +19,7 @@ import AdminDashboardView from "@/views/pages/admin/AdminDashboard.vue";
 
 const currentRole = computed(() => {
   try {
-    const rawUser = sessionStorage.getItem("user");
+    const rawUser = localStorage.getItem("user") || sessionStorage.getItem("user");
     return rawUser ? JSON.parse(rawUser).role : null;
   } catch (err) {
     console.error("Error reading user role:", err);
