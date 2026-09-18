@@ -9,6 +9,7 @@ import {
   clearTwoFactorData,
   saveAuthData,
   getAuthData,
+  clearAuthData,
 } from "@/utils/authStorage";
 import {
   getAvatarUrl,
@@ -24,7 +25,7 @@ export const useAuthStore = defineStore("auth", () => {
   const totpSecret = ref(storedTwoFactorData.totpSecret || null);
 
   const initialAuth = getAuthData();
-  const accessToken = ref(initialAuth.accessToken || sessionStorage.getItem("accessToken") || "" );
+  const accessToken = ref(initialAuth.accessToken || localStorage.getItem("accessToken") || sessionStorage.getItem("accessToken") || "" );
   const user = ref(initialAuth.user || null);
   const userAvatarUrl = ref(DEFAULT_AVATAR);
   const loading = ref(false);
@@ -257,8 +258,11 @@ export const useAuthStore = defineStore("auth", () => {
       user.value = null;
       userAvatarUrl.value = DEFAULT_AVATAR;
 
+      clearAuthData();
       sessionStorage.removeItem("accessToken");
       sessionStorage.removeItem("user");
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("user");
 
       clearTwoFactor();
 

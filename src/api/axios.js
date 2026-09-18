@@ -32,10 +32,22 @@ const refreshClient = axios.create({
 // ==========================================
 api.interceptors.request.use(
   (config) => {
-    const accessToken = sessionStorage.getItem("accessToken");
+    const accessToken = localStorage.getItem("accessToken");
 
-    if (accessToken) {
-      config.headers.Authorization = `Bearer ${accessToken}`;
+    // Do not overwrite Authorization header if already explicitly provided (e.g., 2FA interimToken)
+    const hasAuthHeader =
+      config.headers?.Authorization ||
+      (config.headers?.has && config.headers.has("Authorization")) ||
+      (config.headers?.get && config.headers.get("Authorization"));
+
+    if (accessToken && !hasAuthHeader) {
+      if (config.headers?.set) {
+        config.headers.set("Authorization", `Bearer ${accessToken}`);
+      } else if (config.headers) {
+        config.headers.Authorization = `Bearer ${accessToken}`;
+      } else {
+        config.headers = { Authorization: `Bearer ${accessToken}` };
+      }
     }
 
     return config;
@@ -61,7 +73,7 @@ const refreshAccessToken = async () => {
           throw new Error("No access token returned");
         }
 
-        sessionStorage.setItem(
+        localStorage.setItem(
           "accessToken",
           newAccessToken
         );
@@ -123,8 +135,8 @@ api.interceptors.response.use(
 
     } catch (refreshError) {
       // Refresh token is expired or invalid
-      sessionStorage.removeItem("accessToken");
-      sessionStorage.removeItem("user");
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("user");
 
       window.location.href = "/auth/login";
 

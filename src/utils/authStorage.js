@@ -79,21 +79,21 @@ export const saveAuthData = ({
   user,
 }) => {
   if (accessToken) {
-    sessionStorage.setItem(
+    localStorage.setItem(
       STORAGE_KEYS.accessToken,
       accessToken
     );
   }
 
   if (refreshToken) {
-    sessionStorage.setItem(
+    localStorage.setItem(
       STORAGE_KEYS.refreshToken,
       refreshToken
     );
   }
 
   if (user) {
-    sessionStorage.setItem(
+    localStorage.setItem(
       STORAGE_KEYS.user,
       JSON.stringify(user)
     );
@@ -101,18 +101,16 @@ export const saveAuthData = ({
 };
 
 export const getAuthData = () => {
-  const user = sessionStorage.getItem(
-    STORAGE_KEYS.user
-  );
+  const user = localStorage.getItem(STORAGE_KEYS.user) || sessionStorage.getItem(STORAGE_KEYS.user);
 
   return {
-    accessToken: sessionStorage.getItem(
-      STORAGE_KEYS.accessToken
-    ),
+    accessToken:
+      localStorage.getItem(STORAGE_KEYS.accessToken) ||
+      sessionStorage.getItem(STORAGE_KEYS.accessToken),
 
-    refreshToken: sessionStorage.getItem(
-      STORAGE_KEYS.refreshToken
-    ),
+    refreshToken:
+      localStorage.getItem(STORAGE_KEYS.refreshToken) ||
+      sessionStorage.getItem(STORAGE_KEYS.refreshToken),
 
     user: user ? JSON.parse(user) : null,
   };
@@ -124,6 +122,7 @@ export const clearAuthData = () => {
     STORAGE_KEYS.refreshToken,
     STORAGE_KEYS.user,
   ].forEach((key) => {
+    localStorage.removeItem(key);
     sessionStorage.removeItem(key);
   });
 };
