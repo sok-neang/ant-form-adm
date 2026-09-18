@@ -27,7 +27,7 @@
         <!-- Teacher Evaluation Button Only -->
         <button
           type="button"
-          class="btn shortlist-btn text-success px-4"
+          class="btn shortlist-btn text-primary px-4"
           @click="goToEvaluation"
         >
           <i class="bi bi-pencil-square me-2"></i>
@@ -82,12 +82,12 @@ const getStatusInfo = (sub) => {
   } else if (s === "PASS" || s === "PASSED") {
     return {
       text: "ជាប់ក្នុងជ្រើសសម្រាំង",
-      style: "background-color: #ecfdf5; color: #059669; font-size: 0.85rem;"
+      style: "background-color: #eff6ff; color: #2662d9; font-size: 0.85rem;"
     };
   } else {
     return {
       text: "ជ្រើសសម្រាំង",
-      style: "background-color: #ecfdf5; color: #059669; font-size: 0.85rem;"
+      style: "background-color: #eff6ff; color: #2662d9; font-size: 0.85rem;"
     };
   }
 };
@@ -95,11 +95,13 @@ const getStatusInfo = (sub) => {
 
 <style scoped>
 .shortlist-btn {
-  border: 1px solid #357867;
+  border: 1px solid var(--bs-primary, #2662d9);
+  color: var(--bs-primary, #2662d9);
 }
 
 .shortlist-btn:hover {
-  background-color: #2e6658 !important;
-  color: white !important;
+  background-color: var(--bs-primary, #2662d9) !important;
+  border-color: var(--bs-primary, #2662d9) !important;
+  color: #ffffff !important;
 }
 </style>

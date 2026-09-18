@@ -34,8 +34,8 @@ export function usePassedShortlist() {
       MOBILE_APP: "Mobile App",
     };
     const shiftMap = {
-      MORNING: "វេនព្រឹក",
-      AFTERNOON: "វេនរសៀល",
+      MORNING: "ព្រឹក",
+      AFTERNOON: "រសៀល",
     };
     const genderMap = {
       MALE: "ប្រុស",
@@ -76,6 +76,8 @@ export function usePassedShortlist() {
 
     const overallScore = parseScore(sub.overallAverageScore);
     const submittedTime = sub.submittedAt ? new Date(sub.submittedAt).getTime() : 0;
+    const groupNum = sub.submissionGroup?.groupNumber ?? sub.groupNumber ?? sub.group ?? null;
+    const groupText = groupNum ? `ក្រុម ${groupNum}` : "—";
 
     return {
       id: sub.id,
@@ -86,6 +88,8 @@ export function usePassedShortlist() {
         "N/A",
       gender: genderMap[sub.student?.gender] || sub.student?.gender || "N/A",
       year: yearMap[sub.yearOfStudy] || sub.yearOfStudy || "N/A",
+      group: groupText,
+      group_number: groupNum,
       skill: programMap[sub.program] || sub.program || "N/A",
       study_shift: shiftMap[sub.shift] || sub.shift || "N/A",
       score_technology: score_technology ? parseFloat(score_technology).toFixed(2) : "0.00",
@@ -102,7 +106,13 @@ export function usePassedShortlist() {
   };
 
   const sortSubmissions = (items, params) => {
-    const list = [...items];
+    let list = [...items];
+
+    if (params.group) {
+      list = list.filter((item) => {
+        return item.group_number ? String(item.group_number) === String(params.group) : true;
+      });
+    }
 
     // Dart sorting
     if (params.dart === "lowest" || params.scoreSort === "lowestDART") {
@@ -235,6 +245,7 @@ export function usePassedShortlist() {
       const filterKey = JSON.stringify({
         shift: params.shift || "",
         program: params.program || "",
+        group: params.group || "",
         search: (params.search || "").trim(),
         scoreSort: params.scoreSort || "",
         dart: params.dart || "",
@@ -254,6 +265,7 @@ export function usePassedShortlist() {
       };
       if (params.shift) queryParams.shift = params.shift;
       if (params.program) queryParams.program = params.program;
+      if (params.group) queryParams.group = params.group;
       if (params.search) queryParams.search = params.search;
       if (params.dart) queryParams.dart = params.dart;
       if (params.cpp) queryParams.cpp = params.cpp;

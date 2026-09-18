@@ -36,7 +36,7 @@
           </div>
           <!-- Value -->
           <BaseSkeleton v-if="isStatsLoading" width="70px" height="32px" radius="8px" />
-          <h2 v-else class="fw-bold mb-0 text-success">{{ card.value }}</h2>
+          <h2 v-else class="fw-bold mb-0 text-dark">{{ card.value }}</h2>
         </div>
         <!-- Title -->
         <p class="text-muted mb-1 fw-bold">

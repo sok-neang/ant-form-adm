@@ -80,7 +80,7 @@ const chartOptions = computed(() => ({
       speed: 600,
     },
   },
-  colors: ["#f59e0b", "#2e7d6b"],
+  colors: ["#f59e0b", "#2662d9"],
   plotOptions: {
     bar: {
       horizontal: false,
@@ -184,7 +184,7 @@ const chartOptions = computed(() => ({
 }
 
 .bg-teal {
-  background-color: #2e7d6b;
+  background-color: #2662d9;
 }
 
 .bg-amber {

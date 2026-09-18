@@ -4,6 +4,7 @@
     :columns="columns"
     :rows="students"
     :pagination="pagination"
+    :total-student="total_student"
     :loading="loading"
     :show-actions="true"
     @page-change="handlePageChange"
@@ -169,9 +170,14 @@ import BaseButton from "@/components/ui/base/BaseButton.vue";
 import ExportModal from "@/components/ui/ExportModal.vue";
 import {shiftOptions, specializationOptions, scoreLevelOptions, resultStatusOptions} from "@/constants/options"
 import { useFinalResult } from "@/composable/application/final result/useFinalResult";
-
+import { useStatistic } from "@/composable/dashboard/useStatistic";
 const router = useRouter();
-
+const statistic = useStatistic();
+const total_student = ref(0);
+onMounted(async() => {
+  await statistic.getStatsUser();
+  total_student.value = (statistic.statsData.value.evaluation.passed.total + statistic.statsData.value.reserved.total);
+})
 const selectedResultStatus = ref("all");
 const selectedScoreLevel = ref("all");
 const selectedShift = ref("");

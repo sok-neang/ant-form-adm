@@ -124,6 +124,7 @@
       v-if="pagination"
       v-model:page="currentPage"
       :pagination="pagination"
+      :total-student="totalStudent"
     />
 
     </div>
@@ -172,10 +173,11 @@ const props = defineProps({
     type: Object,
     default: null,
   },
+  totalStudent: {
+    type: Number,
+    default: 0,
+  },
 });
-
-const search = ref("");
-const selectedFilter = ref("");
 
 const columnSpan = computed(() => {
   return (

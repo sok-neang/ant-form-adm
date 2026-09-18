@@ -41,7 +41,7 @@
         <!-- VERIFY BUTTON -->
         <BaseButton
           type="submit"
-          variant="primary"
+          variant="bg-primary"
           custom-class="w-100 py-2 bg-primary"
           :is-loading="authStore.loading"
           loading-text="កំពុងផ្ទៀងផ្ទាត់..."

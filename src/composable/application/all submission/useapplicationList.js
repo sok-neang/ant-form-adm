@@ -85,7 +85,10 @@ export function useApplicationList() {
             year: yearMap[sub.yearOfStudy] || sub.yearOfStudy || "N/A",
             skill: programMap[sub.program] || sub.program || "N/A",
             study_shift: shiftMap[sub.shift] || sub.shift || "N/A",
+            rawProgram: sub.program,
+            rawShift: sub.shift,
             created_at: new Date(sub.submittedAt).toLocaleDateString("km-KH"),
+            raw: sub,
           };
         });
       }
@@ -138,6 +141,34 @@ export function useApplicationList() {
     }
   };
 
+  //delete submission
+  const deleteSubmission = async (id) => {
+    try {
+      loading.value = true;
+      const response = await submissionService.deleteSubmission(id);
+      return response.data;
+    } catch (error) {
+      console.error("Error deleting user submission:", error);
+      throw error;
+    } finally {
+      loading.value = false;
+    }
+  };
+
+  //update shift or program
+  const updateShiftOrProgram = async (id, params = {}) => {
+    try {
+      loading.value = true;
+      const response = await submissionService.updateShiftOrProgram(id, params);
+      return response.data;
+    } catch (error) {
+      console.error("Error updating user submission:", error);
+      throw error;
+    } finally {
+      loading.value = false;
+    }
+  };
+
   //short-list
 
   return {
@@ -150,5 +181,7 @@ export function useApplicationList() {
     fetchSubmissionsById,
     fetchFailSubmissions,
     fetchPassSubmissions,
+    deleteSubmission,
+    updateShiftOrProgram,
   };
 }

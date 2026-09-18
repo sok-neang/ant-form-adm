@@ -82,14 +82,14 @@ export const useEvaluationStats = () => {
       en_title: "Mobile App",
       value: stats.value.mobileApp,
       icon: "bi bi-phone-fill",
-      color: "success",
+      color: "warning",
     },
     {
       kh_title: "អភិវឌ្ឍន៍គេហទំព័រ",
       en_title: "Web Development",
       value: stats.value.webDevelopment,
       icon: "bi bi-code-slash",
-      color: "warning",
+      color: "primary",
     },
   ]);
 

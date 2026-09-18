@@ -4,6 +4,7 @@
     :columns="columns"
     :rows="students"
     :pagination="pagination"
+    :total-student="total_student"
     :loading="loading"
     :show-actions="true"
     @page-change="handlePageChange"
@@ -43,7 +44,7 @@
          <BaseButton
             type="button"
             variant=""
-            custom-class="text-success border-2 border-success bg-transparent"
+            custom-class="text-primary border-2 border-primary bg-transparent"
             @click="loadSubmissions(1)"
           >
             <template #icon>
@@ -56,11 +57,11 @@
       <span
         class="badge rounded-pill px-3 py-2"
         :style="{
-          color: row.skill === 'Web Development' ? '#357867' : '#6f42c1',
+          color: row.skill === 'Web Development' ? '#0d6efd' : '#f59e0b',
           backgroundColor:
             row.skill === 'Web Development'
-              ? 'rgba(53, 120, 103, 0.12)'
-              : 'rgba(111, 66, 193, 0.12)',
+              ? 'rgba(13, 110, 253, 0.12)'
+              : 'rgba(245, 158, 11, 0.12)',
         }"
       >
         {{ row.skill }}
@@ -91,6 +92,7 @@ import BaseSelect from "@/components/ui/base/BaseSelect.vue";
 import BaseButton from "@/components/ui/base/BaseButton.vue";
 import { shiftOptions, specializationOptions } from "@/constants/options";
 import { useFailedApplicationList } from "@/composable/application/all submission/useFailedApplicationList";
+import { useStatistic } from "@/composable/dashboard/useStatistic";
 
 const router = useRouter();
 
@@ -98,11 +100,17 @@ const router = useRouter();
 const selectedShift = ref("");
 const selectedTrack = ref("");
 const searchQuery = ref("");
+const statistic = useStatistic();
+const total_student = ref(0);
+
+onMounted(async() => {
+  await statistic.getStatsUser();
+  total_student.value = statistic.statsData.value.submissions.total;
+})
 
 const {
   loading,
   students,
-  totalSubmissions,
   pagination,
   fetchSubmissions,
 } = useFailedApplicationList();

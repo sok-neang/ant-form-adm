@@ -619,8 +619,8 @@ onBeforeUnmount(() => {
 .base-select {
   --bs-border: #d8dce2;
   /* --bs-border-hover: #EEFFF7; */
-  --bs-focus:#4A9982;
-  --bs-focus-ring: #EEFFF7;
+  --bs-focus: rgb(13, 110, 253);
+  --bs-focus-ring: #eef4ff;
   /* --bs-bg: #EEFFF7; */
   --bs-icon: #8a93a3;
   --bs-clear-hover: #4a5162;

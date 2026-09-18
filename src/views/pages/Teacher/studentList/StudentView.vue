@@ -87,11 +87,11 @@
         <span
           class="badge rounded-pill px-3 py-2"
           :style="{
-            color: row.skill === 'Web Development' ? '#357867' : '#6f42c1',
+            color: row.skill === 'Web Development' ? '#0d6efd' : '#f59e0b',
             backgroundColor:
               row.skill === 'Web Development'
-                ? 'rgba(53, 120, 103, 0.12)'
-                : 'rgba(111, 66, 193, 0.12)',
+                ? 'rgba(13, 110, 253, 0.12)'
+                : 'rgba(245, 158, 11, 0.12)',
           }"
         >
           {{ row.skill }}
@@ -346,7 +346,7 @@ onMounted(() => {
 
 /* TOP STAT CARDS */
 .stat-card {
-  border: 1px solid #2e8669;
+  border: 1px solid var(--bs-primary);
   transition: all 0.2s ease;
 }
 
@@ -357,8 +357,8 @@ onMounted(() => {
 }
 
 .stat-icon-primary {
-  background-color: rgba(53, 120, 103, 0.12);
-  color: #357867;
+  background-color: rgba(38, 98, 217, 0.12);
+  color: var(--bs-primary, #2662d9);
 }
 
 .stat-icon-success {
@@ -388,8 +388,8 @@ onMounted(() => {
 }
 
 .score-good {
-  color: #357867 !important;
-  background-color: rgba(53, 120, 103, 0.12) !important;
+  color: var(--bs-primary, #2662d9) !important;
+  background-color: rgba(38, 98, 217, 0.12) !important;
 }
 
 /* ACTION BUTTONS */

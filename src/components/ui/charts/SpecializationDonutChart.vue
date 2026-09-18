@@ -90,7 +90,7 @@ const chartOptions = computed(() => ({
       speed: 600,
     },
   },
-  colors: ["#2e7d6b", "#f59e0b"],
+  colors: ["#2662d9", "#f59e0b"],
   labels: ["Web", "Mobile App"],
   stroke: {
     width: 0,
@@ -180,11 +180,11 @@ const chartOptions = computed(() => ({
 }
 
 .bg-teal {
-  background-color: #2e7d6b;
+  background-color: #2662d9;
 }
 
 .text-teal {
-  color: #2e7d6b;
+  color: #2662d9;
 }
 
 .bg-amber {

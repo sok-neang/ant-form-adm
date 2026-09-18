@@ -10,9 +10,7 @@ export function useStatistic() {
         try {
             loading.value = true;
             const response = await dashboardService.getStats();
-            if (response.data?.success) {
-                statsData.value = response.data.data;
-            }
+            statsData.value = response.data.data;
         } catch (error) {
             console.error("Error fetching user statistics:", error);
         } finally {

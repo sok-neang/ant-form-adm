@@ -8,7 +8,7 @@
           </div>
           <!-- Value -->
           <BaseSkeleton v-if="isUserStatsLoading" width="60px" height="32px" radius="8px" />
-          <h2 v-else class="fw-bold mb-0 text-success">{{ card.value }}</h2>
+          <h2 v-else class="fw-bold mb-0 text-dark">{{ card.value }}</h2>
         </div>
         <!-- Title -->
         <p class="text-muted mb-1 fw-bold">
@@ -64,7 +64,7 @@
       </template>
       <template #cell-role="{ row }">
         <span class="badge px-3 py-1" :class="{
-          'bg-success-subtle text-success': row.role === 'SUPER_ADMIN',
+          'bg-dark-subtle text-dark': row.role === 'SUPER_ADMIN',
           'bg-primary-subtle text-primary': row.role === 'ADMIN',
           'bg-warning-subtle text-warning': row.role === 'TEACHER',
         }">
@@ -190,7 +190,7 @@ const userCards = computed(() => {
             en_title: "Total Admins",
             value: getRoleCount("ADMIN"),
             icon: "bi bi-person-gear",
-            color: "success",
+            color: "primary",
         },
         {
             kh_title: "គ្រូបង្រៀនទាំងអស់",

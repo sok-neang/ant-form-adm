@@ -44,6 +44,24 @@ const submissionService = {
   promoteStatus(id, params = {}) {
     return api.patch(`/submissions/${id}/status`, params);
   },
+  //delete submission 
+  deleteSubmission(id) {
+    return api.delete(`/submissions/${id}`);
+  },
+  //update Shift or Program 
+  updateShiftOrProgram(id, params = {}) {
+    return api.patch(`/submissions/${id}`, params);
+  },
+  // update student group
+  updateStudentGroup(id, groupNumber) {
+    const params = new URLSearchParams();
+    params.append("groupNumber", String(groupNumber));
+    return api.patch(`/submissions/${id}/group`, params, {
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+    });
+  },
 
   //black list 
   getAllBlacklist(params = {}){

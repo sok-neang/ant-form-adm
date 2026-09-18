@@ -67,7 +67,7 @@
           v-if="!isPassed"
           type="button"
           class="btn shortlist-btn px-4 text-white"
-          style="background-color: #357867;"
+          style="background-color: var(--bs-primary, #2662d9); border-color: var(--bs-primary, #2662d9);"
           @click="openActionModal('PASS')"
           :disabled="isUpdating"
         >
@@ -126,8 +126,8 @@
           </button>
           <button 
             type="button" 
-            class="btn btn-success px-4" 
-            style="background-color: #357867; border-color: #357867;"
+            class="btn btn-primary px-4" 
+            style="background-color: var(--bs-primary, #2662d9); border-color: var(--bs-primary, #2662d9);"
             @click="submitActionModal" 
             :disabled="isUpdating || (isReasonRequired && !actionReason.trim())"
           >
@@ -178,7 +178,7 @@ const getStatusInfo = (sub) => {
   } else if (s === "PASS" || s === "PASSED") {
     return {
       text: "ជាប់ក្នុងជ្រើសសម្រាំង",
-      style: "background-color: #ecfdf5; color: #059669; font-size: 0.85rem;"
+      style: "background-color: #eff6ff; color: #2662d9; font-size: 0.85rem;"
     };
   } else if (s === "RESERVED" || s === "RESERVE") {
     return {
@@ -188,7 +188,7 @@ const getStatusInfo = (sub) => {
   } else {
     return {
       text: "ជ្រើសសម្រាំង",
-      style: "background-color: #ecfdf5; color: #059669; font-size: 0.85rem;"
+      style: "background-color: #eff6ff; color: #2662d9; font-size: 0.85rem;"
     };
   }
 };
@@ -301,11 +301,13 @@ const submitActionModal = async () => {
 }
 
 .shortlist-btn {
-  border: 1px solid #357867;
+  border: 1px solid var(--bs-primary, #2662d9);
+  background-color: var(--bs-primary, #2662d9) !important;
 }
 
 .shortlist-btn:hover {
-  background-color: #2e6658 !important;
-  color: #ffdfe08f;
+  background-color: var(--bs-secondary, #1f52bc) !important;
+  border-color: var(--bs-secondary, #1f52bc) !important;
+  color: #ffffff;
 }
 </style>

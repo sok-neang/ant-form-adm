@@ -25,7 +25,7 @@ const props = defineProps({
   series1Color: { type: String, default: "#f59e0b" },
   series2Name: { type: String, default: "Mobile" },
   series2Data: { type: Array, default: () => [] },
-  series2Color: { type: String, default: "#357867" },
+  series2Color: { type: String, default: "#2662d9" },
 });
 
 const chartSeries = computed(() => [

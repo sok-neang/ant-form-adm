@@ -272,26 +272,26 @@ const getBlacklistedDate = (submission) => {
 }
 
 .btn-shortlist {
-  color: #ffd139;
-  background-color: #f7f9fc;
-  border: 1px solid #fdd72f;
+  color: #4b5563;
+  background-color: #f3f4f6;
+  border: 1px solid #d1d5db;
 }
 
 .btn-shortlist:hover:not(:disabled) {
-  background-color: #fdd72f;
-  color: #ffffff;
-  border-color: #fdd72f;
+  background-color: #e5e7eb;
+  color: #1f2937;
+  border-color: #9ca3af;
 }
 
 .btn-pass {
   color: #ffffff;
-  background-color: #357867;
-  border: 1px solid #357867;
+  background-color: #4b5563;
+  border: 1px solid #d1d5db;
 }
 
 .btn-pass:hover:not(:disabled) {
   color: #ffff;
-  background-color: #2b6355;
+  background-color: #3a414b;
   border-color: #2b6355;
 }
 </style>

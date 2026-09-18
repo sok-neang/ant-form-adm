@@ -275,6 +275,15 @@ const router = createRouter({
           ]
         },
         {
+          path: "/define-group",
+          name: "define-group",
+          component: () => import("@/views/pages/admin/group/DefineGroupView.vue"),
+          meta: {
+            title: "កំណត់ក្រុម",
+            requiresAuth: true,
+          },
+        },
+        {
           path: "student-lists",
           name: "student-lists",
           component: StudentView,

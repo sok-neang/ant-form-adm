@@ -35,7 +35,7 @@
             </div>
             <!-- Data Point Skeleton vs Actual Value -->
             <BaseSkeleton v-if="isUserStatsLoading" width="60px" height="32px" radius="8px" />
-            <h2 v-else class="fw-bold mb-0 text-success">{{ card.value }}</h2>
+            <h2 v-else class="fw-bold mb-0 text-dark">{{ card.value }}</h2>
         </div>
         <!-- Static Titles -->
         <p class="text-muted mb-1 fw-bold">
@@ -122,7 +122,7 @@ const loadingCards = [
     kh_title: "អ្នកគ្រប់គ្រងទាំងអស់",
     en_title: "Total Admins",
     icon: "bi bi-person-gear",
-    color: "success",
+    color: "primary",
   },
   {
     kh_title: "គ្រូបង្រៀនទាំងអស់",
@@ -159,7 +159,7 @@ const dynamicCards = computed(() => {
         khTitle = "អ្នកគ្រប់គ្រងទាំងអស់";
         enTitle = "Total Admins";
         icon = "bi bi-person-gear";
-        color = "success";
+        color = "primary";
       } else if (item.role === 'TEACHER') {
         khTitle = "គ្រូបង្រៀនទាំងអស់";
         enTitle = "Total Teachers";
@@ -196,7 +196,7 @@ const genderOptions = computed(() => {
   return {
     chart: { type: 'donut', fontFamily: 'inherit' },
     labels: labels,
-    colors: ['#FFB31F', '#357867', '#00d492'],
+    colors: ['#2662d9', '#f59e0b'],
     dataLabels: { enabled: false },
     legend: { position: 'bottom' },
     plotOptions: {
@@ -244,7 +244,7 @@ const roleOptions = computed(() => {
         distributed: true
       },
     },
-    colors: ['#dc3545', '#357867', '#FFB31F', '#0d6efd', '#0dcaf0'],
+    colors: ['#dc3545', '#2662d9', '#FFB31F', '#0d6efd', '#0dcaf0'],
     dataLabels: { enabled: false },
     xaxis: {
       categories: categories,
@@ -263,7 +263,7 @@ const roleOptions = computed(() => {
 
 <style scoped>
 .top-card {
-  background: linear-gradient(135deg, #006e4c 0%, #00d492 100%);
+  background: linear-gradient(135deg, #2662d9 0%, #0098d4 100%);
   min-height: 220px;
 }
 .welcome-image {

@@ -6,7 +6,9 @@
       class="form-header-card position-relative overflow-hidden"
       :class="{ 'banner-blacklist-theme': isBlacklisted }"
       :style="{
-        backgroundImage: `url(${computedBannerBg})`,
+        backgroundImage: isBlacklisted
+          ? `url(${computedBannerBg})`
+          : `url(${computedBannerBg})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center right',
         backgroundRepeat: 'no-repeat'
@@ -34,7 +36,7 @@
 
     <!-- ================= SCROLL AREA ================= -->
     <div v-if="loading" class="d-flex justify-content-center align-items-center flex-grow-1" style="height: 400px;">
-      <div class="spinner-border text-success" role="status">
+      <div class="spinner-border text-primary" role="status">
         <span class="visually-hidden">Loading...</span>
       </div>
     </div>
@@ -601,8 +603,8 @@
         </button>
         <button 
           type="button" 
-          class="btn btn-success px-4" 
-          style="background-color: #357867; border-color: #357867;"
+          class="btn btn-primary px-4" 
+          style="background-color: var(--bs-primary, #2662d9); border-color: var(--bs-primary, #2662d9);"
           @click="submitActionModal" 
           :disabled="isUpdating || (isReasonRequired && !actionReason.trim())"
         >
@@ -656,7 +658,7 @@
           <!-- Modal Body with VuePdfEmbed -->
           <div class="pdf-scroll-body flex-grow-1 overflow-auto p-2 p-md-4 position-relative">
             <div v-if="isPdfLoading" class="d-flex flex-column align-items-center justify-content-center py-5" style="min-height: 350px;">
-              <div class="spinner-border text-success mb-3" role="status" style="width: 2.5rem; height: 2.5rem;">
+              <div class="spinner-border text-primary mb-3" role="status" style="width: 2.5rem; height: 2.5rem;">
                 <span class="visually-hidden">Loading PDF...</span>
               </div>
               <span class="text-white fw-medium">កំពុងដំណើរការផ្ទុកឯកសារ PDF...</span>
@@ -712,7 +714,7 @@
           <div class="image-scroll-body flex-grow-1 overflow-auto p-3 d-flex align-items-center justify-content-center position-relative">
             <!-- Loading State (matching PDF style) -->
             <div v-if="isloading" class="d-flex flex-column align-items-center justify-content-center py-5" style="min-height: 350px;">
-              <div class="spinner-border text-success mb-3" role="status" style="width: 2.5rem; height: 2.5rem;">
+              <div class="spinner-border text-primary mb-3" role="status" style="width: 2.5rem; height: 2.5rem;">
                 <span class="visually-hidden">Loading Image...</span>
               </div>
               <span class="text-secondary fw-medium">កំពុងដំណើរការផ្ទុករូបភាព...</span>
@@ -1188,11 +1190,11 @@ const getShift = (s) => {
 .form-header-card {
   flex-shrink: 0;
   position: relative;
-  background-color: #eaf5f0;
-  border: 1px solid rgba(46, 125, 107, 0.18);
+  background-color: #eef4ff;
+  border: 1px solid rgba(38, 98, 217, 0.18);
   border-radius: 20px;
   padding: 24px 32px;
-  box-shadow: 0 4px 20px rgba(18, 53, 43, 0.06);
+  box-shadow: 0 4px 20px rgba(38, 98, 217, 0.06);
 }
 
 .header-icon {
@@ -1202,22 +1204,22 @@ const getShift = (s) => {
   align-items: center;
   justify-content: center;
   border-radius: 18px;
-  background: rgba(209, 250, 229, 0.85);
-  border: 1px solid rgba(52, 211, 153, 0.35);
-  color: #176852;
+  background: rgba(219, 234, 254, 0.85);
+  border: 1px solid rgba(147, 197, 253, 0.45);
+  color: #1d4ed8;
   font-size: 28px;
-  box-shadow: 0 2px 8px rgba(18, 53, 43, 0.05);
+  box-shadow: 0 2px 8px rgba(38, 98, 217, 0.08);
   flex-shrink: 0;
 }
 
 .banner-title {
-  color: #07261d;
+  color: #0f172a;
   font-size: 1.45rem;
   letter-spacing: -0.01em;
 }
 
 .banner-subtitle {
-  color: #2e6658;
+  color: #334155;
   font-size: 0.92rem;
   font-weight: 500;
 }
@@ -1225,7 +1227,7 @@ const getShift = (s) => {
 .banner-quote-line {
   width: 34px;
   height: 2.5px;
-  background-color: #246d5b;
+  background-color: #2662d9;
   border-radius: 2px;
   margin-top: 5px;
   margin-right: 4px;
@@ -1282,8 +1284,8 @@ const getShift = (s) => {
   width: 38px;
   height: 38px;
   border-radius: 50%;
-  background: #dcfce7;
-  color: #15803d;
+  background: #eff6ff;
+  color: #2662d9;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1304,9 +1306,9 @@ const getShift = (s) => {
 }
 
 .applicant-badge {
-  background-color: #ecfdf5;
-  color: #059669;
-  border: 1px solid rgba(5, 150, 105, 0.2);
+  background-color: #eff6ff;
+  color: #2662d9;
+  border: 1px solid rgba(38, 98, 217, 0.2);
   font-size: 0.85rem;
   font-weight: 600;
   padding: 6px 14px;
@@ -1381,7 +1383,7 @@ const getShift = (s) => {
 
   gap: 8px;
 
-  color: #357867;
+  color: #2662d9;
 
   font-size: 15px;
 
@@ -1444,9 +1446,9 @@ const getShift = (s) => {
 
   border-radius: 8px;
 
-  background: rgba(53, 120, 103, 0.1);
+  background: rgba(38, 98, 217, 0.1);
 
-  color: #357867;
+  color: #2662d9;
 
   font-size: 20px;
 }
@@ -1463,9 +1465,9 @@ const getShift = (s) => {
 
   gap: 8px;
 
-  color: #198754;
+  color: var(--bs-primary);
 
-  background: rgba(25, 135, 84, 0.08);
+  background: rgba(38, 98, 217, 0.1);
 
   border-radius: 8px;
 
@@ -1551,13 +1553,14 @@ const getShift = (s) => {
 
 .shortlist-btn {
   color: #ffffff;
-  background: #357867;
-  border: 1px solid #357867;
+  background: #2662d9;
+  border: 1px solid #2662d9;
 }
 
 .shortlist-btn:hover {
   color: #ffffff;
-  background: #2d6657;
+  background: #1f52bc;
+  border-color: #1f52bc;
 }
 
 

@@ -15,10 +15,10 @@
       <div class="d-flex flex-column gap-2">
         <div class="legend-pill d-flex align-items-center justify-content-between p-2 px-3 rounded-pill" style="min-width: 160px; background-color: #f8fafc;">
           <div class="d-flex align-items-center gap-2">
-            <span class="legend-dot" style="background-color: #357867;"></span>
+            <span class="legend-dot" style="background-color: #2662d9;"></span>
             <span class="fw-semibold text-dark small">ស្រី {{ femaleCount }}នាក់</span>
           </div>
-          <span class="fw-bold" style="color: #357867; font-size: 0.85rem;">{{ femalePercent }}%</span>
+          <span class="fw-bold" style="color: #2662d9; font-size: 0.85rem;">{{ femalePercent }}%</span>
         </div>
 
         <div class="legend-pill d-flex align-items-center justify-content-between p-2 px-3 rounded-pill" style="min-width: 160px; background-color: #f8fafc;">
@@ -58,7 +58,7 @@ const chartOptions = computed(() => ({
     fontFamily: "inherit",
     animations: { enabled: true, easing: "easeinout", speed: 600 },
   },
-  colors: ["#357867", "#f59e0b"],
+  colors: ["#2662d9", "#f59e0b"],
   labels: ["ស្រី", "ប្រុស"],
   stroke: { width: 0 },
   dataLabels: { enabled: false },
@@ -78,7 +78,7 @@ const chartOptions = computed(() => ({
             show: true,
             fontSize: "22px",
             fontWeight: 700,
-            color: "#357867",
+            color: "#2662d9",
             offsetY: 0,
             formatter: () => String(props.total),
           },

@@ -4,6 +4,7 @@
     :columns="columns"
     :rows="students"
     :pagination="pagination"
+    :total-student="total_student"
     :loading="loading"
     :show-actions="true"
     @page-change="handlePageChange"
@@ -40,10 +41,10 @@
             :clearable="true"
             style="width: 190px"
             />
-         <BaseButton
+          <BaseButton
             type="button"
             variant=""
-            custom-class="text-success border-2 border-success bg-transparent"
+            custom-class="text-primary border-2 border-primary bg-transparent"
             @click="loadSubmissions(1)"
           >
             <template #icon>
@@ -67,11 +68,11 @@
       <span
         class="badge rounded-pill px-3 py-2"
         :style="{
-          color: row.skill === 'Web Development' ? '#357867' : '#6f42c1',
+          color: row.skill === 'Web Development' ? '#0d6efd' : '#f59e0b',
           backgroundColor:
             row.skill === 'Web Development'
-              ? 'rgba(53, 120, 103, 0.12)'
-              : 'rgba(111, 66, 193, 0.12)',
+              ? 'rgba(13, 110, 253, 0.12)'
+              : 'rgba(245, 158, 11, 0.12)',
         }"
       >
         {{ row.skill }}
@@ -113,7 +114,7 @@ import BaseButton from "@/components/ui/base/BaseButton.vue";
 import ExportModal from "@/components/ui/ExportModal.vue";
 import { shiftOptions, specializationOptions } from "@/constants/options";
 import { usePassedApplicationList } from "@/composable/application/all submission/usePassedApplicationList";
-
+import { useStatistic } from "@/composable/dashboard/useStatistic";
 const router = useRouter();
 
 // Filters
@@ -121,11 +122,16 @@ const selectedShift = ref("");
 const selectedTrack = ref("");
 const searchQuery = ref("");
 const isExportModalOpen = ref(false);
+const statistic = useStatistic();
+const total_student = ref(0);
 
+onMounted(async() => {
+  await statistic.getStatsUser();
+  total_student.value = statistic.statsData.value.submissions.total;
+})
 const {
   loading,
   students,
-  totalSubmissions,
   pagination,
   fetchSubmissions,
 } = usePassedApplicationList();

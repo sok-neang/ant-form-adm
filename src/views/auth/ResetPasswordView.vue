@@ -105,7 +105,7 @@
       <!-- Submit -->
       <BaseButton
         type="submit"
-        variant="primary"
+        variant="bg-primary"
         custom-class="w-100 mt-4 bg-primary"
         :is-loading="authStore.loading"
         loading-text="កំពុងដំណើរការ..."

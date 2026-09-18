@@ -30,36 +30,39 @@
     <div class="row g-3 mb-4">
       <!-- Card 1 -->
       <div class="col-12 col-md-3">
-        <BaseStatCard v-if="!loading"
-          label="សិស្សស្នើសុំទាំងអស់" 
-          :value="statsData?.submissions?.total || 0" 
-          valueClass="text-dark"
-          icon="bi bi-people-fill"
-          iconBgClass="bg-success bg-opacity-10"
-          iconColor="#198754"
-          :stats="[
-            { label: 'ប្រុស', value: getGenderCount(statsData?.submissions?.byGender, 'MALE') },
-            { label: 'ស្រី', value: getGenderCount(statsData?.submissions?.byGender, 'FEMALE') }
-          ]"
-        />
-        <div v-else class="card border-0 shadow-sm rounded-4 p-3 h-100">
-          <div class="d-flex align-items-center justify-content-between mb-3 gap-3">
-            <div class="bg-success bg-opacity-10 rounded p-2 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
-              <i class="bi bi-people-fill fs-4" style="color: #198754"></i>
+        <router-link to="/all-application" class="text-decoration-none">
+          <BaseStatCard v-if="!loading"
+            label="សិស្សស្នើសុំទាំងអស់" 
+            :value="statsData?.submissions?.total || 0" 
+            valueClass="text-dark"
+            icon="bi bi-people-fill"
+            iconBgClass="bg-success bg-opacity-10"
+            iconColor="#198754"
+            :stats="[
+              { label: 'ប្រុស', value: getGenderCount(statsData?.submissions?.byGender, 'MALE') },
+              { label: 'ស្រី', value: getGenderCount(statsData?.submissions?.byGender, 'FEMALE') }
+            ]"
+          />
+          <div v-else class="card border-0 shadow-sm rounded-4 p-3 h-100">
+            <div class="d-flex align-items-center justify-content-between mb-3 gap-3">
+              <div class="bg-success bg-opacity-10 rounded p-2 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                <i class="bi bi-people-fill fs-4" style="color: #198754"></i>
+              </div>
+              <BaseSkeleton width="50%" height="32px" class="mb-3" />
             </div>
-            <BaseSkeleton width="50%" height="32px" class="mb-3" />
+            <span class="text-muted fw-bold">សិស្សស្នើសុំទាំងអស់</span>
+            <hr>
+            <div class="d-flex justify-content-between align-items-center gap-4 mt-auto">
+              <div class="d-flex align-items-center gap-2"><span class="small text-muted">ប្រុស</span><BaseSkeleton width="50px" height="16px" /></div>
+              <div class="d-flex align-items-center gap-2"><span class="small text-muted">ស្រី</span><BaseSkeleton width="50px" height="16px" /></div>
+            </div>
           </div>
-          <span class="text-muted fw-bold">សិស្សស្នើសុំទាំងអស់</span>
-          <hr>
-          <div class="d-flex justify-content-between align-items-center gap-4 mt-auto">
-            <div class="d-flex align-items-center gap-2"><span class="small text-muted">ប្រុស</span><BaseSkeleton width="50px" height="16px" /></div>
-            <div class="d-flex align-items-center gap-2"><span class="small text-muted">ស្រី</span><BaseSkeleton width="50px" height="16px" /></div>
-          </div>
-        </div>
+       </router-link>
       </div>
       
       <!-- Card 2 -->
       <div class="col-12 col-md-3">
+        <router-link to="/all-shortlist" class="text-decoration-none">
         <BaseStatCard v-if="!loading"
           label="សិស្សជ្រើសសម្រាំង (Short list)" 
           :value="statsData?.shortlist?.passed?.total || 0" 
@@ -86,42 +89,46 @@
             <div class="d-flex align-items-center gap-2"><span class="small text-muted">ស្រី</span><BaseSkeleton width="50px" height="16px" /></div>
           </div>
         </div>
+        </router-link>
       </div>
 
       <!-- Card 3 -->
       <div class="col-12 col-md-3">
-        <BaseStatCard v-if="!loading"
-          label="សិស្សជ័យលាភី (Final Result)" 
-          :value="(statsData?.evaluation?.passed?.total) + (statsData?.reserved?.total) || 0" 
-          valueClass="text-dark"
-          icon="bi bi-trophy-fill"
-          iconBgClass="bg-primary-subtle"
-          iconColor="#0d6efd"
-          :stats="[
-            { label: 'ប្រុស', value: getGenderCount(statsData?.evaluation?.passed?.byGender, 'MALE') + 
-                                    getGenderCount(statsData?.reserved?.byGender, 'MALE') },
-            { label: 'ស្រី', value: getGenderCount(statsData?.evaluation?.passed?.byGender, 'FEMALE') + 
-                                    getGenderCount(statsData?.reserved?.byGender, 'FEMALE')}
-          ]"
-        />
-        <div v-else class="card border-0 shadow-sm rounded-4 p-3 h-100">
-          <div class="d-flex align-items-center justify-content-between mb-3 gap-3">
-            <div class="bg-primary-subtle rounded p-2 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
-              <i class="bi bi-trophy-fill fs-4" style="color: #0d6efd"></i>
+        <router-link to="/final-results" class="text-decoration-none">
+          <BaseStatCard v-if="!loading"
+            label="សិស្សជ័យលាភី (Final Result)" 
+            :value="(statsData?.evaluation?.passed?.total) + (statsData?.reserved?.total) || 0" 
+            valueClass="text-dark"
+            icon="bi bi-trophy-fill"
+            iconBgClass="bg-primary-subtle"
+            iconColor="#0d6efd"
+            :stats="[
+              { label: 'ប្រុស', value: getGenderCount(statsData?.evaluation?.passed?.byGender, 'MALE') + 
+                                      getGenderCount(statsData?.reserved?.byGender, 'MALE') },
+              { label: 'ស្រី', value: getGenderCount(statsData?.evaluation?.passed?.byGender, 'FEMALE') + 
+                                      getGenderCount(statsData?.reserved?.byGender, 'FEMALE')}
+            ]"
+          />
+          <div v-else class="card border-0 shadow-sm rounded-4 p-3 h-100">
+            <div class="d-flex align-items-center justify-content-between mb-3 gap-3">
+              <div class="bg-primary-subtle rounded p-2 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                <i class="bi bi-trophy-fill fs-4" style="color: #0d6efd"></i>
+              </div>
+              <BaseSkeleton width="50%" height="32px" class="mb-3" />
             </div>
-            <BaseSkeleton width="50%" height="32px" class="mb-3" />
+            <span class="text-muted fw-bold">សិស្សជ័យលាភី (Final Result)</span>
+            <hr>
+            <div class="d-flex justify-content-between align-items-center gap-4 mt-auto">
+              <div class="d-flex align-items-center gap-2"><span class="small text-muted">ប្រុស</span><BaseSkeleton width="50px" height="16px" /></div>
+              <div class="d-flex align-items-center gap-2"><span class="small text-muted">ស្រី</span><BaseSkeleton width="50px" height="16px" /></div>
+            </div>
           </div>
-          <span class="text-muted fw-bold">សិស្សជ័យលាភី (Final Result)</span>
-          <hr>
-          <div class="d-flex justify-content-between align-items-center gap-4 mt-auto">
-            <div class="d-flex align-items-center gap-2"><span class="small text-muted">ប្រុស</span><BaseSkeleton width="50px" height="16px" /></div>
-            <div class="d-flex align-items-center gap-2"><span class="small text-muted">ស្រី</span><BaseSkeleton width="50px" height="16px" /></div>
-          </div>
-        </div>
+        </router-link>
       </div>
 
       <!-- Card 4 -->
       <div class="col-12 col-md-3">
+        <router-link to="/blacklisted" class="text-decoration-none">
         <BaseStatCard v-if="!loading"
           label="សិស្សបញ្ជីខ្មៅ (Black List)" 
           :value="statsData?.blacklist?.total || 0" 
@@ -148,6 +155,7 @@
             <div class="d-flex align-items-center gap-2"><span class="small text-muted">ស្រី</span><BaseSkeleton width="50px" height="16px" /></div>
           </div>
         </div>
+        </router-link>
       </div>
     </div>
     
@@ -190,7 +198,7 @@
                 <span class="text-muted small fw-medium">ប្រុស</span>
               </div>
               <div class="d-flex align-items-center gap-1">
-                <span style="background-color: #357867; width: 10px; height: 10px; border-radius: 2px;"></span>
+                <span style="background-color: #2662d9; width: 10px; height: 10px; border-radius: 2px;"></span>
                 <span class="text-muted small fw-medium">ស្រី</span>
               </div>
             </div>
@@ -228,7 +236,7 @@
             :series1Color="'#f59e0b'"
             :series2Name="'ស្រី'"
             :series2Data="chartData.yearFemaleData"
-            :series2Color="'#357867'"
+            :series2Color="'#2662d9'"
           />
         </div>
       </div>
@@ -236,7 +244,7 @@
       <!-- Detailed Stats Title -->
       <div class="mb-4">
         <h5 class="fw-bold mb-1 d-flex align-items-center gap-2">
-          <i class="bi bi-bar-chart-fill text-success fs-4"></i> ស្ថិតិសិស្សតាមដំណាក់កាលនីមួយៗ
+          <i class="bi bi-bar-chart-fill text-primary fs-4"></i> ស្ថិតិសិស្សតាមដំណាក់កាលនីមួយៗ
         </h5>
         <p class="text-muted small ms-4 ps-2 mb-0">សិស្សទូទៅ វិទ្យាសាស្រ្តកុំព្យូទ័រ ANT-Form</p>
       </div>
@@ -251,28 +259,30 @@
         <div class="row g-3">
           <!-- Submission Cards -->
           <div class="col-12 col-md-4" v-for="(cardData, idx) in submissionsCardsList" :key="'sub-'+idx">
+            <router-link to="/all-application" class="text-decoration-none">
             <BaseStatCard v-if="!loading"
               :label="cardData.label" 
               :value="cardData.value()" 
               valueClass="text-dark"
               :icon="cardData.icon"
-              iconBgClass="bg-success bg-opacity-10"
-              iconColor="#198754"
+              iconBgClass="bg-primary-subtle bg-opacity-10"
+              iconColor="rgb(13, 110, 253)"
               :stats="cardData.stats()"
             />
             <div v-else class="card border-0 shadow-sm rounded-4 p-3 h-100">
               <div class="d-flex align-items-center mb-3 gap-3">
-                <div class="bg-success bg-opacity-10 rounded p-2 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
-                  <i :class="cardData.icon" class="fs-4" style="color: #198754"></i>
+                <div class="bg-primary-subtle bg-opacity-10 rounded p-2 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                  <i :class="cardData.icon" class="fs-4" style="color:  rgb(13, 110, 253)"></i>
                 </div>
                 <span class="text-muted fw-bold">{{ cardData.label }}</span>
               </div>
               <BaseSkeleton width="50%" height="32px" class="mb-3" />
               <div class="d-flex gap-4 mt-auto">
-                <div class="d-flex align-items-center gap-2"><span class="small text-muted">ជាប់</span><BaseSkeleton width="24px" height="16px" /></div>
-                <div class="d-flex align-items-center gap-2"><span class="small text-muted">ធ្លាក់</span><BaseSkeleton width="24px" height="16px" /></div>
+                  <div class="d-flex align-items-center gap-2"><span class="small text-muted">ជាប់</span><BaseSkeleton width="24px" height="16px" /></div>
+                  <div class="d-flex align-items-center gap-2"><span class="small text-muted">ធ្លាក់</span><BaseSkeleton width="24px" height="16px" /></div>
               </div>
             </div>
+          </router-link>
           </div>
         </div>
       </div>
@@ -287,19 +297,20 @@
         <div class="row g-3">
           <!-- Shortlist Cards -->
           <div class="col-12 col-md-4" v-for="(cardData, idx) in shortlistCardsList" :key="'short-'+idx">
+            <router-link to="/all-shortlist" class="text-decoration-none">
             <BaseStatCard v-if="!loading"
               :label="cardData.label" 
               :value="cardData.value()" 
               valueClass="text-dark"
               :icon="cardData.icon"
-              iconBgClass="bg-success bg-opacity-10"
-              iconColor="#198754"
+              iconBgClass="bg-primary-subtle bg-opacity-10"
+              iconColor=" rgb(13, 110, 253)"
               :stats="cardData.stats()"
             />
             <div v-else class="card border-0 shadow-sm rounded-4 p-3 h-100">
               <div class="d-flex align-items-center mb-3 gap-3">
-                <div class="bg-success bg-opacity-10 rounded p-2 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
-                  <i :class="cardData.icon" class="fs-4" style="color: #198754"></i>
+                <div class="bg-primary-subtle bg-opacity-10 rounded p-2 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                  <i :class="cardData.icon" class="fs-4" style="color:  rgb(13, 110, 253)"></i>
                 </div>
                 <span class="text-muted fw-bold">{{ cardData.label }}</span>
               </div>
@@ -309,6 +320,7 @@
                 <div class="d-flex align-items-center gap-2"><span class="small text-muted">ធ្លាក់</span><BaseSkeleton width="24px" height="16px" /></div>
               </div>
             </div>
+            </router-link>
           </div>
         </div>
       </div>
@@ -323,19 +335,20 @@
         <div class="row g-3">
           <!-- Final Cards -->
           <div class="col-12 col-md-4" v-for="(cardData, idx) in finalCardsList" :key="'final-'+idx">
+            <router-link to="/final-results" class="text-decoration-none">
             <BaseStatCard v-if="!loading"
               :label="cardData.label" 
               :value="cardData.value()" 
               valueClass="text-dark"
               :icon="cardData.icon"
-              iconBgClass="bg-success bg-opacity-10"
-              iconColor="#198754"
+              iconBgClass="bg-primary-subtle bg-opacity-10"
+              iconColor="rgb(13, 110, 253)"
               :stats="cardData.stats()"
             />
             <div v-else class="card border-0 shadow-sm rounded-4 p-3 h-100">
               <div class="d-flex align-items-center mb-3 gap-3">
-                <div class="bg-success bg-opacity-10 rounded p-2 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
-                  <i :class="cardData.icon" class="fs-4" style="color: #198754"></i>
+                <div class="bg-primary-subtle bg-opacity-10 rounded p-2 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                  <i :class="cardData.icon" class="fs-4" style="color: rgb(13, 110, 253)"></i>
                 </div>
                 <span class="text-muted fw-bold">{{ cardData.label }}</span>
               </div>
@@ -345,6 +358,7 @@
                 <div class="d-flex align-items-center gap-2"><span class="small text-muted">បម្រុង</span><BaseSkeleton width="24px" height="16px" /></div>
               </div>
             </div>
+            </router-link>
           </div>
         </div>
       </div>
@@ -359,6 +373,7 @@
         <div class="row g-3">
           <!-- Blacklist Cards -->
           <div class="col-12 col-md-4" v-for="(cardData, idx) in blacklistCardsList" :key="'blacklist-'+idx">
+            <router-link :to="`${cardData.route_name}`" class="text-decoration-none">
             <BaseStatCard v-if="!loading"
               :label="cardData.label" 
               :value="cardData.value()" 
@@ -381,6 +396,7 @@
                 <div class="d-flex align-items-center gap-2"><span class="small text-muted">ស្រី</span><BaseSkeleton width="24px" height="16px" /></div>
               </div>
             </div>
+            </router-link>
           </div>
         </div>
       </div>
@@ -616,6 +632,7 @@ const finalCardsList = computed(() => [
 const blacklistCardsList = computed(() => [
   {
     label: "សិស្សបញ្ជីខ្មៅទាំងអស់", icon: "bi bi-people-fill",
+    route_name: "/blacklisted",
     value: () => statsData.value?.blacklist?.total || 0,
     stats: () => [
       { label: 'ប្រុស', value: getGenderCount(statsData.value?.blacklist?.byGender, 'MALE') },
@@ -624,6 +641,7 @@ const blacklistCardsList = computed(() => [
   },
   {
     label: "សិស្សដែលបោះបង់", icon: "bi bi-people-fill",
+    route_name: "/drop-out",
     value: () => statsData.value?.dropout?.total || 0,
     stats: () => [
       { label: 'ប្រុស', value: getGenderCount(statsData.value?.dropout?.byGender, 'MALE') },

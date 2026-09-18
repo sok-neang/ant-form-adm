@@ -4,6 +4,7 @@
       :columns="columns"
       :rows="students"
       :pagination="pagination"
+      :total-student="total_student"
       :loading="loading"
       :show-actions="true"
       @page-change="handlePageChange"
@@ -82,9 +83,14 @@ import BaseInput from "@/components/ui/base/BaseInput.vue";
 import BaseSelect from "@/components/ui/base/BaseSelect.vue";
 import { shiftOptions, specializationOptions } from "@/constants/options";
 import { useDropout } from "@/composable/application/dropout/useDropout";
-
+import { useStatistic } from "@/composable/dashboard/useStatistic";
 const router = useRouter();
-
+const statistic = useStatistic();
+const total_student = ref(0);
+onMounted(async() => {
+  await statistic.getStatsUser();
+  total_student.value = statistic.statsData.value?.submissions?.total;
+})
 const selectedShift = ref("");
 const selectedSpecialization = ref("");
 const searchQuery = ref("");

@@ -1,8 +1,9 @@
 @import url("https://fonts.googleapis.com/css2?family=Hanuman:wght@100;300;400;700;900&family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap");
 
 :root {
-  --bs-primary: #357867 !important;
-  --bs-color-hover: #EEFFF7;
+  --bs-primary: #2662d9 !important;
+  --bs-color-hover: #f0f5ff;
+  --bs-secondary: #1F52BC !important;
   --font-primary: "Inter", "Hanuman", sans-serif;
   --bs-body-font-small-size: 1rem;
   --bs-body-header-font-size: 2rem;
@@ -641,8 +642,8 @@ textarea:focus {
 .top-card {
   background: linear-gradient(
     135deg,
-    #006E4C 0%,
-    #00D492 100%
+    #2662d9 0%,
+    #0098d4 100%
   );
   min-height: 250px;
 }
@@ -808,8 +809,8 @@ textarea:focus {
 }
 
 .score-good {
-  color: #357867 !important;
-  background-color: rgba(53, 120, 103, 0.12) !important;
+  color: var(--bs-primary, #2662d9) !important;
+  background-color: rgba(38, 98, 217, 0.12) !important;
 }
 .student-tab {
   border: 1px solid #e5e7eb;
@@ -822,14 +823,14 @@ textarea:focus {
 
 .student-tab:hover {
   background: #f8f9fa;
-  color: #357867;
+  color: var(--bs-primary, #2662d9);
 }
 
 .student-tab.active {
-  background: #357867;
+  background: var(--bs-primary, #2662d9);
   color: #fff;
-  border-color: #357867;
-  box-shadow: 0 3px 8px rgba(53, 120, 103, 0.18);
+  border-color: var(--bs-primary, #2662d9);
+  box-shadow: 0 3px 8px rgba(38, 98, 217, 0.18);
 }
 .status-options {
   display: flex;
@@ -1253,18 +1254,18 @@ textarea:focus {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1.5px solid #2e7d6b !important;
+  border: 1.5px solid var(--bs-primary) !important;
   border-radius: 8px !important;
   background-color: #ffffff !important;
-  color: #2e7d6b !important;
+  color: var(--bs-primary) !important;
   font-size: 0.95rem !important;
   transition: all 0.2s ease;
 }
 
 .btn-action-outline:hover,
 .action-btn.action-view:hover {
-  border-color: #2e7d6b !important;
-  color: #2e7d6b !important;
-  background-color: #e8f5f1 !important;
+  border-color: var(--bs-primary) !important;
+  color: var(--bs-primary) !important;
+  background-color: var(--bs-color-hover) !important;
   transform: translateY(-1px);
 }

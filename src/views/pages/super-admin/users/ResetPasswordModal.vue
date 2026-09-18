@@ -10,10 +10,10 @@
     <template #header>
       <div class="d-flex align-items-center gap-3">
         <div
-          class="d-flex align-items-center justify-content-center rounded-3 bg-success-subtle"
+          class="d-flex align-items-center justify-content-center rounded-3 bg-primary-subtle"
           style="width: 44px; height: 44px;"
         >
-          <i class="bi bi-lock-fill fs-4 text-success"></i>
+          <i class="bi bi-lock-fill fs-4 text-primary"></i>
         </div>
 
         <div>

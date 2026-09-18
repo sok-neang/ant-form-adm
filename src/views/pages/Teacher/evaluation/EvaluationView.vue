@@ -484,7 +484,7 @@ onMounted(() => {
   right: 0;
   width: 100%;
   height: 3px;
-  background-color: #2e7d6b;
+  background-color: var(--bs-primary, #2662d9);
   border-radius: 3px 3px 0 0;
 }
 
@@ -509,8 +509,8 @@ onMounted(() => {
 }
 
 .form-control-score:focus {
-  border-color: #2e7d6b;
-  box-shadow: 0 0 0 3px rgba(46, 125, 107, 0.15);
+  border-color: var(--bs-primary, #2662d9);
+  box-shadow: 0 0 0 3px rgba(38, 98, 217, 0.15);
 }
 
 .form-control-comment {
@@ -525,8 +525,8 @@ onMounted(() => {
 }
 
 .form-control-comment:focus {
-  border-color: #2e7d6b;
-  box-shadow: 0 0 0 3px rgba(46, 125, 107, 0.15);
+  border-color: var(--bs-primary, #2662d9);
+  box-shadow: 0 0 0 3px rgba(38, 98, 217, 0.15);
 }
 
 /* QUICK TAG PILLS */
@@ -566,7 +566,7 @@ onMounted(() => {
 
 /* SUBMIT BUTTON */
 .btn-submit-eval {
-  background-color: #2e7d6b;
+  background-color: var(--bs-primary, #2662d9);
   border: none;
   height: 52px;
   font-size: 1.05rem;
@@ -574,14 +574,14 @@ onMounted(() => {
 }
 
 .btn-submit-eval:hover:not(:disabled) {
-  background-color: #246456;
-  box-shadow: 0 4px 12px rgba(46, 125, 107, 0.25);
+  background-color: var(--bs-secondary, #1f52bc);
+  box-shadow: 0 4px 12px rgba(38, 98, 217, 0.25);
   transform: translateY(-1px);
 }
 
 .btn-submit-eval:disabled {
   opacity: 0.55;
-  background-color: #87bea6;
+  background-color: #93b5ee;
   border-color: transparent;
   cursor: not-allowed;
   transform: none;
@@ -597,7 +597,7 @@ onMounted(() => {
 }
 
 .bg-tech-bar {
-  background-color: #2e7d6b !important;
+  background-color: var(--bs-primary, #2662d9) !important;
   border-radius: 50px;
   transition: width 0.4s ease;
 }
@@ -624,13 +624,13 @@ onMounted(() => {
 }
 
 .banner-title {
-  color: #1b4332;
+  color: #1e3a8a;
   font-size: 1.15rem;
   letter-spacing: -0.2px;
 }
 
 .banner-score {
-  color: #143d2b;
+  color: #0f172a;
   font-size: 2.75rem;
   letter-spacing: -0.5px;
 }

@@ -4,6 +4,7 @@
     :columns="columns"
     :rows="students"
     :pagination="pagination"
+    :total-student="total_student"
     :loading="loading"
     :show-actions="true"
     @page-change="handlePageChange"
@@ -62,15 +63,28 @@
           </BaseButton>
         </div>
     </template>
+    <!-- Group Column -->
+    <template #cell-group="{ row }">
+      <span
+        v-if="row.group_number"
+        class="badge rounded-pill px-3 py-1 fw-semibold"
+        style="color: var(--bs-primary, #2662d9); background-color: rgba(38, 98, 217, 0.12);"
+      >
+        {{ row.group }}
+      </span>
+      <span v-else class="text-muted">
+        —
+      </span>
+    </template>
     <template #cell-skill="{ row }">
       <span
         class="badge rounded-pill px-3 py-2"
         :style="{
-          color: row.skill === 'Web Development' ? '#357867' : '#6f42c1',
+          color: row.skill === 'Web Development' ? '#0d6efd' : '#f59e0b',
           backgroundColor:
             row.skill === 'Web Development'
-              ? 'rgba(53, 120, 103, 0.12)'
-              : 'rgba(111, 66, 193, 0.12)',
+              ? 'rgba(13, 110, 253, 0.12)'
+              : 'rgba(245, 158, 11, 0.12)',
         }"
       >
         {{ row.skill }}
@@ -160,11 +174,17 @@ import BaseButton from "@/components/ui/base/BaseButton.vue";
 import ExportModal from "@/components/ui/ExportModal.vue";
 import { shiftOptions, specializationOptions, scoreLevelOptions } from "@/constants/options";
 import { useFailedShortlist } from "@/composable/application/short list/useFailedShortlist";
-
+import { useStatistic } from "@/composable/dashboard/useStatistic";
 const router = useRouter();
 
 const isExportModalOpen = ref(false);
+const statistic = useStatistic();
+const total_student = ref(0);
 
+onMounted(async() => {
+  await statistic.getStatsUser();
+  total_student.value = statistic.statsData.value.shortlist.passed.total;
+})
 // Filters
 const selectedScoreLevel = ref("all");
 const selectedShift = ref("");
@@ -186,7 +206,7 @@ const columns = [
   { key: "seq_num", label: "#" },
   { key: "name", label: "ឈ្មោះសិស្ស" },
   { key: "gender", label: "ភេទ" },
-  { key: "year", label: "និស្សិតឆ្នាំ" },
+  { key: "year", label: "សិស្សឆ្នាំទី" },
   { key: "skill", label: "ជំនាញ" },
   { key: "study_shift", label: "វេនសិក្សា" },
   { key: "score_technology", label: "C++" },
@@ -269,6 +289,6 @@ onMounted(() => {
 }
 
 .score-good {
-  color: #357867 !important;
-  background-color: rgba(53, 120, 103, 0.12) !important;
+  color: var(--bs-primary, #2662d9) !important;
+  background-color: rgba(38, 98, 217, 0.12) !important;
 }</style>

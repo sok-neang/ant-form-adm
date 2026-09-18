@@ -43,7 +43,7 @@
       </div>
 
       <!-- BUTTON -->
-      <BaseButton type="button" variant="primary" custom-class="w-100 py-2 bg-primary mt-4" @click="goToVerifyCode">
+      <BaseButton type="button" variant="bg-primary" custom-class="w-100 py-2 bg-primary mt-4" @click="goToVerifyCode">
         បន្ត
         <template #icon>
           <i class="bi bi-arrow-right"></i>

@@ -290,6 +290,11 @@ const sidebarMenu = computed(() => {
                     to: "/all-application/failed",
                     icon: "bi bi-file-earmark-x",
                 },
+                {
+                    label: "ទំនាក់ទំនង",
+                    to: "/all-application/contacted",
+                    icon: "bi bi-telegram",
+                },
             ],
         },
         {
@@ -356,6 +361,12 @@ const sidebarMenu = computed(() => {
             icon: "bi bi-mortarboard-fill",
             roles: ["TEACHER"],
         },
+        {
+            label: "កំណត់ក្រុម",
+            to: "/define-group",
+            icon: "bi bi-people",
+            roles: ["ADMIN", "SUPER_ADMIN"],
+        }
     ];
 
     return menus.filter(item => {

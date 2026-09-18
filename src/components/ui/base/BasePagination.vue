@@ -9,7 +9,7 @@
       <strong>{{ endItem }}</strong>
       នៃ
       <strong>{{ total }}</strong>
-      ទិន្នន័យ
+      (ទិន្នន័យសរុប {{ totalStudent }})
     </div>
 
     <!-- Pagination -->
@@ -62,11 +62,15 @@ const props = defineProps({
     type: Object,
     required: true,
   },
+  totalStudent: {
+    type: Number,
+    default: 0,
+  },
 });
 
 const currentPage = defineModel("page", {
   type: Number,
-  default: 1,
+  default: 1
 });
 
 /**

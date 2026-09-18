@@ -40,13 +40,13 @@
     <!-- 1. SUCCESS VIEW -->
     <div v-if="isSuccess" class="export-success-container d-flex flex-column align-items-center text-center py-4">
       <!-- Success Checkmark Badge -->
-      <div class="export-success-icon-box border border-success-subtle bg-success-subtle d-flex align-items-center justify-content-center mb-3">
+      <div class="export-success-icon-box border border-primary-subtle bg-primary-subtle d-flex align-items-center justify-content-center mb-3">
         <svg
           width="36"
           height="36"
           viewBox="0 0 24 24"
           fill="none"
-          stroke="#2e7d6b"
+          stroke="#2662d9"
           stroke-width="2.5"
           stroke-linecap="round"
           stroke-linejoin="round"
@@ -64,7 +64,7 @@
           ទិន្នន័យបេក្ខជនជ័យលាភី <span class="fw-bold export-success-highlight">សរុប {{ finalTotalCount }} នាក់</span> (ជាប់ {{ passCount }} នាក់, បម្រុង {{ effectiveReservedCount }} នាក់) ត្រូវបានទាញយកដោយជោគជ័យ។
         </template>
         <template v-else>
-          ទិន្នន័យ <span class="fw-bold export-success-highlight">Group {{ selectedGroupIndex }}: {{ activeRangeText }}</span> ({{ activeRowCount }} ជួរ) ត្រូវបានទាញយកដោយជោគជ័យ។
+          ទិន្នន័យ <span class="fw-bold export-success-highlight">{{ successGroupText }}</span> ({{ activeRowCount }} នាក់) ត្រូវបានទាញយកដោយជោគជ័យ។
         </template>
       </p>
 
@@ -93,7 +93,7 @@
             <div class="col-3">
               <div class="export-stat-card">
                 <div class="export-stat-label">{{ selectedStatus === 'final' ? 'ប្រភេទ' : 'ក្រុម' }}</div>
-                <div class="export-stat-value text-truncate">{{ selectedStatus === 'final' ? 'ជាប់ & បម្រុង' : `G${selectedGroupIndex}` }}</div>
+                <div class="export-stat-value text-truncate">{{ selectedStatus === 'final' ? 'ជាប់ & បម្រុង' : selectedGroupBadgeText }}</div>
               </div>
             </div>
           </div>
@@ -115,7 +115,7 @@
           >
             <div class="d-flex align-items-center justify-content-between mb-2">
               <div class="d-flex align-items-center gap-2">
-                <div class="stat-icon-circle bg-success-subtle text-success">
+                <div class="stat-icon-circle bg-primary-subtle text-primary">
                   <i class="bi bi-award-fill"></i>
                 </div>
                 <div>
@@ -124,8 +124,8 @@
                 </div>
               </div>
               <div class="d-flex align-items-center gap-1">
-                <span v-if="isLoadingCounts" class="spinner-border spinner-border-sm text-success me-1" role="status"></span>
-                <span v-else class="badge bg-success-subtle text-success border border-success-subtle fw-bold px-2.5 py-1">
+                <span v-if="isLoadingCounts" class="spinner-border spinner-border-sm text-primary me-1" role="status"></span>
+                <span v-else class="badge bg-primary-subtle text-primary border border-primary-subtle fw-bold px-2.5 py-1">
                   សរុប {{ finalTotalCount }} នាក់
                 </span>
               </div>
@@ -135,10 +135,10 @@
               <div class="col-6">
                 <div class="p-2 rounded-2 bg-white border d-flex align-items-center justify-content-between">
                   <div class="d-flex align-items-center gap-1.5">
-                    <span class="status-indicator bg-success me-2"></span>
+                    <span class="status-indicator bg-primary me-2"></span>
                     <span class="small fw-semibold text-muted">ជាប់</span>
                   </div>
-                  <span class="fw-bold text-success small">{{ passCount }} នាក់</span>
+                  <span class="fw-bold text-primary small">{{ passCount }} នាក់</span>
                 </div>
               </div>
               <div class="col-6">
@@ -160,7 +160,7 @@
           >
             <div class="d-flex align-items-center justify-content-between mb-2">
               <div class="d-flex align-items-center gap-2">
-                <div class="stat-icon-circle bg-success-subtle text-success">
+                <div class="stat-icon-circle bg-primary-subtle text-primary">
                   <i class="bi bi-people-fill"></i>
                 </div>
                 <div>
@@ -169,26 +169,45 @@
                 </div>
               </div>
               <div class="d-flex align-items-center gap-1">
-                <span v-if="isLoadingCounts" class="spinner-border spinner-border-sm text-success me-1" role="status"></span>
-                <span v-else class="badge bg-success-subtle text-success border border-success-subtle fw-bold px-2.5 py-1">
+                <span v-if="isLoadingCounts" class="spinner-border spinner-border-sm text-primary me-1" role="status"></span>
+                <span v-else class="badge bg-primary-subtle text-primary border border-primary-subtle fw-bold px-2.5 py-1">
                   {{ activeTotalCount }} នាក់
                 </span>
               </div>
             </div>
             <div class="d-flex align-items-center justify-content-between bg-white px-3 py-2 rounded-2 border small text-muted">
-              <span>ចែកជា <strong class="text-dark">{{ computedGroups.length }}</strong> ក្រុម</span>
-              <span>មធ្យម <strong class="text-dark">{{ groupSize }}</strong> នាក់/ក្រុម</span>
+              <span>ចែកជា <strong class="text-dark">{{ totalGroupCount }}</strong> ក្រុម</span>
+              <span>មធ្យម <strong class="text-dark">{{ averageGroupSize }}</strong> នាក់/ក្រុម</span>
             </div>
           </div>
 
           <!-- Shortlist Mode: Group Config & Group Selector -->
           <template v-if="selectedStatus === 'shortlist'">
+            <!-- Group Selector Dropdown -->
+            <div>
+              <label class="form-label fw-semibold export-label mb-1.5 d-flex align-items-center justify-content-between">
+                <span><i class="bi bi-people text-primary me-1"></i>ជ្រើសរើសក្រុមទាញយក</span>
+                <span class="text-muted fw-normal small">
+                  មាន <strong class="text-primary">{{ totalGroupCount }}</strong> ក្រុម
+                </span>
+              </label>
+              <BaseSelect
+                v-model="selectedGroup"
+                :options="groupSelectOptions"
+                option-label="label"
+                option-value="value"
+                placeholder="ជ្រើសរើសក្រុម"
+                :clearable="false"
+                :searchable="false"
+              />
+            </div>
+
             <!-- Group Size Input -->
             <div>
               <label class="form-label fw-semibold export-label mb-1.5 d-flex align-items-center justify-content-between">
-                <span><i class="bi bi-layers text-success me-1"></i>ចំនួនក្នុងមួយក្រុម</span>
+                <span><i class="bi bi-layers text-primary me-1"></i>ចំនួនក្នុងមួយក្រុម</span>
                 <span class="text-muted fw-normal small">
-                  សរុប៖ <strong class="text-success">{{ activeTotalCount }}</strong> នាក់
+                  សរុប៖ <strong class="text-primary">{{ activeTotalCount }}</strong> នាក់
                 </span>
               </label>
               <div class="position-relative">
@@ -202,32 +221,13 @@
                 />
               </div>
             </div>
-
-            <!-- Group Selector Dropdown -->
-            <div>
-              <label class="form-label fw-semibold export-label mb-1.5 d-flex align-items-center justify-content-between">
-                <span><i class="bi bi-people text-success me-1"></i>ជ្រើសរើសក្រុមទាញយក</span>
-                <span class="text-muted fw-normal small">
-                  មាន <strong class="text-success">{{ computedGroups.length }}</strong> ក្រុម
-                </span>
-              </label>
-              <BaseSelect
-                v-model="selectedGroupIndex"
-                :options="groupOptions"
-                option-label="label"
-                option-value="value"
-                placeholder="ជ្រើសរើសក្រុម"
-                :clearable="false"
-                :searchable="false"
-              />
-            </div>
           </template>
 
           <!-- Final Mode: Optional Reserve Limit -->
           <template v-else>
             <div>
               <label class="form-label fw-semibold export-label mb-1.5 d-flex align-items-center justify-content-between">
-                <span><i class="bi bi-sliders text-success me-2"></i>កំណត់ចំនួនបេក្ខជនបម្រុង</span>
+                <span><i class="bi bi-sliders text-primary me-2"></i>កំណត់ចំនួនបេក្ខជនបម្រុង</span>
                 <span class="text-muted fw-normal small">
                   បម្រុងសរុប: <strong class="text-warning-emphasis">{{ reservedCount }}</strong> នាក់
                 </span>
@@ -260,7 +260,7 @@
                       ជាប់ {{ passCount }} + បម្រុង {{ effectiveReservedCount }}
                     </template>
                     <template v-else>
-                      Group {{ selectedGroupIndex }} · ជួរ {{ activeRangeText }}
+                      {{ activeGroupSummarySubtitle }}
                     </template>
                   </div>
                 </div>
@@ -270,7 +270,7 @@
                   {{ selectedStatus === 'final' ? finalTotalCount : activeRowCount }}
                 </div>
                 <div class="summary-unit text-muted">
-                  {{ selectedStatus === 'final' ? 'នាក់' : 'ជួរ' }}
+                  នាក់
                 </div>
               </div>
             </div>
@@ -284,7 +284,7 @@
           <!-- Filter Selects Card -->
           <div class="filter-box-card p-3 rounded-3 border">
             <div class="small fw-bold text-dark mb-2.5 d-flex align-items-center gap-1.5">
-              <i class="bi bi-funnel text-success me-2"></i>
+              <i class="bi bi-funnel text-primary me-2"></i>
               <span>លក្ខខណ្ឌតម្រងទិន្នន័យ</span>
             </div>
             <div class="row g-2">
@@ -330,7 +330,7 @@
           <!-- Course Requirement Dates (Shortlist Only) -->
           <div v-if="selectedStatus === 'shortlist'" class="date-box-card p-3 rounded-3 border">
             <div class="small fw-bold text-dark mb-2.5 d-flex align-items-center justify-content-between">
-              <span><i class="bi bi-calendar-range text-success me-2"></i>កាលបរិច្ឆេទចូលរៀន ២សប្ដាហ៍</span>
+              <span><i class="bi bi-calendar-range text-primary me-2"></i>កាលបរិច្ឆេទចូលរៀន ២សប្ដាហ៍</span>
               <span class="badge bg-secondary-subtle text-secondary fw-normal">2 Weeks</span>
             </div>
             <div class="row g-2">
@@ -367,7 +367,7 @@
           <!-- Document Export Date -->
           <div>
             <label class="form-label fw-semibold export-label mb-1.5 d-flex align-items-center justify-content-between">
-              <span><i class="bi bi-calendar-event text-success me-2"></i>កាលបរិច្ឆេទលើកឯកសារ</span>
+              <span><i class="bi bi-calendar-event text-primary me-2"></i>កាលបរិច្ឆេទលើកឯកសារ</span>
               <span class="text-muted fw-normal small">ថ្ងៃទាញយក / ហត្ថលេខា</span>
             </label>
             <el-date-picker
@@ -385,7 +385,7 @@
           <!-- File Format Selection (Modern Interactive Cards) -->
           <div>
             <label class="form-label fw-semibold export-label mb-1.5">
-              <i class="bi bi-file-earmark-text text-success me-2"></i>ទម្រង់ឯកសារ (File Format)
+              <i class="bi bi-file-earmark-text text-primary me-2"></i>ទម្រង់ឯកសារ (File Format)
             </label>
             <div class="row g-2">
               <!-- PDF Card -->
@@ -403,7 +403,7 @@
                       <span class="d-block fw-semibold small text-dark">PDF</span>
                     </div>
                   </div>
-                  <i class="bi" :class="selectedFormat === 'pdf' ? 'bi-check-circle-fill text-success fs-5 me-2' : 'bi-circle text-muted fs-5 me-2'"></i>
+                  <i class="bi" :class="selectedFormat === 'pdf' ? 'bi-check-circle-fill text-primary fs-5 me-2' : 'bi-circle text-muted fs-5 me-2'"></i>
                 </div>
               </div>
 
@@ -422,7 +422,7 @@
                       <span class="d-block fw-semibold small text-dark">Word (.docx)</span>
                     </div>
                   </div>
-                  <i class="bi" :class="selectedFormat === 'docx' ? 'bi-check-circle-fill text-success fs-5 me-2' : 'bi-circle text-muted fs-5 me-2'"></i>
+                  <i class="bi" :class="selectedFormat === 'docx' ? 'bi-check-circle-fill text-primary fs-5 me-2' : 'bi-circle text-muted fs-5 me-2'"></i>
                 </div>
               </div>
             </div>
@@ -447,7 +447,7 @@
       <!-- Normal Form Actions -->
       <div v-else class="d-flex align-items-center justify-content-between w-100 pt-1">
         <div class="text-muted small d-none d-sm-block">
-          <i class="bi bi-shield-check text-success me-1"></i>ទិន្នន័យត្រូវបានទាញយកដោយស្វ័យប្រវត្តិតាមតម្រង
+          <i class="bi bi-shield-check text-primary me-1"></i>ទិន្នន័យត្រូវបានទាញយកដោយស្វ័យប្រវត្តិតាមតម្រង
         </div>
 
         <div class="d-flex align-items-center gap-2 ms-auto">
@@ -484,6 +484,7 @@ import BaseModal from '@/components/ui/base/BaseModal.vue';
 import BaseSelect from '@/components/ui/base/BaseSelect.vue';
 import { downloadExportFile } from '@/services/export.service';
 import submissionService from '@/services/submission.service';
+import groupService from '@/services/group.service';
 import { useAppToast } from '@/composable/useAppToast';
 
 const props = defineProps({
@@ -505,6 +506,10 @@ const props = defineProps({
   },
   initialShift: {
     type: String,
+    default: '',
+  },
+  initialGroup: {
+    type: [String, Number],
     default: '',
   },
   initialStatus: {
@@ -572,7 +577,10 @@ const resolveInitialStatus = () => {
 
 const endDate = ref('');
 const groupSize = ref(20);
+const selectedGroup = ref(props.initialGroup ? String(props.initialGroup) : '');
 const selectedGroupIndex = ref(1);
+const realGroups = ref([]);
+const groupSetting = ref(null);
 const selectedProgram = ref(props.initialProgram || '');
 const selectedShift = ref(props.initialShift || '');
 const selectedStatus = ref(resolveInitialStatus());
@@ -715,6 +723,20 @@ const activeTotalCount = computed(() => {
   return shortlistCount.value;
 });
 
+// Fetch group settings from /settings/groups
+const fetchGroupSettings = async () => {
+  try {
+    const res = await groupService.getGroupSettings();
+    if (res.data?.success && res.data?.data) {
+      const data = res.data.data;
+      groupSetting.value = data.setting || null;
+      realGroups.value = Array.isArray(data.groups) ? data.groups : [];
+    }
+  } catch (err) {
+    console.warn('Error fetching group settings for export:', err);
+  }
+};
+
 // Reset / sync state when modal opens
 watch(
   () => isOpenModel.value,
@@ -724,6 +746,7 @@ watch(
       selectedProgram.value = props.initialProgram || '';
       selectedShift.value = props.initialShift || '';
       selectedStatus.value = resolveInitialStatus();
+      selectedGroup.value = props.initialGroup ? String(props.initialGroup) : '';
       selectedGroupIndex.value = 1;
       if (!groupSize.value || groupSize.value < 1) groupSize.value = 20;
       exportDate.value = today;
@@ -742,12 +765,20 @@ watch(
         shortlistCount.value = 0;
         reservedCount.value = 0;
       }
+      fetchGroupSettings();
       fetchTotalCounts();
     }
   }
 );
 
-// Dynamic Group Generation dividing the actual available total students equally (Shortlist)
+watch(
+  () => props.initialGroup,
+  (val) => {
+    selectedGroup.value = val ? String(val) : '';
+  }
+);
+
+// Dynamic Group Generation dividing the actual available total students equally (Shortlist fallback)
 const computedGroups = computed(() => {
   const size = Math.max(1, Number(groupSize.value) || 20);
   const total = activeTotalCount.value;
@@ -781,33 +812,87 @@ const computedGroups = computed(() => {
   return groups;
 });
 
-// Options formatted for BaseSelect dropdown
-const groupOptions = computed(() => {
-  return computedGroups.value.map((grp) => ({
-    value: grp.index,
-    label: `ក្រុមទី ${grp.index} (G${grp.index}: ជួរ ${grp.rangeText})`,
-  }));
+const totalGroupCount = computed(() => {
+  if (realGroups.value.length > 0) return realGroups.value.length;
+  if (groupSetting.value?.numberOfGroups) return Number(groupSetting.value.numberOfGroups);
+  return computedGroups.value.length;
 });
 
-// Clamp selected group index when groups change
-watch(computedGroups, (newGroups) => {
-  if (newGroups.length > 0 && selectedGroupIndex.value > newGroups.length) {
-    selectedGroupIndex.value = 1;
+const averageGroupSize = computed(() => {
+  if (realGroups.value.length > 0 && activeTotalCount.value > 0) {
+    return Math.round(activeTotalCount.value / realGroups.value.length);
   }
+  return Number(groupSize.value) || 20;
+});
+
+// Options formatted for BaseSelect dropdown
+const groupSelectOptions = computed(() => {
+  const options = [
+    { value: '', label: 'ក្រុមទាំងអស់ (All Groups)', count: activeTotalCount.value },
+  ];
+
+  if (realGroups.value.length > 0) {
+    realGroups.value.forEach((g) => {
+      options.push({
+        value: String(g.group),
+        label: g.studentCount ? `ក្រុមទី ${g.group} (${g.studentCount} នាក់)` : `ក្រុមទី ${g.group}`,
+        count: Number(g.studentCount) || 0,
+      });
+    });
+  } else if (groupSetting.value?.numberOfGroups) {
+    const total = Number(groupSetting.value.numberOfGroups);
+    for (let i = 1; i <= total; i++) {
+      options.push({
+        value: String(i),
+        label: `ក្រុមទី ${i}`,
+        count: 0,
+      });
+    }
+  } else if (computedGroups.value.length > 0) {
+    computedGroups.value.forEach((grp) => {
+      options.push({
+        value: String(grp.index),
+        label: `ក្រុមទី ${grp.index} (${grp.count} នាក់ · ជួរ ${grp.rangeText})`,
+        count: grp.count,
+      });
+    });
+  }
+
+  return options;
 });
 
 // Active group details
-const activeRangeText = computed(() => {
-  const grp = computedGroups.value.find((g) => g.index === selectedGroupIndex.value);
-  if (grp) return grp.rangeText;
-  const size = Number(groupSize.value) || 20;
-  return `1–${size}`;
+const activeGroupSummarySubtitle = computed(() => {
+  if (!selectedGroup.value) {
+    return `គ្រប់ក្រុមទាំងអស់ (${totalGroupCount.value} ក្រុម)`;
+  }
+  const matched = groupSelectOptions.value.find((o) => o.value === String(selectedGroup.value));
+  return matched ? matched.label : `ក្រុមទី ${selectedGroup.value}`;
 });
 
 const activeRowCount = computed(() => {
-  const grp = computedGroups.value.find((g) => g.index === selectedGroupIndex.value);
+  if (!selectedGroup.value) {
+    return activeTotalCount.value;
+  }
+  const matched = groupSelectOptions.value.find((o) => o.value === String(selectedGroup.value));
+  if (matched && matched.count) {
+    return matched.count;
+  }
+  const grp = computedGroups.value.find((g) => String(g.index) === String(selectedGroup.value));
   if (grp) return grp.count;
   return Math.min(Number(groupSize.value) || 20, activeTotalCount.value);
+});
+
+const successGroupText = computed(() => {
+  if (!selectedGroup.value) {
+    return 'គ្រប់ក្រុមទាំងអស់';
+  }
+  return `ក្រុមទី ${selectedGroup.value}`;
+});
+
+const selectedGroupBadgeText = computed(() => {
+  if (!selectedGroup.value) return 'គ្រប់ក្រុម';
+  return `ក្រុម ${selectedGroup.value}`;
 });
 
 const handleClose = () => {
@@ -835,8 +920,16 @@ const handleDownload = async () => {
     };
 
     if (targetType === 'shortlist') {
-      payload.groupSize = Number(groupSize.value) || 20;
-      payload.groupIndex = Number(selectedGroupIndex.value) || 1;
+      if (selectedGroup.value) {
+        payload.group = selectedGroup.value;
+        payload.groupNumber = Number(selectedGroup.value);
+        payload.groupIndex = Number(selectedGroup.value);
+      } else {
+        payload.sortBy = 'group';
+      }
+      if (groupSize.value) {
+        payload.groupSize = Number(groupSize.value);
+      }
       if (startDate.value) payload.startDate = startDate.value;
       if (endDate.value) payload.endDate = endDate.value;
     }
@@ -867,14 +960,14 @@ const handleDownload = async () => {
 .export-icon-box {
   width: 42px;
   height: 42px;
-  background: linear-gradient(135deg, #e8f5f1 0%, #d5eee6 100%);
+  background: linear-gradient(135deg, #f7f9fa 0%, #d8e5f9 100%);
   border-radius: 12px;
-  color: #2e7d6b;
+  color: var(--bs-primary);
   font-size: 20px;
 }
 
 .export-modal-title {
-  color: #1e3a34;
+  color: #1e293b;
   font-size: 1.12rem;
   letter-spacing: -0.2px;
 }
@@ -905,13 +998,13 @@ const handleDownload = async () => {
    BANNER CARDS
    ==================================== */
 .export-stat-card-banner {
-  background: linear-gradient(135deg, #f8faf9 0%, #f0f7f5 100%);
-  border: 1px solid #d4ede4 !important;
+  background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%);
+  border: 1px solid #bfdbfe !important;
 }
 
 .export-stat-banner-final {
-    background: linear-gradient(135deg, #f8faf9 0%, #f0f7f5 100%);
-    border: 1px solid #d4ede4 !important;
+  background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%);
+  border: 1px solid #bfdbfe !important;
 }
 
 .stat-icon-circle {
@@ -962,8 +1055,8 @@ const handleDownload = async () => {
 }
 
 .export-input:focus {
-  border-color: #2e7d6b;
-  box-shadow: 0 0 0 3px rgba(46, 125, 107, 0.12);
+  border-color: var(--bs-primary, #2662d9);
+  box-shadow: 0 0 0 3px rgba(38, 98, 217, 0.12);
 }
 
 /* ====================================
@@ -980,7 +1073,7 @@ const handleDownload = async () => {
   border-radius: 10px;
   background-color: #ffffff;
   border: 1px solid #e2e8f0;
-  color: #2e7d6b;
+  color: var(--bs-primary, #2662d9);
   font-size: 18px;
 }
 
@@ -996,7 +1089,7 @@ const handleDownload = async () => {
 .summary-count {
   font-size: 1.35rem;
   line-height: 1;
-  color: #2e7d6b;
+  color: var(--bs-primary, #2662d9);
 }
 
 .summary-unit {
@@ -1020,8 +1113,8 @@ const handleDownload = async () => {
 }
 
 .format-card.active {
-  border-color: #2e7d6b !important;
-  background-color: #f0fdf9;
+  border-color: var(--bs-primary, #2662d9) !important;
+  background-color: #eff6ff;
 }
 
 .format-card-icon {
@@ -1055,7 +1148,7 @@ const handleDownload = async () => {
 }
 
 .export-success-highlight {
-  color: #2e7d6b;
+  color: var(--bs-primary, #2662d9);
 }
 
 .export-stat-card {
@@ -1100,18 +1193,18 @@ const handleDownload = async () => {
   height: 42px;
   border: none;
   border-radius: 10px;
-  background: linear-gradient(135deg, #2e7d6b 0%, #24584b 100%);
+  background: linear-gradient(135deg, #2662d9 0%, #1f52bc 100%);
   color: #ffffff;
   font-weight: 600;
   font-size: 0.9rem;
-  box-shadow: 0 4px 12px rgba(46, 125, 107, 0.25);
+  box-shadow: 0 4px 12px rgba(38, 98, 217, 0.25);
   transition: all 0.2s ease;
 }
 
 .btn-export-submit:hover {
-  background: linear-gradient(135deg, #256b5b 0%, #1e4b40 100%);
+  background: linear-gradient(135deg, #1f52bc 0%, #17429d 100%);
   color: #ffffff;
-  box-shadow: 0 6px 16px rgba(46, 125, 107, 0.35);
+  box-shadow: 0 6px 16px rgba(38, 98, 217, 0.35);
   transform: translateY(-1px);
 }
 
@@ -1128,11 +1221,11 @@ const handleDownload = async () => {
 /* Unscoped styles for Element Plus date picker */
 .export-date-popper,
 .export-date-picker {
-  --el-color-primary: #2e7d6b !important;
-  --el-input-focus-border-color: #2e7d6b !important;
-  --el-input-hover-border-color: #2e7d6b !important;
-  --el-datepicker-active-color: #2e7d6b !important;
-  --el-datepicker-hover-text-color: #2e7d6b !important;
+  --el-color-primary: #2662d9 !important;
+  --el-input-focus-border-color: #2662d9 !important;
+  --el-input-hover-border-color: #2662d9 !important;
+  --el-datepicker-active-color: #2662d9 !important;
+  --el-datepicker-hover-text-color: #2662d9 !important;
 }
 
 .export-date-popper {
@@ -1142,26 +1235,26 @@ const handleDownload = async () => {
 }
 
 .export-date-popper .el-date-table td.current:not(.disabled) .el-date-table-cell__text {
-  background-color: #2e7d6b !important;
+  background-color: #2662d9 !important;
   color: #ffffff !important;
   font-weight: 700 !important;
   border-radius: 50% !important;
 }
 
 .export-date-popper .el-date-table td.today .el-date-table-cell__text {
-  color: #2e7d6b !important;
+  color: #2662d9 !important;
   font-weight: 700 !important;
 }
 
 .export-date-popper .el-date-table td.available:hover {
-  color: #2e7d6b !important;
+  color: #2662d9 !important;
 }
 
 .export-date-picker .el-input__wrapper.is-focus,
 .export-date-picker .el-input__wrapper:focus,
 .export-date-picker .el-input__wrapper:focus-within {
-  border-color: #2e7d6b !important;
-  box-shadow: 0 0 0 1px #2e7d6b inset, 0 0 0 3px rgba(46, 125, 107, 0.12) !important;
+  border-color: #2662d9 !important;
+  box-shadow: 0 0 0 1px #2662d9 inset, 0 0 0 3px rgba(38, 98, 217, 0.12) !important;
   outline: none !important;
 }
 

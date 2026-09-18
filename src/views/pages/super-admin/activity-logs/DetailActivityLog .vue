@@ -37,7 +37,7 @@ const actionClass = computed(() => {
   <BaseModal :show="props.show" title="ព័ត៌មានលម្អិតកំណត់ហេតុ" size="lg" @close="handleClose">
     <template #header>
       <div class="d-flex align-items-center gap-3">
-        <div class="d-flex align-items-center justify-content-center bg-success-subtle text-success rounded-3" style="width: 42px; height: 42px;">
+        <div class="d-flex align-items-center justify-content-center bg-primary-subtle text-primary rounded-3" style="width: 42px; height: 42px;">
           <i class="bi bi-shield-check fs-3"></i>
         </div>
 

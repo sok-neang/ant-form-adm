@@ -1206,11 +1206,14 @@ onUnmounted(() => {
 }
 
 .shortlist-btn {
-  border: 1px solid #357867;
+  border: 1px solid var(--bs-primary, #2662d9);
+  background-color: var(--bs-primary, #2662d9);
+  color: #ffffff;
 }
 
 .shortlist-btn:hover {
-  background-color: #2e6658 !important;
+  background-color: var(--bs-secondary, #1f52bc) !important;
+  border-color: var(--bs-secondary, #1f52bc) !important;
 }
 
 .btn-back {
@@ -1237,8 +1240,8 @@ onUnmounted(() => {
 /* PROFILE BANNER CARD */
 .profile-summary-card {
   border-radius: 20px;
-  background-color: #eaf5f0;
-  box-shadow: 0 6px 24px rgba(18, 53, 43, 0.08);
+  background-color: #eff6ff;
+  box-shadow: 0 6px 24px rgba(38, 98, 217, 0.08);
   position: relative;
 }
 
@@ -1359,7 +1362,7 @@ onUnmounted(() => {
   font-family: "Caveat", "Segoe Script", "Brush Script MT", cursive;
   font-size: 1.95rem;
   line-height: 1.05;
-  color: #205c49;
+  color: var(--bs-primary, #2662d9);
   font-weight: 700;
   transform: rotate(-8deg);
   display: flex;
@@ -1388,20 +1391,20 @@ onUnmounted(() => {
   width: 38px;
   height: 38px;
   background: #ffffff73;
-  border: 1px solid rgba(34, 110, 90, 0.18);
+  border: 1px solid rgba(38, 98, 217, 0.18);
   border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #1d6e57;
+  color: var(--bs-primary, #2662d9);
   font-size: 1.1rem;
   flex-shrink: 0;
-  box-shadow: 0 2px 6px rgba(18, 53, 43, 0.07);
+  box-shadow: 0 2px 6px rgba(38, 98, 217, 0.07);
 }
 
 .banner-info-label {
   font-size: 0.78rem;
-  color: #315e51;
+  color: #4b6b94;
   font-weight: 600;
   line-height: 1.2;
 }
@@ -1419,7 +1422,7 @@ onUnmounted(() => {
 
 @media (min-width: 1200px) {
   .border-divider {
-    border-right: 1px solid rgba(46, 125, 107, 0.18);
+    border-right: 1px solid rgba(38, 98, 217, 0.18);
     padding-right: 12px;
   }
 }
@@ -1427,7 +1430,7 @@ onUnmounted(() => {
 @media (max-width: 1199.98px) and (min-width: 768px) {
   .border-divider:nth-child(1),
   .border-divider:nth-child(2) {
-    border-right: 1px solid rgba(46, 125, 107, 0.18);
+    border-right: 1px solid rgba(38, 98, 217, 0.18);
   }
 }
 
@@ -1547,12 +1550,12 @@ onUnmounted(() => {
 .file-icon-badge {
   width: 44px;
   height: 44px;
-  background-color: #ecfdf5;
+  background-color: #eff6ff;
   flex-shrink: 0;
 }
 
 .btn-success-soft {
-  background-color: #ecfdf5;
+  background-color: #eff6ff;
   color: var(--bs-primary);
   border: 1px solid var(--bs-primary);
   transition: all 0.2s ease;
@@ -1583,7 +1586,7 @@ onUnmounted(() => {
 }
 
 .text-theme-green {
-  color: #2e7d6b !important;
+  color: var(--bs-primary, #2662d9) !important;
 }
 
 .contact-link {
@@ -1598,7 +1601,7 @@ onUnmounted(() => {
 }
 
 .contact-link:hover .contact-val {
-  color: #2e7d6b !important;
+  color: var(--bs-primary, #2662d9) !important;
   text-decoration: underline;
 }
 

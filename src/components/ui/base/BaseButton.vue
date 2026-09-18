@@ -192,8 +192,8 @@ const handleClick = (event) => {
 }
 
 .btn-bg-primary:hover {
-  background-color: #F59E0B !important;
-  border: 1px solid #F59E0B !important;
+  background-color: var(--bs-secondary) !important;
+  border: 1px solid var(--bs-secondary) !important;
   color: white !important;
 }
 

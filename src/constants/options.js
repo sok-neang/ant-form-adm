@@ -61,6 +61,29 @@ export const shiftOptions = [
   },
 ];
 
+export const groupOptions = [
+  {
+    value: "",
+    label: "ក្រុមទាំងអស់",
+  },
+  {
+    value: "1",
+    label: "ក្រុម 1",
+  },
+  {
+    value: "2",
+    label: "ក្រុម 2",
+  },
+  {
+    value: "3",
+    label: "ក្រុម 3",
+  },
+  {
+    value: "4",
+    label: "ក្រុម 4",
+  },
+];
+
 export const specializationOptions = [
     {
     value: "",
@@ -164,4 +187,3 @@ export const evaluationStatusOptions = [
     label: "មិនទាន់បានវាយតម្លៃ",
   },
 ];
-
