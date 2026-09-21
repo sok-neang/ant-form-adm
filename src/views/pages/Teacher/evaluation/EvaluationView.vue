@@ -43,7 +43,7 @@
     <div v-else class="row g-4">
       <!-- LEFT COLUMN: EVALUATION FORM -->
       <div class="col-lg-7 col-xl-8">
-        <div class="card border-0 rounded-4 shadow-sm bg-white p-4 p-md-5 h-100">
+        <div class="card border-0 rounded-4 shadow-sm bg-white px-4 py-md-3 px-md-5 h-100">
           <!-- SUBJECT TABS (50/50 SPLIT) -->
           <div class="subject-tabs-container d-flex align-items-center mb-4 border-bottom">
             <button
@@ -67,12 +67,12 @@
 
               <!-- Cyber Security Icon -->
               <span v-else-if="tab.logo === 'cyber'" class="tab-icon d-inline-flex align-items-center">
-                <img :src="cyberLogo" alt="Cyber Security" width="26" height="26" class="object-fit-contain" />
+                <img :src="cyberLogo" alt="Cyber Security" width="30" height="30" class="object-fit-contain" />
               </span>
 
               <!-- Introduction Icon -->
               <span v-else-if="tab.logo === 'introduction'" class="tab-icon d-inline-flex align-items-center">
-                <i class="bi bi-book fs-5 text-primary"></i>
+                <img :src="introLogo" alt="Introduction" width="35" height="35" class="object-fit-contain" />
               </span>
 
               <!-- Dart Icon / Fallback -->
@@ -281,6 +281,7 @@ import dartLogo from "@/assets/images/teacher/dart.svg";
 import html5Logo from "@/assets/images/teacher/html5.svg";
 import css3Logo from "@/assets/images/teacher/css3.svg";
 import cyberLogo from "@/assets/images/teacher/cyber.svg"
+import introLogo from "@/assets/images/teacher/intro.png"
 import defaultAvatar from "@/assets/images/img/default_avatar.webp";
 
 const route = useRoute();

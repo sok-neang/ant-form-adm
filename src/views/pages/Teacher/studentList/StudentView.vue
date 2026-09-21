@@ -24,6 +24,7 @@
       :columns="columns"
       :rows="students"
       :pagination="pagination"
+      :total-student="total_student"
       :loading="loading"
       :show-actions="true"
       @page-change="handlePageChange"
@@ -198,6 +199,7 @@ import BaseInput from "@/components/ui/base/BaseInput.vue";
 import BaseSelect from "@/components/ui/base/BaseSelect.vue";
 import BaseButton from "@/components/ui/base/BaseButton.vue";
 import BaseSkeleton from "@/components/ui/base/BaseSkeleton.vue";
+import { useStatistic } from "@/composable/dashboard/useStatistic";
 import {
   shiftOptions,
   specializationOptions,
@@ -208,6 +210,12 @@ import { useShortlist } from "@/composable/application/short list/useShortlist";
 import dashboardService from "@/services/dashboard.service";
 
 const router = useRouter();
+const statistic = useStatistic();
+const total_student = ref(0);
+onMounted(async() => {
+  await statistic.getStatsUser();
+  total_student.value = statistic.statsData.value?.shortlist?.passed?.total || 0;
+})
 
 // Filters
 const selectedScoreLevel = ref("all");
