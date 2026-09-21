@@ -164,12 +164,20 @@ export const subjectOptions = [
     label: "C++",
   },
   {
-    value: "DART",
-    label: "Dart",
-  },
-  {
     value: "HTML_CSS",
     label: "HTML & CSS",
+  },
+  {
+    value: "INTRO_MOBILE",
+    label: "Introduction (Mobile)",
+  },
+  {
+    value: "INTRO_WEB",
+    label: "Introduction (Web)",
+  },
+  {
+    value: "INTRO_CYBER",
+    label: "Cyber Security",
   },
 ];
 

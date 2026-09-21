@@ -47,22 +47,38 @@ export const useEvaluationList = () => {
     if (program === "MOBILE_APP") {
       required = [
         { key: "CPP", name: "C++", color: "green" },
-        { key: "DART", name: "Dart", color: "blue" },
+        { key: "INTRO_MOBILE", name: "Introduction", color: "blue" },
+        { key: "INTRO_CYBER", name: "Cyber Security", color: "purple" },
       ];
     } else {
       required = [
-        { key: "CPP", name: "C++", color: "green" },
         { key: "HTML_CSS", name: "HTML & CSS", color: "orange" },
+        { key: "INTRO_WEB", name: "Introduction", color: "blue" },
+        { key: "INTRO_CYBER", name: "Cyber Security", color: "purple" },
       ];
     }
 
     return required.map((req) => {
       const match = evaluations.find((e) => {
-        const subKey = (e.subject || "").toUpperCase();
+        const subKey = (e.subject || "").toUpperCase().trim();
         if (subKey === req.key) return true;
         if (req.key === "CPP" && (subKey === "C++" || subKey.includes("CPP"))) return true;
-        if (req.key === "DART" && subKey.includes("DART")) return true;
         if (req.key === "HTML_CSS" && (subKey.includes("HTML") || subKey.includes("CSS"))) return true;
+        if (req.key === "INTRO_CYBER" && (subKey === "INTRO_CYBER" || subKey.includes("CYBER"))) return true;
+        if (
+          req.key === "INTRO_MOBILE" &&
+          (subKey === "INTRO_MOBILE" ||
+            (subKey.includes("INTRO") && !subKey.includes("CYBER")))
+        ) {
+          return true;
+        }
+        if (
+          req.key === "INTRO_WEB" &&
+          (subKey === "INTRO_WEB" ||
+            (subKey.includes("INTRO") && !subKey.includes("CYBER")))
+        ) {
+          return true;
+        }
         return false;
       });
       return {

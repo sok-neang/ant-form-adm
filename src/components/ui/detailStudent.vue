@@ -1117,26 +1117,40 @@ const subjectEvaluationCards = computed(() => {
   if (program === "MOBILE_APP") {
     required = [
       { key: "CPP", name: "C++", logo: "cpp" },
-      { key: "INTRODUCTION", name: "Introduction", logo: "introduction" },
-      { key: "CYBER", name: "Cyber Security", logo: "cyber" },
+      { key: "INTRO_MOBILE", name: "Introduction", logo: "introduction" },
+      { key: "INTRO_CYBER", name: "Cyber Security", logo: "cyber" },
     ];
   } else {
     required = [
       { key: "HTML_CSS", name: "HTML & CSS", logo: "html_css" },
-      { key: "INTRODUCTION", name: "Introduction", logo: "introduction" },
-      { key: "CYBER", name: "Cyber Security", logo: "cyber" },
+      { key: "INTRO_WEB", name: "Introduction", logo: "introduction" },
+      { key: "INTRO_CYBER", name: "Cyber Security", logo: "cyber" },
     ];
   }
 
   return required.map((req) => {
     const match = evaluations.value.find((e) => {
-      const s = (e.subject || "").toUpperCase();
+      const s = (e.subject || "").toUpperCase().trim();
       if (s === req.key) return true;
       if (req.key === "CPP" && (s.includes("CPP") || s === "C++")) return true;
       if (req.key === "HTML_CSS" && (s.includes("HTML") || s.includes("CSS"))) return true;
-      if (req.key === "INTRODUCTION" && s.includes("INTRO")) return true;
-      if (req.key === "CYBER" && s.includes("CYBER")) return true;
-      if (req.key === "DART" && s.includes("DART")) return true;
+      if (req.key === "INTRO_CYBER" && (s === "INTRO_CYBER" || s === "CYBER" || s.includes("CYBER"))) return true;
+      if (
+        req.key === "INTRO_MOBILE" &&
+        (s === "INTRO_MOBILE" ||
+          (s.includes("INTRO") && s.includes("MOBILE")) ||
+          (s === "INTRODUCTION" && program === "MOBILE_APP"))
+      ) {
+        return true;
+      }
+      if (
+        req.key === "INTRO_WEB" &&
+        (s === "INTRO_WEB" ||
+          (s.includes("INTRO") && s.includes("WEB")) ||
+          (s === "INTRODUCTION" && program !== "MOBILE_APP"))
+      ) {
+        return true;
+      }
       return false;
     });
 

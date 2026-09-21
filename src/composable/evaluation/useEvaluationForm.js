@@ -20,39 +20,49 @@ export const useEvaluationForm = (submissionId) => {
   const forms = ref({
     CPP: { technicalScore: "", attendanceScore: "", comment: "" },
     HTML_CSS: { technicalScore: "", attendanceScore: "", comment: "" },
-    INTRODUCTION: { technicalScore: "", attendanceScore: "", comment: "" },
-    CYBER: { technicalScore: "", attendanceScore: "", comment: "" },
-    DART: { technicalScore: "", attendanceScore: "", comment: "" },
+    INTRO_MOBILE: { technicalScore: "", attendanceScore: "", comment: "" },
+    INTRO_WEB: { technicalScore: "", attendanceScore: "", comment: "" },
+    INTRO_CYBER: { technicalScore: "", attendanceScore: "", comment: "" },
   });
 
   // Pristine snapshot of forms for dirty-checking
   const originalForms = ref({
     CPP: { technicalScore: "", attendanceScore: "", comment: "" },
     HTML_CSS: { technicalScore: "", attendanceScore: "", comment: "" },
-    INTRODUCTION: { technicalScore: "", attendanceScore: "", comment: "" },
-    CYBER: { technicalScore: "", attendanceScore: "", comment: "" },
-    DART: { technicalScore: "", attendanceScore: "", comment: "" },
+    INTRO_MOBILE: { technicalScore: "", attendanceScore: "", comment: "" },
+    INTRO_WEB: { technicalScore: "", attendanceScore: "", comment: "" },
+    INTRO_CYBER: { technicalScore: "", attendanceScore: "", comment: "" },
   });
 
   const isMatchingSubject = (evalSubject, targetSubject) => {
-    const s = String(evalSubject || "").toUpperCase();
-    const t = String(targetSubject || "").toUpperCase();
+    const s = String(evalSubject || "").toUpperCase().trim();
+    const t = String(targetSubject || "").toUpperCase().trim();
+    if (s === t) return true;
+
     if (t === "CPP") {
       return s === "CPP" || s === "C++" || s.includes("CPP");
     }
     if (t === "HTML_CSS") {
-      return s.includes("HTML") || s.includes("CSS");
+      return s === "HTML_CSS" || s === "HTML&CSS" || s.includes("HTML") || s.includes("CSS");
     }
-    if (t === "INTRODUCTION") {
-      return s.includes("INTRO");
+    if (t === "INTRO_MOBILE") {
+      return (
+        s === "INTRO_MOBILE" ||
+        (s.includes("INTRO") && s.includes("MOBILE")) ||
+        (s === "INTRODUCTION" && submission.value?.program === "MOBILE_APP")
+      );
     }
-    if (t === "CYBER") {
-      return s.includes("CYBER");
+    if (t === "INTRO_WEB") {
+      return (
+        s === "INTRO_WEB" ||
+        (s.includes("INTRO") && s.includes("WEB")) ||
+        (s === "INTRODUCTION" && submission.value?.program !== "MOBILE_APP")
+      );
     }
-    if (t === "DART") {
-      return s.includes("DART");
+    if (t === "INTRO_CYBER") {
+      return s === "INTRO_CYBER" || s === "CYBER" || s.includes("CYBER");
     }
-    return s === t;
+    return false;
   };
 
   // Check if active subject has already been evaluated
@@ -137,14 +147,14 @@ export const useEvaluationForm = (submissionId) => {
     if (program === "MOBILE_APP") {
       return [
         { key: "CPP", name: "C++", logo: "cpp" },
-        { key: "INTRODUCTION", name: "Introduction", logo: "introduction" },
-        { key: "CYBER", name: "Cyber Security", logo: "cyber" }
+        { key: "INTRO_MOBILE", name: "Introduction", logo: "introduction" },
+        { key: "INTRO_CYBER", name: "Cyber Security", logo: "cyber" },
       ];
     }
     return [
       { key: "HTML_CSS", name: "HTML & CSS", logo: "html_css" },
-      { key: "INTRODUCTION", name: "Introduction", logo: "introduction" },
-      { key: "CYBER", name: "Cyber Security", logo: "cyber" }
+      { key: "INTRO_WEB", name: "Introduction", logo: "introduction" },
+      { key: "INTRO_CYBER", name: "Cyber Security", logo: "cyber" },
     ];
   });
 
@@ -207,21 +217,29 @@ export const useEvaluationForm = (submissionId) => {
       forms.value = {
         CPP: { technicalScore: "", attendanceScore: "", comment: "" },
         HTML_CSS: { technicalScore: "", attendanceScore: "", comment: "" },
-        INTRODUCTION: { technicalScore: "", attendanceScore: "", comment: "" },
-        CYBER: { technicalScore: "", attendanceScore: "", comment: "" },
-        DART: { technicalScore: "", attendanceScore: "", comment: "" },
+        INTRO_MOBILE: { technicalScore: "", attendanceScore: "", comment: "" },
+        INTRO_WEB: { technicalScore: "", attendanceScore: "", comment: "" },
+        INTRO_CYBER: { technicalScore: "", attendanceScore: "", comment: "" },
       };
 
       // Populate form data from existing evaluations
       if (evaluations.value.length > 0) {
         evaluations.value.forEach((ev) => {
-          const subKey = (ev.subject || "").toUpperCase();
+          const subKey = (ev.subject || "").toUpperCase().trim();
           let targetKey = subKey;
-          if (subKey.includes("CPP") || subKey === "C++") targetKey = "CPP";
-          else if (subKey.includes("HTML") || subKey.includes("CSS")) targetKey = "HTML_CSS";
-          else if (subKey.includes("INTRO")) targetKey = "INTRODUCTION";
-          else if (subKey.includes("CYBER")) targetKey = "CYBER";
-          else if (subKey.includes("DART")) targetKey = "DART";
+          if (subKey === "CPP" || subKey === "C++" || subKey.includes("CPP")) {
+            targetKey = "CPP";
+          } else if (subKey.includes("HTML") || subKey.includes("CSS")) {
+            targetKey = "HTML_CSS";
+          } else if (subKey.includes("CYBER")) {
+            targetKey = "INTRO_CYBER";
+          } else if (subKey.includes("MOBILE")) {
+            targetKey = "INTRO_MOBILE";
+          } else if (subKey.includes("WEB")) {
+            targetKey = "INTRO_WEB";
+          } else if (subKey.includes("INTRO") || subKey === "INTRODUCTION") {
+            targetKey = mergedSubmission.program === "MOBILE_APP" ? "INTRO_MOBILE" : "INTRO_WEB";
+          }
 
           if (forms.value[targetKey]) {
             forms.value[targetKey] = {
@@ -240,7 +258,7 @@ export const useEvaluationForm = (submissionId) => {
       // Ensure active subject matches allowed subjects
       const validKeys = subjectTabs.value.map((t) => t.key);
       if (!validKeys.includes(activeSubject.value)) {
-        activeSubject.value = validKeys[0] || "CPP";
+        activeSubject.value = validKeys[0] || (mergedSubmission.program === "MOBILE_APP" ? "CPP" : "HTML_CSS");
       }
     } catch (err) {
       console.error("Failed to load evaluation data:", err);
@@ -274,23 +292,13 @@ export const useEvaluationForm = (submissionId) => {
 
     validKeys.forEach((key) => {
       const f = forms.value[key];
-      const ev = evaluations.value.find((e) => {
-        const s = (e.subject || "").toUpperCase();
-        return (
-          s === key ||
-          (key === "CPP" && (s === "C++" || s.includes("CPP"))) ||
-          (key === "HTML_CSS" && (s.includes("HTML") || s.includes("CSS"))) ||
-          (key === "INTRODUCTION" && s.includes("INTRO")) ||
-          (key === "CYBER" && s.includes("CYBER")) ||
-          (key === "DART" && s.includes("DART"))
-        );
-      });
+      const ev = evaluations.value.find((e) => isMatchingSubject(e.subject, key));
 
-      const tech = f.technicalScore !== "" && !isNaN(Number(f.technicalScore))
+      const tech = f && f.technicalScore !== "" && !isNaN(Number(f.technicalScore))
         ? Number(f.technicalScore)
         : ev?.technicalScore != null ? Number(ev.technicalScore) : null;
 
-      const att = f.attendanceScore !== "" && !isNaN(Number(f.attendanceScore))
+      const att = f && f.attendanceScore !== "" && !isNaN(Number(f.attendanceScore))
         ? Number(f.attendanceScore)
         : ev?.attendanceScore != null ? Number(ev.attendanceScore) : null;
 

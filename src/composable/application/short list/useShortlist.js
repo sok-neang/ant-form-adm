@@ -67,10 +67,10 @@ export function useShortlist() {
             : parseScore(ev.technicalScore) ?? parseScore(ev.attendanceScore)
         );
 
-        if (subj.includes("INTRO")) {
-          introScore = score;
-        } else if (subj.includes("CYBER")) {
+        if (subj.includes("CYBER")) {
           cyberScore = score;
+        } else if (subj.includes("INTRO")) {
+          introScore = score;
         } else if (subj === "CPP" || subj === "C++" || subj.includes("CPP")) {
           score_technology = score ?? 0;
           cppScore = score;
