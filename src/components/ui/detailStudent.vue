@@ -317,6 +317,17 @@
                 <img :src="css3Logo" alt="CSS3" width="24" height="24" class="object-fit-contain" />
               </div>
               <img
+                v-else-if="subject.logo === 'cyber'"
+                :src="cyberLogo"
+                alt="Cyber Security Logo"
+                width="26"
+                height="26"
+                class="object-fit-contain"
+              />
+              <span v-else-if="subject.logo === 'introduction'" class="d-inline-flex align-items-center">
+                <i class="bi bi-book fs-5 text-primary"></i>
+              </span>
+              <img
                 v-else
                 :src="dartLogo"
                 alt="Dart Logo"
@@ -326,7 +337,7 @@
               />
 
               <h5 class="fw-bold mb-0 ms-1">
-                {{ evaluationTitle }}
+                {{ evaluationTitle }} ({{ subject.name }})
               </h5>
             </div>
 
@@ -539,6 +550,7 @@ import cppLogo from "@/assets/images/teacher/cpp.svg";
 import dartLogo from "@/assets/images/teacher/dart.svg";
 import html5Logo from "@/assets/images/teacher/html5.svg";
 import css3Logo from "@/assets/images/teacher/css3.svg";
+import cyberLogo from "@/assets/images/teacher/cyber.svg";
 import defaultAvatar from "@/assets/images/img/default_avatar.webp";
 import bannerDetailBg from "@/assets/images/img/banner_detail.webp";
 import bannerBlacklistBg from "@/assets/images/img/banner_blacklist.webp";
@@ -1105,12 +1117,14 @@ const subjectEvaluationCards = computed(() => {
   if (program === "MOBILE_APP") {
     required = [
       { key: "CPP", name: "C++", logo: "cpp" },
-      { key: "DART", name: "Dart", logo: "dart" },
+      { key: "INTRODUCTION", name: "Introduction", logo: "introduction" },
+      { key: "CYBER", name: "Cyber Security", logo: "cyber" },
     ];
   } else {
     required = [
-      { key: "CPP", name: "C++", logo: "cpp" },
       { key: "HTML_CSS", name: "HTML & CSS", logo: "html_css" },
+      { key: "INTRODUCTION", name: "Introduction", logo: "introduction" },
+      { key: "CYBER", name: "Cyber Security", logo: "cyber" },
     ];
   }
 
@@ -1119,8 +1133,10 @@ const subjectEvaluationCards = computed(() => {
       const s = (e.subject || "").toUpperCase();
       if (s === req.key) return true;
       if (req.key === "CPP" && (s.includes("CPP") || s === "C++")) return true;
-      if (req.key === "DART" && s.includes("DART")) return true;
       if (req.key === "HTML_CSS" && (s.includes("HTML") || s.includes("CSS"))) return true;
+      if (req.key === "INTRODUCTION" && s.includes("INTRO")) return true;
+      if (req.key === "CYBER" && s.includes("CYBER")) return true;
+      if (req.key === "DART" && s.includes("DART")) return true;
       return false;
     });
 

@@ -55,27 +55,50 @@ export function useShortlist() {
     let cppScore = null;
     let dartScore = null;
     let htmlCssScore = null;
+    let introScore = null;
+    let cyberScore = null;
 
     if (Array.isArray(sub.evaluations)) {
       sub.evaluations.forEach((ev) => {
         const subj = (ev.subject || "").toUpperCase();
-        const score = parseScore(ev.averageScore);
-        if (subj === "CPP" || subj === "C++") {
+        const score = parseScore(ev.averageScore) ?? (
+          ev.technicalScore != null && ev.attendanceScore != null
+            ? (Number(ev.technicalScore) + Number(ev.attendanceScore)) / 2
+            : parseScore(ev.technicalScore) ?? parseScore(ev.attendanceScore)
+        );
+
+        if (subj.includes("INTRO")) {
+          introScore = score;
+        } else if (subj.includes("CYBER")) {
+          cyberScore = score;
+        } else if (subj === "CPP" || subj === "C++" || subj.includes("CPP")) {
           score_technology = score ?? 0;
           cppScore = score;
-        }
-        if (subj === "DART") {
+        } else if (subj === "DART") {
           score_attendance = score ?? 0;
           dartScore = score;
-        }
-        if (subj === "HTML_CSS" || subj === "HTML" || subj === "HTML&CSS" || subj === "HTML_AND_CSS") {
+        } else if (subj.includes("HTML") || subj.includes("CSS")) {
           score_attendance = score ?? 0;
           htmlCssScore = score;
         }
       });
     }
 
-    const overallScore = parseScore(sub.overallAverageScore);
+    // Specialized subject: C++ for Mobile App, HTML & CSS for Web Dev
+    const specializedScore =
+      (sub.program === "MOBILE_APP" ? cppScore : htmlCssScore) ??
+      cppScore ??
+      htmlCssScore ??
+      dartScore;
+
+    let overallScore = parseScore(sub.overallAverageScore);
+    if (overallScore == null) {
+      const activeScores = [introScore, specializedScore, cyberScore].filter((s) => s != null);
+      if (activeScores.length > 0) {
+        overallScore = activeScores.reduce((acc, v) => acc + v, 0) / activeScores.length;
+      }
+    }
+
     const submittedTime = sub.submittedAt ? new Date(sub.submittedAt).getTime() : 0;
     const groupNum = sub.submissionGroup?.groupNumber ?? sub.groupNumber ?? sub.group ?? null;
     const groupText = groupNum ? `ក្រុម ${groupNum}` : "—";
@@ -93,6 +116,9 @@ export function useShortlist() {
       group_number: groupNum,
       skill: programMap[sub.program] || sub.program || "N/A",
       study_shift: shiftMap[sub.shift] || sub.shift || "N/A",
+      score_intro: introScore != null ? parseFloat(introScore).toFixed(2) : "0.00",
+      score_specialized: specializedScore != null ? parseFloat(specializedScore).toFixed(2) : "0.00",
+      score_cyber: cyberScore != null ? parseFloat(cyberScore).toFixed(2) : "0.00",
       score_technology: score_technology ? parseFloat(score_technology).toFixed(2) : "0.00",
       score_attendance: score_attendance ? parseFloat(score_attendance).toFixed(2) : "0.00",
       total_score: overallScore != null ? overallScore.toFixed(2) : "0.00",
@@ -101,6 +127,9 @@ export function useShortlist() {
       _cppScore: cppScore,
       _dartScore: dartScore,
       _htmlCssScore: htmlCssScore,
+      _introScore: introScore,
+      _specializedScore: specializedScore,
+      _cyberScore: cyberScore,
       _totalScore: overallScore,
       _submittedAt: submittedTime,
       raw: sub,
@@ -177,6 +206,46 @@ export function useShortlist() {
         if (a._htmlCssScore != null && b._htmlCssScore != null) return b._htmlCssScore - a._htmlCssScore;
         if (a._htmlCssScore != null) return -1;
         if (b._htmlCssScore != null) return 1;
+        return 0;
+      });
+      return list;
+    }
+
+    // Introduction sorting
+    if (params.intro === "lowest" || params.scoreSort === "lowestINTRO" || params.scoreSort === "lowestINTRODUCTION") {
+      list.sort((a, b) => {
+        if (a._introScore != null && b._introScore != null) return a._introScore - b._introScore;
+        if (a._introScore != null) return -1;
+        if (b._introScore != null) return 1;
+        return 0;
+      });
+      return list;
+    }
+    if (params.intro === "highest" || params.scoreSort === "highestINTRO" || params.scoreSort === "highestINTRODUCTION") {
+      list.sort((a, b) => {
+        if (a._introScore != null && b._introScore != null) return b._introScore - a._introScore;
+        if (a._introScore != null) return -1;
+        if (b._introScore != null) return 1;
+        return 0;
+      });
+      return list;
+    }
+
+    // Cyber sorting
+    if (params.cyber === "lowest" || params.scoreSort === "lowestCYBER") {
+      list.sort((a, b) => {
+        if (a._cyberScore != null && b._cyberScore != null) return a._cyberScore - b._cyberScore;
+        if (a._cyberScore != null) return -1;
+        if (b._cyberScore != null) return 1;
+        return 0;
+      });
+      return list;
+    }
+    if (params.cyber === "highest" || params.scoreSort === "highestCYBER") {
+      list.sort((a, b) => {
+        if (a._cyberScore != null && b._cyberScore != null) return b._cyberScore - a._cyberScore;
+        if (a._cyberScore != null) return -1;
+        if (b._cyberScore != null) return 1;
         return 0;
       });
       return list;

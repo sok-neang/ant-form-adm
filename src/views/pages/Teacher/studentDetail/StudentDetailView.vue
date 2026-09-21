@@ -55,7 +55,7 @@ const activeSubmissionId = computed(() => {
 const isEvaluated = computed(() => {
   const sub = currentSubmission.value;
   if (!sub) return false;
-  return Boolean(sub.isEvaluated) || (Array.isArray(sub.evaluations) && sub.evaluations.length >= 2);
+  return Boolean(sub.isEvaluated) || (Array.isArray(sub.evaluations) && sub.evaluations.length > 0);
 });
 
 const onDataLoaded = ({ submission }) => {

@@ -65,10 +65,22 @@
                 <img :src="css3Logo" alt="CSS3" width="24" height="24" class="object-fit-contain" />
               </span>
 
-              <!-- Dart Icon -->
+              <!-- Cyber Security Icon -->
+              <span v-else-if="tab.logo === 'cyber'" class="tab-icon d-inline-flex align-items-center">
+                <img :src="cyberLogo" alt="Cyber Security" width="26" height="26" class="object-fit-contain" />
+              </span>
+
+              <!-- Introduction Icon -->
+              <span v-else-if="tab.logo === 'introduction'" class="tab-icon d-inline-flex align-items-center">
+                <i class="bi bi-book fs-5 text-primary"></i>
+              </span>
+
+              <!-- Dart Icon / Fallback -->
               <span v-else class="tab-icon d-inline-flex align-items-center">
                 <img :src="dartLogo" alt="Dart" width="26" height="26" class="object-fit-contain" />
               </span>
+
+
 
               <span class="tab-name fw-bold">{{ tab.name }}</span>
             </button>
@@ -268,6 +280,7 @@ import cppLogo from "@/assets/images/teacher/cpp.svg";
 import dartLogo from "@/assets/images/teacher/dart.svg";
 import html5Logo from "@/assets/images/teacher/html5.svg";
 import css3Logo from "@/assets/images/teacher/css3.svg";
+import cyberLogo from "@/assets/images/teacher/cyber.svg"
 import defaultAvatar from "@/assets/images/img/default_avatar.webp";
 
 const route = useRoute();

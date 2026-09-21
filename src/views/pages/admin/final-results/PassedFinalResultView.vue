@@ -66,11 +66,11 @@
       <span
         class="badge rounded-pill px-3 py-2"
         :style="{
-          color: row.skill === 'Web Development' ? '#357867' : '#6f42c1',
+          color: row.skill === 'Web Development' ? '#0d6efd' : '#f59e0b',
           backgroundColor:
             row.skill === 'Web Development'
-              ? 'rgba(53, 120, 103, 0.12)'
-              : 'rgba(111, 66, 193, 0.12)',
+              ? 'rgba(13, 110, 253, 0.12)'
+              : 'rgba(245, 158, 11, 0.12)',
         }"
       >
         {{ row.skill }}
@@ -275,6 +275,6 @@ onMounted(() => {
 }
 
 .score-good {
-  color: #357867 !important;
-  background-color: rgba(53, 120, 103, 0.12) !important;
+  color: var(--bs-primary, #2662d9) !important;
+  background-color: rgba(38, 98, 217, 0.12) !important;
 }</style>

@@ -20,6 +20,8 @@ export const useEvaluationForm = (submissionId) => {
   const forms = ref({
     CPP: { technicalScore: "", attendanceScore: "", comment: "" },
     HTML_CSS: { technicalScore: "", attendanceScore: "", comment: "" },
+    INTRODUCTION: { technicalScore: "", attendanceScore: "", comment: "" },
+    CYBER: { technicalScore: "", attendanceScore: "", comment: "" },
     DART: { technicalScore: "", attendanceScore: "", comment: "" },
   });
 
@@ -27,6 +29,8 @@ export const useEvaluationForm = (submissionId) => {
   const originalForms = ref({
     CPP: { technicalScore: "", attendanceScore: "", comment: "" },
     HTML_CSS: { technicalScore: "", attendanceScore: "", comment: "" },
+    INTRODUCTION: { technicalScore: "", attendanceScore: "", comment: "" },
+    CYBER: { technicalScore: "", attendanceScore: "", comment: "" },
     DART: { technicalScore: "", attendanceScore: "", comment: "" },
   });
 
@@ -38,6 +42,12 @@ export const useEvaluationForm = (submissionId) => {
     }
     if (t === "HTML_CSS") {
       return s.includes("HTML") || s.includes("CSS");
+    }
+    if (t === "INTRODUCTION") {
+      return s.includes("INTRO");
+    }
+    if (t === "CYBER") {
+      return s.includes("CYBER");
     }
     if (t === "DART") {
       return s.includes("DART");
@@ -127,12 +137,14 @@ export const useEvaluationForm = (submissionId) => {
     if (program === "MOBILE_APP") {
       return [
         { key: "CPP", name: "C++", logo: "cpp" },
-        { key: "DART", name: "Dart", logo: "dart" },
+        { key: "INTRODUCTION", name: "Introduction", logo: "introduction" },
+        { key: "CYBER", name: "Cyber Security", logo: "cyber" }
       ];
     }
     return [
-      { key: "CPP", name: "C++", logo: "cpp" },
       { key: "HTML_CSS", name: "HTML & CSS", logo: "html_css" },
+      { key: "INTRODUCTION", name: "Introduction", logo: "introduction" },
+      { key: "CYBER", name: "Cyber Security", logo: "cyber" }
     ];
   });
 
@@ -195,6 +207,8 @@ export const useEvaluationForm = (submissionId) => {
       forms.value = {
         CPP: { technicalScore: "", attendanceScore: "", comment: "" },
         HTML_CSS: { technicalScore: "", attendanceScore: "", comment: "" },
+        INTRODUCTION: { technicalScore: "", attendanceScore: "", comment: "" },
+        CYBER: { technicalScore: "", attendanceScore: "", comment: "" },
         DART: { technicalScore: "", attendanceScore: "", comment: "" },
       };
 
@@ -205,6 +219,8 @@ export const useEvaluationForm = (submissionId) => {
           let targetKey = subKey;
           if (subKey.includes("CPP") || subKey === "C++") targetKey = "CPP";
           else if (subKey.includes("HTML") || subKey.includes("CSS")) targetKey = "HTML_CSS";
+          else if (subKey.includes("INTRO")) targetKey = "INTRODUCTION";
+          else if (subKey.includes("CYBER")) targetKey = "CYBER";
           else if (subKey.includes("DART")) targetKey = "DART";
 
           if (forms.value[targetKey]) {
@@ -260,7 +276,14 @@ export const useEvaluationForm = (submissionId) => {
       const f = forms.value[key];
       const ev = evaluations.value.find((e) => {
         const s = (e.subject || "").toUpperCase();
-        return s === key || (key === "CPP" && s.includes("CPP")) || (key === "HTML_CSS" && (s.includes("HTML") || s.includes("CSS"))) || (key === "DART" && s.includes("DART"));
+        return (
+          s === key ||
+          (key === "CPP" && (s === "C++" || s.includes("CPP"))) ||
+          (key === "HTML_CSS" && (s.includes("HTML") || s.includes("CSS"))) ||
+          (key === "INTRODUCTION" && s.includes("INTRO")) ||
+          (key === "CYBER" && s.includes("CYBER")) ||
+          (key === "DART" && s.includes("DART"))
+        );
       });
 
       const tech = f.technicalScore !== "" && !isNaN(Number(f.technicalScore))

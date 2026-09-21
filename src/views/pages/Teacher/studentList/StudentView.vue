@@ -98,35 +98,51 @@
         </span>
       </template>
 
-      <!-- C++ Score Column -->
-      <template #cell-score_technology="{ row }">
+      <!-- INTRODUCTION Score Column -->
+      <template #cell-score_intro="{ row }">
         <span
           class="badge rounded-pill px-3 py-2"
           :class="
-            row.score_technology < 50
+            row.score_intro < 50
               ? 'score-fail'
-              : row.score_technology < 70
+              : row.score_intro < 70
               ? 'score-medium'
               : 'score-good'
           "
         >
-          {{ row.score_technology }}
+          {{ row.score_intro }}
         </span>
       </template>
 
-      <!-- HTML / Dart Score Column -->
-      <template #cell-score_attendance="{ row }">
+      <!-- C++/HTML Score Column -->
+      <template #cell-score_specialized="{ row }">
         <span
           class="badge rounded-pill px-3 py-2"
           :class="
-            row.score_attendance < 50
+            row.score_specialized < 50
               ? 'score-fail'
-              : row.score_attendance < 70
+              : row.score_specialized < 70
               ? 'score-medium'
               : 'score-good'
           "
         >
-          {{ row.score_attendance }}
+          {{ row.score_specialized }}
+        </span>
+      </template>
+
+      <!-- CYBER Score Column -->
+      <template #cell-score_cyber="{ row }">
+        <span
+          class="badge rounded-pill px-3 py-2"
+          :class="
+            row.score_cyber < 50
+              ? 'score-fail'
+              : row.score_cyber < 70
+              ? 'score-medium'
+              : 'score-good'
+          "
+        >
+          {{ row.score_cyber }}
         </span>
       </template>
 
@@ -166,7 +182,7 @@
             :title="row.is_evaluated ? 'កែប្រែការវាយតម្លៃ' : 'វាយតម្លៃសិស្ស'"
             @click="handleEvaluate(row)"
           >
-            <i :class="row.is_evaluated ? 'bi bi-pencil-square text-success' : 'bi bi-plus-lg text-success'"></i>
+            <i :class="row.is_evaluated ? 'bi bi-pencil-square text-primary' : 'bi bi-plus-lg text-primary'"></i>
           </button>
         </div>
       </template>
@@ -258,8 +274,9 @@ const columns = [
   { key: "year", label: "និស្សិតឆ្នាំ" },
   { key: "skill", label: "ជំនាញ" },
   { key: "study_shift", label: "វេនសិក្សា" },
-  { key: "score_technology", label: "C++" },
-  { key: "score_attendance", label: "HTML / Dart" },
+  { key: "score_intro", label: "INTRODUCTION" },
+  { key: "score_specialized", label: "C++/HTML" },
+  { key: "score_cyber", label: "CYBER" },
   { key: "total_score", label: "ពិន្ទុមធ្យម" },
 ];
 
