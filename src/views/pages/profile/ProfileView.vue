@@ -132,22 +132,30 @@
               <div class="row g-4 mb-2">
                 <div class="col-md-6">
                   <BaseInput
-                    :modelValue="profileData.name || (!isEditing ? '-' : '')"
-                    @update:modelValue="val => profileData.name = val"
+                    v-if="isEditing"
+                    v-model="editForm.name"
                     label="ឈ្មោះពេញ"
-                    :readonly="!isEditing"
-                    :inputClass="getInputClass"
+                    placeholder="បញ្ចូលឈ្មោះពេញ"
+                    :error="nameError"
+                    :inputClass="editableClass"
+                  />
+                  <BaseInput
+                    v-else
+                    :modelValue="profileData?.name || '-'"
+                    label="ឈ្មោះពេញ"
+                    readonly
+                    :inputClass="readOnlyClass"
                   />
                 </div>
                 <div class="col-md-6">
                   <BaseInput v-if="!isEditing"
-                    :modelValue="profileData.gender || '-'"
+                    :modelValue="profileData?.gender || '-'"
                     label="ភេទ"
                     readonly
                     :inputClass="readOnlyClass"
                   />
                   <BaseSelect v-else
-                    v-model="profileData.gender"
+                    v-model="editForm.gender"
                     label="ភេទ"
                     :options="genderOptions"
                     optionLabel="label"
@@ -157,7 +165,7 @@
                 </div>
                 <div class="col-md-6">
                   <BaseInput
-                    :modelValue="profileData.email || '-'"
+                    :modelValue="profileData?.email || '-'"
                     label="អ៊ីមែល"
                     readonly
                     :inputClass="readOnlyClass"
@@ -165,11 +173,20 @@
                 </div>
                 <div class="col-md-6">
                   <BaseInput
-                    :modelValue="profileData.phone || (!isEditing ? '-' : '')"
-                    @update:modelValue="val => profileData.phone = val"
+                    v-if="isEditing"
+                    v-model="editForm.phone"
                     label="លេខទូរស័ព្ទ"
-                    :readonly="!isEditing"
-                    :inputClass="getInputClass"
+                    placeholder="ឧ. 012 345 678 ឬ 0978123456"
+                    :error="phoneError"
+                    @blur="onPhoneBlur"
+                    :inputClass="editableClass"
+                  />
+                  <BaseInput
+                    v-else
+                    :modelValue="profileData?.phone || '-'"
+                    label="លេខទូរស័ព្ទ"
+                    readonly
+                    :inputClass="readOnlyClass"
                   />
                 </div>
                 <div class="col-md-6">
@@ -178,12 +195,11 @@
                       ថ្ងៃ ខែ ឆ្នាំកំណើត
                     </label>
                     <el-date-picker 
-                      v-model="profileData.dateOfBirth" 
+                      v-model="editForm.dateOfBirth" 
                       type="date" 
                       format="DD MMM YYYY" 
                       value-format="YYYY-MM-DD"
                       :placeholder="''" 
-                      :disabled="!isEditing" 
                       :clearable="true"
                       class="w-100 dob-picker" 
                       popper-class="dob-popper" 
@@ -195,9 +211,10 @@
                       ថ្ងៃ ខែ ឆ្នាំកំណើត
                     </label>
                     <BaseInput
-                      :modelValue="normalDate(profileData.dateOfBirth)"
+                      :modelValue="normalDate(profileData?.dateOfBirth)"
                       :enable-time-picker="false"
-                      :input-class-name="getInputClass"
+                      :inputClass="readOnlyClass"
+                      readonly
                     />
                   </div>
                 </div>
@@ -317,7 +334,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, reactive, computed, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import BaseButton from '@/components/ui/base/BaseButton.vue'
 import BaseInput from '@/components/ui/base/BaseInput.vue'
@@ -331,6 +348,7 @@ import defaultAvatar from "@/assets/images/img/default_avatar.webp"
 import { useAppToast } from "@/composable/useAppToast";
 import { useAuthStore } from '@/stores/useAuthStore'
 import { normalDate } from '@/utils/dateFormat'
+import { validatePhoneNumber } from '@/utils/validationUtils'
 import BaseModal from '@/components/ui/base/BaseModal.vue'
 
 const router = useRouter();
@@ -351,8 +369,46 @@ onMounted(async () => {
 const profileData = computed(() => authStore.user)
 
 const isEditing = ref(false)
+
+const editForm = reactive({
+  name: '',
+  gender: '',
+  phone: '',
+  dateOfBirth: ''
+})
+
+const phoneError = ref('')
+const nameError = ref('')
+
+const initEditForm = () => {
+  editForm.name = authStore.user?.name || ''
+  editForm.gender = authStore.user?.gender || ''
+  editForm.phone = authStore.user?.phone || ''
+  editForm.dateOfBirth = authStore.user?.dateOfBirth || ''
+  phoneError.value = ''
+  nameError.value = ''
+}
+
 const cancelEdit = () => {
   isEditing.value = false
+  initEditForm()
+}
+
+// Watchers for dynamic re-validation while typing
+watch(() => editForm.phone, (newVal) => {
+  if (phoneError.value) {
+    phoneError.value = validatePhoneNumber(newVal);
+  }
+})
+
+watch(() => editForm.name, (newVal) => {
+  if (nameError.value && newVal?.trim()) {
+    nameError.value = '';
+  }
+})
+
+const onPhoneBlur = () => {
+  phoneError.value = validatePhoneNumber(editForm.phone)
 }
 
 const showAvatarModal = ref(false)
@@ -428,12 +484,27 @@ const onDeleteAvatar = async () => {
 //----------> handle update profile
 const toggleEdit = async () => {
   if (isEditing.value) {
+    // Validate name
+    if (!editForm.name?.trim()) {
+      nameError.value = "សូមបញ្ចូលឈ្មោះពេញ"
+    } else {
+      nameError.value = ""
+    }
+
+    // Validate phone number
+    phoneError.value = validatePhoneNumber(editForm.phone)
+
+    if (nameError.value || phoneError.value) {
+      toast.error(phoneError.value || nameError.value)
+      return
+    }
+
     try {
       const payload = {
-        name: profileData.value.name,
-        phone: profileData.value.phone,
-        gender: profileData.value.gender,
-        dateOfBirth: profileData.value.dateOfBirth
+        name: editForm.name.trim(),
+        phone: editForm.phone.trim(),
+        gender: editForm.gender,
+        dateOfBirth: editForm.dateOfBirth
       };
       const response = await authStore.updateProfile(payload);
       if (response?.success) {
@@ -443,10 +514,13 @@ const toggleEdit = async () => {
         toast.error(response?.message || "បរាជ័យក្នុងការកែប្រែប្រវត្តិរូបភាព");
       }
     } catch (error) {
-      toast.error("បរាជ័យក្នុងការកែប្រែប្រវត្តិរូបភាព");
+      const backendMsg = error.response?.data?.message || error.response?.data?.details?.phone;
+      toast.error(backendMsg || "បរាជ័យក្នុងការកែប្រែប្រវត្តិរូបភាព");
     }
     return;
   }
+
+  initEditForm()
   isEditing.value = true;
 };
 

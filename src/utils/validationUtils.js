@@ -40,3 +40,33 @@ export function isEqual(a, b) {
   
   return normalizeValue(a) === normalizeValue(b);
 }
+
+export function isValidKhmerPhone(phone) {
+  if (!phone) return false;
+  const cleaned = String(phone).replace(/[\s\-\.]/g, "");
+  return /^(\+?855|0)[1-9]\d{7,8}$/.test(cleaned);
+}
+
+export function validatePhoneNumber(phone, required = true) {
+  if (!phone || !String(phone).trim()) {
+    return required ? "សូមបញ្ចូលលេខទូរស័ព្ទ" : "";
+  }
+  const str = String(phone).trim();
+  const cleaned = str.replace(/[\s\-\.]/g, "");
+
+  if (!/^\+?\d+$/.test(cleaned)) {
+    return "លេខទូរស័ព្ទត្រូវតែជាលេខប៉ុណ្ណោះ";
+  }
+
+  if (cleaned.startsWith("0")) {
+    if (cleaned.length < 9 || cleaned.length > 10) {
+      return "លេខទូរស័ព្ទត្រូវមាន 9 ឬ 10 ខ្ទង់ "
+    }
+  }
+
+  if (!isValidKhmerPhone(cleaned)) {
+    return "លេខទូរស័ព្ទមិនត្រឹមត្រូវ (ឧទាហរណ៍៖ 012345678 ឬ 0978123456)";
+  }
+
+  return "";
+}
