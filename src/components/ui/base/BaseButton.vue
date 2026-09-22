@@ -8,7 +8,7 @@
   >
     <!-- Loading -->
     <div
-      v-if="isLoading"
+      v-if="isBtnLoading"
       class="d-flex align-items-center w-100 gap-2 justify-content-center"
     >
       <slot
@@ -57,12 +57,12 @@
     :type="type"
     class="btn d-flex align-items-center justify-content-center gap-1 rounded-0 fs-6 py-2 h-50"
     :class="[btnClass, customClass]"
-    :disabled="disabled || isLoading"
+    :disabled="disabled || isBtnLoading"
     @click="handleClick"
   >
     <!-- Loading -->
     <div
-      v-if="isLoading"
+      v-if="isBtnLoading"
       class="d-flex align-items-center w-100 gap-2 justify-content-center"
     >
       <slot
@@ -131,6 +131,11 @@ const props = defineProps({
     default: false,
   },
 
+  loading: {
+    type: Boolean,
+    default: false,
+  },
+
   customClass: {
     type: String,
     default: "",
@@ -158,8 +163,12 @@ const btnClass = computed(() => {
   return `btn-${props.variant}`;
 });
 
+const isBtnLoading = computed(() => {
+  return Boolean(props.isLoading || props.loading);
+});
+
 const handleClick = (event) => {
-  if (!props.isLoading && !props.disabled) {
+  if (!isBtnLoading.value && !props.disabled) {
     emit("click", event);
   }
 };

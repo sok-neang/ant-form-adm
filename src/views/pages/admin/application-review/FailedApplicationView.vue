@@ -15,7 +15,7 @@
         <BaseInput 
           v-model="searchQuery" 
           type="text" 
-          placeholder="ស្វែងរក..." 
+          placeholder="ស្វែងរកតាមឈ្មោះ, អ៊ីម៉ែល..." 
           input-class="p-0"
         >
           <i class="bi bi-search search-icon"></i>

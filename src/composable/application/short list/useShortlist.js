@@ -67,10 +67,10 @@ export function useShortlist() {
             : parseScore(ev.technicalScore) ?? parseScore(ev.attendanceScore)
         );
 
-        if (subj.includes("INTRO")) {
-          introScore = score;
-        } else if (subj.includes("CYBER")) {
+        if (subj.includes("CYBER")) {
           cyberScore = score;
+        } else if (subj.includes("INTRO")) {
+          introScore = score;
         } else if (subj === "CPP" || subj === "C++" || subj.includes("CPP")) {
           score_technology = score ?? 0;
           cppScore = score;
@@ -319,96 +319,62 @@ export function useShortlist() {
       const targetPage = Number(params.page) || 1;
       const perPage = Number(params.limit) || 10;
 
-      // Unique key for the active filters and sorting
-      const filterKey = JSON.stringify({
-        shift: params.shift || "",
-        program: params.program || "",
-        group: params.group || "",
-        evaluationStatus: params.evaluationStatus || "",
-        search: (params.search || "").trim(),
-        scoreSort: params.scoreSort || "",
-        dart: params.dart || "",
-        cpp: params.cpp || "",
-        html_css: params.html_css || "",
-        submittedAt: params.submittedAt || "",
-      });
-
-      // If filters haven't changed and cached data is available, slice directly
-      if (filterKey === lastFilterKey && cachedSubmissions.length > 0 && !params.forceRefresh) {
-        applyPagination(cachedSubmissions, targetPage, perPage);
-        return;
-      }
-
-      // Fetch all candidate records for current filter to sort globally across all data
       const queryParams = {
-        page: 1,
-        limit: 100,
+        page: targetPage,
+        limit: perPage,
       };
       if (params.shift) queryParams.shift = params.shift;
       if (params.program) queryParams.program = params.program;
       if (params.group) queryParams.group = params.group;
+      if (params.evaluationStatus) queryParams.evaluationStatus = params.evaluationStatus;
       if (params.search) queryParams.search = params.search;
-      if (params.dart) queryParams.dart = params.dart;
       if (params.cpp) queryParams.cpp = params.cpp;
       if (params.html_css) queryParams.html_css = params.html_css;
+      if (params.intro_web) queryParams.intro_web = params.intro_web;
+      if (params.intro_mobile) queryParams.intro_mobile = params.intro_mobile;
+      if (params.intro_cyber) queryParams.intro_cyber = params.intro_cyber;
       if (params.scoreSort && params.scoreSort !== "all") queryParams.scoreSort = params.scoreSort;
       if (params.submittedAt) queryParams.submittedAt = params.submittedAt;
 
       const response = await submissionService.getShortlist(queryParams);
-      let rawList = [];
-      let totalItems = 0;
-
       if (response.data?.success && response.data?.data) {
         const data = response.data.data;
-        rawList = Array.isArray(data)
-          ? [...data]
-          : [...(data.submissions || data.data || [])];
-        const meta = data.pagination;
-        totalItems = meta?.total ?? meta?.totalSubmissions ?? rawList.length;
+        const rawList = Array.isArray(data)
+          ? data
+          : Array.isArray(data.submissions)
+          ? data.submissions
+          : Array.isArray(data.data)
+          ? data.data
+          : [];
+        const meta = data.pagination || data.meta || {};
+        const page = meta.page || meta.current_page || targetPage;
+        const limit = meta.limit || meta.per_page || perPage;
+        const total = meta.total ?? meta.totalSubmissions ?? (Array.isArray(data) ? data.length : rawList.length);
+        const totalPages = meta.totalPages || meta.last_page || Math.ceil(total / limit) || 1;
+        const startNumber = (page - 1) * limit + 1;
 
-        // If more than 100 items, fetch subsequent pages to ensure all records are present
-        if (totalItems > 100) {
-          const totalPages = Math.ceil(totalItems / 100);
-          const extraPromises = [];
-          for (let p = 2; p <= totalPages; p++) {
-            extraPromises.push(
-              submissionService.getShortlist({ ...queryParams, page: p, limit: 100 })
-            );
-          }
-          const extraResponses = await Promise.all(extraPromises);
-          for (const res of extraResponses) {
-            if (res.data?.success && res.data?.data) {
-              const extraData = res.data.data;
-              const extraList = Array.isArray(extraData)
-                ? extraData
-                : (extraData.submissions || extraData.data || []);
-              rawList.push(...extraList);
-            }
-          }
-        }
+        totalSubmissions.value = total;
+        pagination.value = {
+          current_page: page,
+          per_page: limit,
+          total: total,
+          last_page: totalPages,
+          totalPages: totalPages,
+          from: total === 0 ? 0 : startNumber,
+          to: Math.min(page * limit, total),
+          on_first_page: page === 1,
+          has_more_pages: page < totalPages,
+        };
+
+        const itemsToDisplay = (!data.pagination && !data.meta && rawList.length > limit)
+          ? rawList.slice((page - 1) * limit, page * limit)
+          : rawList;
+
+        students.value = itemsToDisplay.map((item, index) => ({
+          seq_num: startNumber + index,
+          ...transformCandidate(item),
+        }));
       }
-
-      // Deduplicate by ID
-      const seen = new Set();
-      const uniqueRaw = [];
-      for (const item of rawList) {
-        if (!item?.id || !seen.has(item.id)) {
-          if (item?.id) seen.add(item.id);
-          uniqueRaw.push(item);
-        }
-      }
-
-      // Transform all items
-      const transformed = uniqueRaw.map(transformCandidate);
-
-      // Apply global sorting across ALL data
-      const sorted = sortSubmissions(transformed, params);
-
-      // Cache and paginate
-      cachedSubmissions = sorted;
-      lastFilterKey = filterKey;
-
-      applyPagination(sorted, targetPage, perPage);
     } catch (error) {
       console.error("Error fetching shortlist submissions:", error);
     } finally {

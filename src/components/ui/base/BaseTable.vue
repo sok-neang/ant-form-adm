@@ -257,6 +257,10 @@ watch(
    TABLE
 ========================================================= */
 
+.table-responsive {
+  min-height: 260px;
+}
+
 .table {
   margin-bottom: 0;
 }

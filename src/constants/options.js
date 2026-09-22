@@ -117,7 +117,7 @@ export const resultStatusOptions = [
 export const scoreLevelOptions = [
   {
     value: "all",
-    label: "ជ្រើសរើសកម្រិតពិន្ទុ",
+    label: "កម្រិតពិន្ទុទាំងអស់",
   },
   {
     value: "highest",
@@ -136,22 +136,37 @@ export const scoreLevelOptions = [
     label: "ពិន្ទុ C++ ទាបជាងគេ",
   },
   {
-    value: "highestDART",
-    label: "ពិន្ទុ Dart ខ្ពស់ជាងគេ",
-  },
-  {
-    value: "lowestDART",
-    label: "ពិន្ទុ Dart ទាបជាងគេ",
-  },
-  {
     value: "highestHTML_CSS",
     label: "ពិន្ទុ HTML & CSS ខ្ពស់ជាងគេ",
   },
   {
     value: "lowestHTML_CSS",
-    label: "ពិន្ទុ HTML&CSS ទាបជាងគេ",
+    label: "ពិន្ទុ HTML & CSS ទាបជាងគេ",
   },
-
+  {
+    value: "highestINTRO_WEB",
+    label: "ពិន្ទុ Intro (Web) ខ្ពស់ជាងគេ",
+  },
+  {
+    value: "lowestINTRO_WEB",
+    label: "ពិន្ទុ Intro (Web) ទាបជាងគេ",
+  },
+  {
+    value: "highestINTRO_MOBILE",
+    label: "ពិន្ទុ Intro (Mobile) ខ្ពស់ជាងគេ",
+  },
+  {
+    value: "lowestINTRO_MOBILE",
+    label: "ពិន្ទុ Intro (Mobile) ទាបជាងគេ",
+  },
+  {
+    value: "highestINTRO_CYBER",
+    label: "ពិន្ទុ Cyber ខ្ពស់ជាងគេ",
+  },
+  {
+    value: "lowestINTRO_CYBER",
+    label: "ពិន្ទុ Cyber ទាបជាងគេ",
+  },
 ];
 
 export const subjectOptions = [
@@ -164,12 +179,20 @@ export const subjectOptions = [
     label: "C++",
   },
   {
-    value: "DART",
-    label: "Dart",
-  },
-  {
     value: "HTML_CSS",
     label: "HTML & CSS",
+  },
+  {
+    value: "INTRO_MOBILE",
+    label: "Introduction (Mobile)",
+  },
+  {
+    value: "INTRO_WEB",
+    label: "Introduction (Web)",
+  },
+  {
+    value: "INTRO_CYBER",
+    label: "Cyber Security",
   },
 ];
 
@@ -185,5 +208,20 @@ export const evaluationStatusOptions = [
   {
     value: "NOT_EVALUATED",
     label: "មិនទាន់បានវាយតម្លៃ",
+  },
+];
+
+export const contactStatusOptions = [
+  {
+    value: "",
+    label: "ស្ថានភាពទាំងអស់",
+  },
+  {
+    value: "false",
+    label: "មិនទាន់ទាក់ទង",
+  },
+  {
+    value: "true",
+    label: "បានទាក់ទង",
   },
 ];

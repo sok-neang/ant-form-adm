@@ -65,19 +65,56 @@
       <!-- 1 -->
       <div class="question-card">
         <div class="question">1. លេខទូរសព្ទរបស់អ្នក</div>
-        <div class="answer">{{ application?.student?.phone || application?.student?.phoneNumber || application?.phoneNumber || application?.phone || '-' }}</div>
+        <div class="answer">
+          <a
+            v-if="studentPhoneUrl"
+            :href="studentPhoneUrl"
+            class="contact-link"
+            :title="`ហៅទូរស័ព្ទទៅកាន់ ${studentPhone}`"
+          >
+            <i class="bi bi-telephone text-primary me-1"></i>
+            {{ studentPhone }}
+          </a>
+          <span v-else>{{ studentPhone }}</span>
+        </div>
       </div>
 
       <!-- 2 -->
       <div class="question-card">
         <div class="question">2. Username Telegram</div>
-        <div class="answer">{{ application?.student?.telegramUsername || application?.student?.telegramPhone || application?.telegramUsername || '-' }}</div>
+        <div class="answer">
+          <a
+            v-if="telegramUrl"
+            :href="telegramUrl"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="contact-link"
+            :title="`បើក ${studentTelegram} ក្នុង Telegram`"
+          >
+            <i class="bi bi-telegram text-primary me-1"></i>
+            {{ studentTelegram }}
+          </a>
+          <span v-else>{{ studentTelegram }}</span>
+        </div>
       </div>
 
       <!-- 3 -->
       <div class="question-card">
         <div class="question">3. អុីម៉ែលរបស់អ្នក</div>
-        <div class="answer">{{ application?.student?.email || application?.email || '-' }}</div>
+        <div class="answer">
+          <a
+            v-if="studentEmailUrl"
+            :href="studentEmailUrl"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="contact-link"
+            :title="`ផ្ញើអ៊ីម៉ែលទៅកាន់ ${studentEmail}`"
+          >
+            <i class="bi bi-envelope text-primary me-1"></i>
+            {{ studentEmail }}
+          </a>
+          <span v-else>{{ studentEmail }}</span>
+        </div>
       </div>
 
       <!-- 4 -->
@@ -180,14 +217,14 @@
 
       <!-- 15 -->
       <div class="question-card">
-        <div class="question">15. តើអ្វីទៅជាភាពខ្លាំងរបស់អ្នក?</div>
-        <div class="answer long-answer">{{ application?.narrative?.strengths || application?.strengths || '-' }}</div>
+        <div class="question">15. តើអ្នកមើលឃើញថា AI ជាឱកាស ឬជាហានិភ័យសម្រាប់ វិស័យសន្តិសុខព័ត៌មាន (Cybersecurity)?</div>
+        <div class="answer long-answer">{{ application?.narrative?.aiCybersecurityImpact || '-' }}</div>
       </div>
 
       <!-- 16 -->
       <div class="question-card">
-        <div class="question">16. តើអ្វីទៅជាភាពខ្សោយរបស់អ្នក?</div>
-        <div class="answer long-answer">{{ application?.narrative?.weaknesses || application?.weaknesses || '-' }}</div>
+        <div class="question">16. តើអ្នកមើលឃើញថា AI នឹងដណ្ដើមការងារអ្នក programmer (developer)?</div>
+        <div class="answer long-answer">{{ application?.narrative?.opportunityGoals || '-' }}</div>
       </div>
 
       <!-- 17 -->
@@ -278,7 +315,7 @@
 
       <!-- 25 -->
       <div class="question-card">
-        <div class="question">25. សូម Upload រូបភាពទំហំ ៤x៦ ផ្ទៃពណ៌ខៀវ</div>
+        <div class="question">25. សូម Upload រូបថតទំហំ ៤x៦ ផ្ទៃពណ៌ខៀវ</div>
         <div v-if="photoFile" class="file-answer">
           <div class="file-icon">
             <i class="bi bi-image"></i>
@@ -326,7 +363,7 @@
       <!-- 12 -->
       <div class="question-card">
         <div class="question">
-          12. ប្រសិនបើអ្នកពិតជាសិក្សាចាប់ពីឆ្នាំទី 3
+          12. ប្រសិនបើអ្នកពិតជាសិក្សាចាប់ពីឆ្នាំទី 2
           ឆមាសទី 2 ឡើងទៅ សូម Upload បណ្ណសម្គាល់ខ្លួននិស្សិត
           ឬវិក្កយបត្របង់ថ្លៃសិក្សាចុងក្រោយ
         </div>
@@ -434,52 +471,13 @@
       <!-- 26 -->
       <div class="question-card">
         <div class="question">
-          26. អ្នកត្រូវធានាអះអាងលើប្រវត្តិរូប
-          និងព័ត៌មានរបស់ខ្លួនដែលបានបំពេញ
-          ពិតជាត្រឹមត្រូវ និងគ្មានការក្លែងបន្លំ
+          26. តើអ្នកយល់ព្រមតាមលក្ខខណ្ឌដែលទាមទារឱ្យមានកុំព្យូទ័រផ្ទាល់ខ្លួន ពេលវេលាសិក្សាគ្រប់គ្រាន់ និងធានាថាព័ត៌មានដែលបានផ្តល់គឺត្រឹមត្រូវពិតប្រាកដ ដោយទទួលស្គាល់ថាសាលាអាន-ANT 
+          នឹងបញ្ឈប់ការសិក្សានិងផ្តាច់ឱកាសអាហារូបករណ៍នៅពេលក្រោយ ប្រសិនបើរកឃើញការក្លែងបន្លំ ឬមានការបោះបង់ការសិក្សាដែរឬទេ?
         </div>
 
         <div :class="(application?.agreedToEligibilityPolicy ?? true) ? 'approved-answer' : 'rejected-answer'">
           <i :class="(application?.agreedToEligibilityPolicy ?? true) ? 'bi bi-check-circle-fill' : 'bi bi-x-circle-fill'"></i>
           {{ (application?.agreedToEligibilityPolicy ?? true) ? 'យល់ព្រម' : 'មិនយល់ព្រម' }}
-        </div>
-      </div>
-
-      <!-- 27 -->
-      <div class="question-card">
-        <div class="question">
-          27. អ្នកតម្រូវឱ្យមានកុំព្យូទ័រប្រើប្រាស់ផ្ទាល់ខ្លួន
-        </div>
-
-        <div :class="(application?.agreedToCodeOfConduct ?? true) ? 'approved-answer' : 'rejected-answer'">
-          <i :class="(application?.agreedToCodeOfConduct ?? true) ? 'bi bi-check-circle-fill' : 'bi bi-x-circle-fill'"></i>
-          {{ (application?.agreedToCodeOfConduct ?? true) ? 'យល់ព្រម' : 'មិនយល់ព្រម' }}
-        </div>
-      </div>
-
-      <!-- 28 -->
-      <div class="question-card">
-        <div class="question">
-          28. អ្នកត្រូវមានពេលវេលាគ្រប់គ្រាន់ក្នុងការរៀន
-          វគ្គសិក្សាអាហារូបករណ៍ដែលបានផ្តល់ឱ្យបានចប់សព្វគ្រប់
-        </div>
-
-        <div :class="(application?.agreedToAttendancePolicy ?? true) ? 'approved-answer' : 'rejected-answer'">
-          <i :class="(application?.agreedToAttendancePolicy ?? true) ? 'bi bi-check-circle-fill' : 'bi bi-x-circle-fill'"></i>
-          {{ (application?.agreedToAttendancePolicy ?? true) ? 'យល់ព្រម' : 'មិនយល់ព្រម' }}
-        </div>
-      </div>
-
-      <!-- 29 -->
-      <div class="question-card">
-        <div class="question">
-          29. អ្នកត្រូវទទួលខុសត្រូវនូវព័ត៌មានខាងលើ
-          និងគោរពតាមលក្ខខណ្ឌរបស់អាហារូបករណ៍
-        </div>
-
-        <div :class="(application?.agreedToProgramCommitment ?? true) ? 'approved-answer' : 'rejected-answer'">
-          <i :class="(application?.agreedToProgramCommitment ?? true) ? 'bi bi-check-circle-fill' : 'bi bi-x-circle-fill'"></i>
-          {{ (application?.agreedToProgramCommitment ?? true) ? 'យល់ព្រម' : 'មិនយល់ព្រម' }}
         </div>
       </div>
 
@@ -514,6 +512,19 @@
       </button>
 
       <div class="d-flex gap-2">
+
+        <!-- Contact List (Only for SUBMIT status and not yet contacted) -->
+        <button
+          v-if="application?.status === 'SUBMIT' && !application?.contactList?.isContacted"
+          type="button"
+          class="btn btn-outline-primary px-4"
+          @click="openContactModal"
+          :disabled="isUpdating"
+          title="បន្ថែមទៅបញ្ជីទំនាក់ទំនង"
+        >
+          <i class="bi bi-person-lines-fill me-2"></i>
+          ទំនាក់ទំនង
+        </button>
 
         <!-- Blacklist -->
         <button
@@ -612,6 +623,70 @@
           យល់ព្រម
         </button>
       </div>
+    </BaseModal>
+
+    <!-- CONTACT MODAL -->
+    <BaseModal 
+      :show="showContactModal" 
+      size="md" 
+      @close="showContactModal = false"
+    >
+      <template #header>
+        <div class="d-flex align-items-center gap-3">
+          <div
+            class="bg-primary-subtle text-primary rounded-3 d-flex align-items-center justify-content-center"
+            style="width: 44px; height: 44px;"
+          >
+            <i class="bi bi-person-lines-fill fs-5"></i>
+          </div>
+          <div>
+            <h5 class="fw-bold text-dark mb-0">បន្ថែមទៅបញ្ជីទំនាក់ទំនង</h5>
+            <span class="text-muted small">សិស្ស ៖ {{ studentKhName || studentEnName }}</span>
+          </div>
+        </div>
+      </template>
+
+      <div class="py-2">
+        <div class="mb-3">
+          <label class="form-label fw-semibold text-dark small mb-1">
+            កំណត់ចំណាំ (Contact Note) <span class="text-danger">*</span>
+          </label>
+          <textarea 
+            v-model="contactNote" 
+            class="form-control" 
+            rows="3" 
+            placeholder="បញ្ចូលកំណត់ចំណាំ (ឧ. check transcript)..."
+          ></textarea>
+        </div>
+      </div>
+
+      <template #footer>
+        <div class="d-flex justify-content-end gap-2 w-100">
+          <button
+            type="button"
+            class="btn btn-light px-4 border"
+            :disabled="isSubmittingContact"
+            @click="showContactModal = false"
+          >
+            បោះបង់
+          </button>
+          <button
+            type="button"
+            class="btn btn-primary px-4 d-inline-flex align-items-center gap-2"
+            :disabled="isSubmittingContact || !contactNote.trim()"
+            @click="submitAddContact"
+          >
+            <span
+              v-if="isSubmittingContact"
+              class="spinner-border spinner-border-sm"
+              role="status"
+              aria-hidden="true"
+            ></span>
+            <i v-else class="bi bi-check2-circle"></i>
+            <span>{{ isSubmittingContact ? 'កំពុងបន្ថែម...' : 'បន្ថែម' }}</span>
+          </button>
+        </div>
+      </template>
     </BaseModal>
 
     <!-- Teleport File Preview Modal (Supports Image & PDF) -->
@@ -754,10 +829,88 @@ import bannerDetailBg from "@/assets/images/img/application_banner.webp";
 import bannerBlacklistBg from "@/assets/images/img/banner_blacklist.webp";
 import defaultAvatar from "@/assets/images/img/default_avatar.webp";
 import avatarService from "@/services/avatar.service";
+import contactService from "@/services/contact.service";
+import { useAppToast } from "@/composable/useAppToast";
 import { getSubmissionFileUrl, DEFAULT_AVATAR } from "@/composable/useAvatar";
 
 const router = useRouter();
+const toast = useAppToast();
 const { application, loading, isUpdating, fetchApplication, promoteStatus } = useApplicationReview();
+
+// Contact Information Computeds
+const studentPhone = computed(() => {
+  return application.value?.student?.phone || application.value?.student?.phoneNumber || application.value?.phoneNumber || application.value?.phone || "-";
+});
+
+const studentPhoneUrl = computed(() => {
+  const raw = application.value?.student?.phone || application.value?.student?.phoneNumber || application.value?.phoneNumber || application.value?.phone || "";
+  if (!raw || raw === "-") return undefined;
+  const clean = String(raw).replace(/[^\d+]/g, "");
+  return clean ? `tel:${clean}` : undefined;
+});
+
+const studentTelegram = computed(() => {
+  const tg = application.value?.student?.telegramUsername || application.value?.student?.telegramPhone || application.value?.telegramUsername || application.value?.student?.phone || application.value?.phone;
+  if (!tg || tg === "-") return "-";
+  return String(tg).startsWith("@") ? tg : `@${tg}`;
+});
+
+const telegramUrl = computed(() => {
+  const raw = application.value?.student?.telegramUsername || application.value?.student?.telegramPhone || application.value?.telegramUsername || application.value?.student?.phone || application.value?.phone;
+  if (!raw || raw === "-") return undefined;
+  const clean = String(raw).replace(/^@/, "").trim();
+  return clean ? `https://t.me/${clean}` : undefined;
+});
+
+const studentEmail = computed(() => {
+  return application.value?.student?.email || application.value?.email || "-";
+});
+
+const studentEmailUrl = computed(() => {
+  const email = application.value?.student?.email || application.value?.email;
+  if (!email || email === "-") return undefined;
+  return `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(email)}`;
+});
+
+// Contact Modal State
+const showContactModal = ref(false);
+const isSubmittingContact = ref(false);
+const contactNote = ref("");
+
+const openContactModal = () => {
+  if (application.value?.status !== "SUBMIT") {
+    toast.warning("មានតែសិស្សដែលមានស្ថានភាព SUBMIT ប៉ុណ្ណោះដែលអាចបន្ថែមទៅបញ្ជីទំនាក់ទំនង");
+    return;
+  }
+  if (application.value?.contactList?.isContacted || application.value?.isContacted) {
+    toast.warning("សិស្សនេះត្រូវបានបន្ថែមទៅបញ្ជីទំនាក់ទំនងរួចហើយ");
+    return;
+  }
+  contactNote.value = "";
+  showContactModal.value = true;
+};
+
+const submitAddContact = async () => {
+  if (!application.value?.id) return;
+  isSubmittingContact.value = true;
+  try {
+    const res = await contactService.addContact(application.value.id, {
+      contactNote: contactNote.value.trim(),
+    });
+    if (res.data?.success) {
+      toast.success(res.data?.message || "បានបន្ថែមទៅបញ្ជីទំនាក់ទំនងដោយជោគជ័យ");
+      showContactModal.value = false;
+      if (application.value) {
+        application.value.isContacted = true;
+      }
+      await fetchApplication();
+    }
+  } catch (err) {
+    toast.error(err.response?.data?.message || "បរាជ័យក្នុងការបន្ថែមទៅបញ្ជីទំនាក់ទំនង");
+  } finally {
+    isSubmittingContact.value = false;
+  }
+};
 
 const showActionModal = ref(false);
 const actionType = ref("");
@@ -1365,6 +1518,29 @@ const getShift = (s) => {
   line-height: 1.8;
 
   padding-left: 4px;
+}
+
+.contact-link {
+  color: #2662d9;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  border-radius: 6px;
+  padding: 2px 8px;
+  margin-left: -8px;
+}
+
+.contact-link:hover {
+  color: #1d4ed8;
+  background-color: #eff6ff;
+  text-decoration: underline;
+}
+
+.contact-link i {
+  font-size: 1rem;
 }
 
 .long-answer {

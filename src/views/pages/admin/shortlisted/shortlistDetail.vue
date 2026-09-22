@@ -237,7 +237,7 @@ const actionModalPrompt = computed(() => {
     return "តើអ្នកពិតជាចង់ផ្លាស់ប្តូរស្ថានភាពបេក្ខជននេះទៅជា «ធ្លាក់» មែនទេ?";
   }
   if (actionType.value === "PASS" || actionType.value === "PASSED") {
-    return "តើអ្នកពិតជាចង់ផ្លាស់ប្តូរស្ថានភាពបេក្ខជននេះទៅជា «ជាប់» មែនទេ?";
+    return "តើអ្នកពិតជាចង់ផ្លាស់ប្តូរស្ថានភាពបេក្ខជននេះទៅជា «ជាប់ពេញសិទ្ធ» មែនទេ?";
   }
   return "តើអ្នកពិតជាចង់ផ្លាស់ប្តូរស្ថានភាពបេក្ខជននេះមែនទេ?";
 });
@@ -257,12 +257,16 @@ const promoteStatus = async (status, payload = {}) => {
   try {
     const response = await submissionService.promoteStatus(id, { status, ...payload });
     if (response.data?.success || response.status === 200) {
-      toast.success("ស្ថានភាពត្រូវបានកែប្រែដោយជោគជ័យ");
+      toast.success("ស្ថានភាពត្រូវបានកែប្រែដោយជោគជ័យ។");
       router.back();
     }
   } catch (error) {
     console.error("Error updating status:", error);
-    toast.error("មានបញ្ហាក្នុងការកែប្រែស្ថានភាព");
+    if (error?.response?.data?.message == 'Student must have evaluation scores for 3 subjects before changing status.') {
+      toast.error("សិស្សត្រូវមានពិន្ទុវាយតម្លៃគ្រប់មុខវិជ្ជាសិន។");
+    } else {
+      toast.error(error?.response?.data?.message || "មានបញ្ហាប្រព័ន្ធ");
+    }
   } finally {
     isUpdating.value = false;
   }

@@ -15,7 +15,7 @@
           <BaseInput 
             v-model="searchQuery" 
             type="text" 
-            placeholder="ស្វែងរក..." 
+            placeholder="ស្វែងរកតាមឈ្មោះ, អ៊ីម៉ែល..." 
             input-class="p-0"
           >
             <i class="bi bi-search search-icon"></i>
@@ -99,38 +99,52 @@
         {{ row.skill }}
       </span>
     </template>
-    <!-- Technology Score -->
-     
-    <template #cell-score_technology="{ row }">
-    <span
+    <!-- INTRODUCTION Score Column -->
+    <template #cell-score_intro="{ row }">
+      <span
         class="badge rounded-pill px-3 py-2"
         :class="
-        row.score_technology < 50
+          row.score_intro < 50
             ? 'score-fail'
-            : row.score_technology < 70
+            : row.score_intro < 70
             ? 'score-medium'
             : 'score-good'
         "
-    >
-        {{ row.score_technology }}
-    </span>
+      >
+        {{ row.score_intro }}
+      </span>
     </template>
 
-    <!-- Attendance Score -->
-    <template #cell-score_attendance="{ row }">
-
-    <span
+    <!-- C++/HTML Score Column -->
+    <template #cell-score_specialized="{ row }">
+      <span
         class="badge rounded-pill px-3 py-2"
         :class="
-        row.score_attendance < 50
+          row.score_specialized < 50
             ? 'score-fail'
-            : row.score_attendance < 70
+            : row.score_specialized < 70
             ? 'score-medium'
             : 'score-good'
         "
-    >
-        {{ row.score_attendance }}
-    </span>
+      >
+        {{ row.score_specialized }}
+      </span>
+    </template>
+
+    <!-- CYBER Score Column -->
+    <template #cell-score_cyber="{ row }">
+      <span
+        class="badge rounded-pill px-3 py-2"
+        :class="
+          row.score_cyber < 50
+            ? 'score-fail'
+            : row.score_cyber < 70
+            ? 'score-medium'
+            : 'score-good'
+        "
+      >
+        {{ row.score_cyber }}
+      </span>
     </template>
     <!-- Total score  -->
     <template #cell-total_score="{ row }">
@@ -165,6 +179,7 @@
             type="button"
             class="btn btn-action-outline action-btn"
             data-bs-toggle="dropdown"
+            data-bs-boundary="viewport"
             aria-expanded="false"
             title="សកម្មភាពបន្ថែម"
           >
@@ -446,8 +461,9 @@ const columns = [
   { key: "group", label: "ក្រុម" },
   { key: "skill", label: "ជំនាញ" },
   { key: "study_shift", label: "វេនសិក្សា" },
-  { key: "score_technology", label: "C++" },
-  { key: "score_attendance", label: "HTML / Dart" },
+  { key: "score_intro", label: "INTRO" },
+  { key: "score_specialized", label: "C++/HTML" },
+  { key: "score_cyber", label: "CYBER" },
   { key: "total_score", label: "ពិន្ទុមធ្យម" },
 ];
 
@@ -460,34 +476,32 @@ const loadSubmissions = async (page = 1) => {
   if (selectedGroup.value) params.group = selectedGroup.value;
   if (selectedShift.value) params.shift = selectedShift.value;
   if (selectedSpecialization.value) params.program = selectedSpecialization.value;
-  if (selectedScoreLevel.value) {
+  if (selectedScoreLevel.value && selectedScoreLevel.value !== "all") {
     const val = selectedScoreLevel.value;
     if (val === "highest" || val === "HIGH") {
       params.scoreSort = "highest";
     } else if (val === "lowest" || val === "LOW") {
       params.scoreSort = "lowest";
-    } else if (val === "highestCPP") {
+    } else if (val === "highestCPP" || val === "cpp_highest") {
       params.cpp = "highest";
-      params.scoreSort = "highestCPP";
-    } else if (val === "lowestCPP") {
+    } else if (val === "lowestCPP" || val === "cpp_lowest") {
       params.cpp = "lowest";
-      params.scoreSort = "lowestCPP";
-    } else if (val === "highestDART") {
-      params.dart = "highest";
-      params.scoreSort = "highestDART";
-    } else if (val === "lowestDART") {
-      params.dart = "lowest";
-      params.scoreSort = "lowestDART";
-    } else if (val === "highestHTML_CSS") {
+    } else if (val === "highestHTML_CSS" || val === "html_css_highest") {
       params.html_css = "highest";
-      params.scoreSort = "highestHTML_CSS";
-    } else if (val === "lowestHTML_CSS") {
+    } else if (val === "lowestHTML_CSS" || val === "html_css_lowest") {
       params.html_css = "lowest";
-      params.scoreSort = "lowestHTML_CSS";
-    } else if (val === "all" || val === "ALL") {
-      params.scoreSort = "all";
-    } else {
-      params.scoreSort = val;
+    } else if (val === "highestINTRO_WEB" || val === "intro_web_highest") {
+      params.intro_web = "highest";
+    } else if (val === "lowestINTRO_WEB" || val === "intro_web_lowest") {
+      params.intro_web = "lowest";
+    } else if (val === "highestINTRO_MOBILE" || val === "intro_mobile_highest") {
+      params.intro_mobile = "highest";
+    } else if (val === "lowestINTRO_MOBILE" || val === "intro_mobile_lowest") {
+      params.intro_mobile = "lowest";
+    } else if (val === "highestINTRO_CYBER" || val === "intro_cyber_highest" || val === "highestCYBER") {
+      params.intro_cyber = "highest";
+    } else if (val === "lowestINTRO_CYBER" || val === "intro_cyber_lowest" || val === "lowestCYBER") {
+      params.intro_cyber = "lowest";
     }
   }
   if (searchQuery.value) params.search = searchQuery.value;

@@ -15,7 +15,7 @@
         <BaseInput 
           v-model="searchQuery" 
           type="text" 
-          placeholder="ស្វែងរក..." 
+          placeholder="ស្វែងរកតាមឈ្មោះ, អ៊ីម៉ែល..." 
           input-class="p-0"
         >
           <i class="bi bi-search search-icon"></i>
@@ -85,6 +85,7 @@
             type="button"
             class="btn btn-action-outline action-btn"
             data-bs-toggle="dropdown"
+            data-bs-boundary="viewport"
             aria-expanded="false"
             title="សកម្មភាពបន្ថែម"
           >
@@ -112,6 +113,18 @@
               >
                 <i class="bi bi-pencil-square text-primary fs-6"></i>
                 <span class="small fw-medium">កែប្រែ (Shift & Program)</span>
+              </button>
+            </li>
+
+            <!-- Add to Contact List (Only for SUBMIT status and not yet contacted) -->
+            <li v-if="(row.raw?.status === 'SUBMIT' || row.status === 'SUBMIT') && !row.raw?.isContacted && !row.isContacted">
+              <button
+                type="button"
+                class="dropdown-item d-flex align-items-center gap-2 py-2"
+                @click="openAddContactModal(row)"
+              >
+                <i class="bi bi-person-lines-fill text-primary fs-6"></i>
+                <span class="small fw-medium">បន្ថែមទៅបញ្ជីទំនាក់ទំនង</span>
               </button>
             </li>
 
@@ -374,6 +387,71 @@
         </div>
       </template>
     </BaseModal>
+
+    <!-- Add to Contact Modal -->
+    <BaseModal
+      :show="showAddContactModal"
+      size="md"
+      :showClose="!isSubmittingContact"
+      @close="showAddContactModal = false"
+    >
+      <template #header>
+        <div class="d-flex align-items-center gap-3">
+          <div
+            class="bg-primary-subtle text-primary rounded-3 d-flex align-items-center justify-content-center"
+            style="width: 44px; height: 44px;"
+          >
+            <i class="bi bi-person-lines-fill fs-5"></i>
+          </div>
+          <div>
+            <h5 class="fw-bold text-dark mb-0">បន្ថែមទៅបញ្ជីទំនាក់ទំនង</h5>
+            <span class="text-muted small">សិស្ស ៖ {{ contactingStudent?.name }}</span>
+          </div>
+        </div>
+      </template>
+
+      <div class="py-2">
+        <div class="mb-3">
+          <label class="form-label fw-semibold text-dark small mb-1">
+            កំណត់ចំណាំ (Contact Note) <span class="text-danger">*</span>
+          </label>
+          <textarea
+            v-model="contactNoteInput"
+            rows="3"
+            class="form-control"
+            placeholder="បញ្ចូលកំណត់ចំណាំ (ឧ. check transcript)..."
+          ></textarea>
+        </div>
+      </div>
+
+      <template #footer>
+        <div class="d-flex justify-content-end gap-2 w-100">
+          <button
+            type="button"
+            class="btn btn-light px-4 border"
+            :disabled="isSubmittingContact"
+            @click="showAddContactModal = false"
+          >
+            បោះបង់
+          </button>
+          <button
+            type="button"
+            class="btn btn-primary px-4 d-inline-flex align-items-center gap-2"
+            :disabled="isSubmittingContact || !contactNoteInput.trim()"
+            @click="confirmAddContact"
+          >
+            <span
+              v-if="isSubmittingContact"
+              class="spinner-border spinner-border-sm"
+              role="status"
+              aria-hidden="true"
+            ></span>
+            <i v-else class="bi bi-check2-circle"></i>
+            <span>{{ isSubmittingContact ? 'កំពុងបន្ថែម...' : 'បន្ថែម' }}</span>
+          </button>
+        </div>
+      </template>
+    </BaseModal>
   </div>
 </template>
 <script setup>
@@ -388,6 +466,7 @@ import { useStatistic } from "@/composable/dashboard/useStatistic.js";
 import { useAppToast } from "@/composable/useAppToast.js";
 import { shiftOptions, specializationOptions, groupOptions } from "@/constants/options";
 import { useApplicationList } from "@/composable/application/all submission/useapplicationList";
+import contactService from "@/services/contact.service";
 import groupService from "@/services/group.service";
 import submissionService from "@/services/submission.service";
 
@@ -549,7 +628,7 @@ const handleSaveEdit = async () => {
       program: editForm.value.program,
       shift: editForm.value.shift,
     });
-    toast.success(res?.message || "បានកែប្រែវេន និងមុខជំនាញដោយជោគជ័យ");
+    toast.success("បានកែប្រែវេន និងមុខជំនាញដោយជោគជ័យ");
     showEditModal.value = false;
     await loadSubmissions(pagination.value.current_page);
   } catch (error) {
@@ -574,7 +653,7 @@ const handleConfirmDelete = async () => {
   isDeleting.value = true;
   try {
     const res = await deleteSubmission(deletingStudent.value.id);
-    toast.success(res?.message || "បានលុបទិន្នន័យសិស្សដោយជោគជ័យ");
+    toast.success("បានលុបទិន្នន័យសិស្សដោយជោគជ័យ");
     showDeleteModal.value = false;
     await Promise.all([
       loadSubmissions(pagination.value.current_page),
@@ -588,6 +667,47 @@ const handleConfirmDelete = async () => {
     toast.error(error.response?.data?.message || "បរាជ័យក្នុងការលុបសិស្ស");
   } finally {
     isDeleting.value = false;
+  }
+};
+
+// Add to Contact List State & Actions
+const showAddContactModal = ref(false);
+const isSubmittingContact = ref(false);
+const contactingStudent = ref(null);
+const contactNoteInput = ref("");
+
+const openAddContactModal = (row) => {
+  const status = row.raw?.status || row.status;
+  if (status && status !== "SUBMIT") {
+    toast.warning("មានតែសិស្សដែលមានស្ថានភាព SUBMIT ប៉ុណ្ណោះដែលអាចបន្ថែមទៅបញ្ជីទំនាក់ទំនង");
+    return;
+  }
+  contactingStudent.value = row;
+  contactNoteInput.value = "";
+  showAddContactModal.value = true;
+};
+
+const confirmAddContact = async () => {
+  if (!contactingStudent.value?.id) return;
+  isSubmittingContact.value = true;
+  try {
+    const res = await contactService.addContact(contactingStudent.value.id, {
+      contactNote: contactNoteInput.value.trim(),
+    });
+    if (res.data?.success) {
+      toast.success("បានបន្ថែមទៅបញ្ជីទំនាក់ទំនងដោយជោគជ័យ");
+      showAddContactModal.value = false;
+      if (contactingStudent.value) {
+        contactingStudent.value.isContacted = true;
+        if (contactingStudent.value.raw) {
+          contactingStudent.value.raw.isContacted = true;
+        }
+      }
+    }
+  } catch (error) {
+    toast.error(error.response?.data?.message || "បរាជ័យក្នុងការបន្ថែមទៅបញ្ជីទំនាក់ទំនង");
+  } finally {
+    isSubmittingContact.value = false;
   }
 };
 

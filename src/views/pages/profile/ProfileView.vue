@@ -393,7 +393,7 @@ const onSaveAvatar = async (canvas) => {
 
         const response = await authStore.uploadAvatar(formData)
         if (response?.success) {
-          toast.success("Profile picture updated successfully")
+          toast.success("កែប្រែរូបភាពដោយជោគជ័យ")
           selectedImageSrc.value = canvas.toDataURL("image/jpeg")
           showAvatarModal.value = false
         } else {
@@ -414,11 +414,11 @@ const onDeleteAvatar = async () => {
   try {
     const response = await authStore.deleteAvatar()
     if (response?.success) {
-      toast.success("Profile picture deleted successfully")
+      toast.success("លុបរូបភាពដោយជោគជ័យ")
       selectedImageSrc.value = ''
       showDeleteAvatarModal.value = false
     } else {
-      toast.error(response?.message || "Failed to delete profile picture")
+      toast.error(response?.message || "បរាជ័យក្នុងការលុបរូបភាព")
     }
   } catch (error) {
     toast.error("Failed to delete profile picture")

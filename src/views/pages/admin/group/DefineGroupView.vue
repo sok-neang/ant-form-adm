@@ -5,9 +5,6 @@
       <div>
         <div class="d-flex align-items-center gap-2 mb-1">
           <h4 class="fw-bold mb-0 text-dark">កំណត់ក្រុម</h4>
-          <span class="badge rounded-pill bg-primary-subtle text-primary px-3 py-1 fw-semibold small">
-            វគ្គសិក្សា ២ សប្តាហ៍
-          </span>
         </div>
         <p class="text-muted mb-0 small">
           បែងចែកសិស្សជាប់ក្នុងបញ្ជីសម្រាំងជាក្រុម ដើម្បីចូលរៀនវគ្គមូលដ្ឋាន ២ សប្តាហ៍តាមវេន និងក្រុមនីមួយៗ
@@ -41,8 +38,8 @@
     <div class="row g-3 mb-4">
       <!-- 1. Total Shortlisted -->
       <div class="col-12 col-sm-6 col-xl-3">
-        <div class="stat-card p-3 rounded-4 bg-white border border-primary-subtle h-100 d-flex align-items-center gap-3">
-          <div class="stat-icon bg-primary-subtle text-primary rounded-3 d-flex align-items-center justify-content-center">
+        <div class="stat-card p-3 rounded-4 bg-white border border-primary h-100 d-flex align-items-center gap-3">
+          <div class="stat-icon text-primary rounded-3 d-flex align-items-center justify-content-center">
             <i class="bi bi-people-fill fs-4"></i>
           </div>
           <div class="min-w-0 flex-grow-1">
@@ -60,8 +57,8 @@
 
       <!-- 2. Number of Groups -->
       <div class="col-12 col-sm-6 col-xl-3">
-        <div class="stat-card p-3 rounded-4 bg-white border border-primary-subtle h-100 d-flex align-items-center gap-3">
-          <div class="stat-icon bg-warning-subtle text-warning rounded-3 d-flex align-items-center justify-content-center">
+        <div class="stat-card p-3 rounded-4 bg-white border border-primary h-100 d-flex align-items-center gap-3">
+          <div class="stat-icon text-warning rounded-3 d-flex align-items-center justify-content-center">
             <i class="bi bi-grid-3x3-gap-fill fs-4"></i>
           </div>
           <div class="min-w-0 flex-grow-1">
@@ -79,8 +76,8 @@
 
       <!-- 3. Students Per Group -->
       <div class="col-12 col-sm-6 col-xl-3">
-        <div class="stat-card p-3 rounded-4 bg-white border border-primary-subtle h-100 d-flex align-items-center gap-3">
-          <div class="stat-icon bg-info-subtle text-info rounded-3 d-flex align-items-center justify-content-center">
+        <div class="stat-card p-3 rounded-4 bg-white border border-primary h-100 d-flex align-items-center gap-3">
+          <div class="stat-icon text-info rounded-3 d-flex align-items-center justify-content-center">
             <i class="bi bi-person-badge-fill fs-4"></i>
           </div>
           <div class="min-w-0 flex-grow-1">
@@ -98,8 +95,8 @@
 
       <!-- 4. Last Configured -->
       <div class="col-12 col-sm-6 col-xl-3">
-        <div class="stat-card p-3 rounded-4 bg-white border border-primary-subtle h-100 d-flex align-items-center gap-3">
-          <div class="stat-icon bg-success-subtle text-success rounded-3 d-flex align-items-center justify-content-center">
+        <div class="stat-card p-3 rounded-4 bg-white border border-primary h-100 d-flex align-items-center gap-3">
+          <div class="stat-icon text-success rounded-3 d-flex align-items-center justify-content-center">
             <i class="bi bi-calendar-check-fill fs-4"></i>
           </div>
           <div class="min-w-0 flex-grow-1">
@@ -206,15 +203,8 @@
                 <div>
                   <h5 class="fw-bold mb-0 text-dark">
                     ក្រុមទី {{ grp.group }}</h5>
-                  <span class="text-muted small" style="font-size: 0.78rem;">
-                    វគ្គសិក្សា ២ សប្តាហ៍ (Batch {{ grp.group }})
-                  </span>
                 </div>
               </div>
-
-              <span class="badge rounded-pill bg-primary-subtle text-primary fw-bold px-3 py-2">
-                {{ getGroupPercentage(grp.studentCount) }}%
-              </span>
             </div>
 
             <div class="d-flex align-items-baseline gap-2 mb-3">
@@ -587,8 +577,9 @@ const submitAssignGroups = async () => {
     }
   } catch (err) {
     console.error("Failed to assign groups:", err);
-    const msg = err.response?.data?.message || "មិនអាចបែងចែកក្រុមបានទេ សូមព្យាយាមម្ដងទៀត";
+    const msg = "មិនអាចបែងចែកក្រុមបានម្តងទៀតទេ";
     toast.error(msg);
+    closeAssignModal();
   } finally {
     isAssigning.value = false;
   }
@@ -617,6 +608,7 @@ onMounted(() => {
 .stat-icon {
   width: 52px;
   height: 52px;
+  background-color: #eef2f6;
   flex-shrink: 0;
 }
 

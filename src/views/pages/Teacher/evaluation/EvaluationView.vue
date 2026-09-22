@@ -197,19 +197,19 @@
             <div class="student-info-list d-flex flex-column gap-3">
               <div class="d-flex justify-content-between align-items-center">
                 <span class="text-muted fw-medium">ជំនាញ</span>
-                <span class="fw-bold text-dark">{{ studentSpecialization }}</span>
+                <span class="fw-simebold text-dark">{{ studentSpecialization }}</span>
               </div>
               <div class="d-flex justify-content-between align-items-center">
                 <span class="text-muted fw-medium">ភេទ</span>
-                <span class="fw-bold text-dark">{{ studentGender }}</span>
+                <span class="fw-semibold text-dark">{{ studentGender }}</span>
               </div>
               <div class="d-flex justify-content-between align-items-center">
                 <span class="text-muted fw-medium">សាកលវិទ្យាល័យ</span>
-                <span class="fw-bold text-dark">{{ studentUniversity }}</span>
+                <span class="fw-semibold w-50 text-end text-dark">{{ studentUniversity }}</span>
               </div>
               <div class="d-flex justify-content-between align-items-center">
                 <span class="text-muted fw-medium">ឆ្នាំទី</span>
-                <span class="fw-bold text-dark">{{ studentYear }}</span>
+                <span class="fw-semibold text-dark">{{ studentYear }}</span>
               </div>
             </div>
           </div>
@@ -222,7 +222,7 @@
             <div class="mb-4">
               <div class="d-flex justify-content-between align-items-center mb-2">
                 <span class="fw-semibold text-secondary small">Average Technical Score</span>
-                <span class="fw-bold text-dark fs-6">{{ liveScores.avgTech || 0 }}</span>
+                <span class="fw-semibold text-dark fs-6">{{ liveScores.avgTech || 0 }}</span>
               </div>
               <div class="progress score-progress-bar">
                 <div
@@ -237,7 +237,7 @@
             <div>
               <div class="d-flex justify-content-between align-items-center mb-2">
                 <span class="fw-semibold text-secondary small">Average Attendance Score</span>
-                <span class="fw-bold text-dark fs-6">{{ liveScores.avgAtt || 0 }}</span>
+                <span class="fw-semibold text-dark fs-6">{{ liveScores.avgAtt || 0 }}</span>
               </div>
               <div class="progress score-progress-bar">
                 <div
@@ -251,11 +251,6 @@
 
           <!-- 3. OVERALL AVERAGE SCORE BANNER CARD -->
           <div class="card border-0 rounded-4 shadow-sm overflow-hidden overall-banner-card position-relative">
-            <img
-              :src="bannerBg"
-              alt="Overall Score Background"
-              class="banner-bg-img position-absolute top-0 start-0 w-100 h-100 object-fit-cover"
-            />
             <div class="banner-overlay position-relative p-4 text-center d-flex flex-column align-items-center justify-content-center h-100">
               <h5 class="fw-bold banner-title mb-2">ពិន្ទុសរុបជាមធ្យម</h5>
               <div class="banner-score fw-bolder">
@@ -555,14 +550,14 @@ onMounted(() => {
 }
 
 .tag-pill-positive {
-  background-color: #f0fdf4;
+  background-color: #f0f3fd;
   border-color: #dcfce7;
-  color: #166534;
+  color: var(--bs-primary);
 }
 
 .tag-pill-positive:hover {
-  background-color: #dcfce7;
-  border-color: #bbf7d0;
+  background-color: #dcecfc;
+  border-color: #bbd4f7;
   transform: translateY(-1px);
 }
 
@@ -626,11 +621,12 @@ onMounted(() => {
 .overall-banner-card {
   min-height: 200px;
   height: 220px;
-}
-
-.banner-bg-img {
-  opacity: 0.95;
-  filter: brightness(0.98);
+  color: white;
+  background-image: url('/src/assets//images/img/banner_detail.webp');
+  /* background-size: 100% 100%; */
+  background-position: left;
+  object-fit: cover;
+  background-repeat: no-repeat;
 }
 
 .banner-overlay {
@@ -638,13 +634,11 @@ onMounted(() => {
 }
 
 .banner-title {
-  color: #1e3a8a;
   font-size: 1.15rem;
   letter-spacing: -0.2px;
 }
 
 .banner-score {
-  color: #0f172a;
   font-size: 2.75rem;
   letter-spacing: -0.5px;
 }

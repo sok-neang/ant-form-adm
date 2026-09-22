@@ -54,27 +54,50 @@ export function usePassedShortlist() {
     let cppScore = null;
     let dartScore = null;
     let htmlCssScore = null;
+    let introScore = null;
+    let cyberScore = null;
 
     if (Array.isArray(sub.evaluations)) {
       sub.evaluations.forEach((ev) => {
         const subj = (ev.subject || "").toUpperCase();
-        const score = parseScore(ev.averageScore);
-        if (subj === "CPP" || subj === "C++") {
+        const score = parseScore(ev.averageScore) ?? (
+          ev.technicalScore != null && ev.attendanceScore != null
+            ? (Number(ev.technicalScore) + Number(ev.attendanceScore)) / 2
+            : parseScore(ev.technicalScore) ?? parseScore(ev.attendanceScore)
+        );
+
+        if (subj.includes("CYBER")) {
+          cyberScore = score;
+        } else if (subj.includes("INTRO")) {
+          introScore = score;
+        } else if (subj === "CPP" || subj === "C++" || subj.includes("CPP")) {
           score_technology = score ?? 0;
           cppScore = score;
-        }
-        if (subj === "DART") {
+        } else if (subj === "DART") {
           score_attendance = score ?? 0;
           dartScore = score;
-        }
-        if (subj === "HTML_CSS" || subj === "HTML" || subj === "HTML&CSS" || subj === "HTML_AND_CSS") {
+        } else if (subj.includes("HTML") || subj.includes("CSS")) {
           score_attendance = score ?? 0;
           htmlCssScore = score;
         }
       });
     }
 
-    const overallScore = parseScore(sub.overallAverageScore);
+    // Specialized subject: C++ for Mobile App, HTML & CSS for Web Dev
+    const specializedScore =
+      (sub.program === "MOBILE_APP" ? cppScore : htmlCssScore) ??
+      cppScore ??
+      htmlCssScore ??
+      dartScore;
+
+    let overallScore = parseScore(sub.overallAverageScore);
+    if (overallScore == null) {
+      const activeScores = [introScore, specializedScore, cyberScore].filter((s) => s != null);
+      if (activeScores.length > 0) {
+        overallScore = activeScores.reduce((acc, v) => acc + v, 0) / activeScores.length;
+      }
+    }
+
     const submittedTime = sub.submittedAt ? new Date(sub.submittedAt).getTime() : 0;
     const groupNum = sub.submissionGroup?.groupNumber ?? sub.groupNumber ?? sub.group ?? null;
     const groupText = groupNum ? `ក្រុម ${groupNum}` : "—";
@@ -92,6 +115,9 @@ export function usePassedShortlist() {
       group_number: groupNum,
       skill: programMap[sub.program] || sub.program || "N/A",
       study_shift: shiftMap[sub.shift] || sub.shift || "N/A",
+      score_intro: introScore != null ? parseFloat(introScore).toFixed(2) : "0.00",
+      score_specialized: specializedScore != null ? parseFloat(specializedScore).toFixed(2) : "0.00",
+      score_cyber: cyberScore != null ? parseFloat(cyberScore).toFixed(2) : "0.00",
       score_technology: score_technology ? parseFloat(score_technology).toFixed(2) : "0.00",
       score_attendance: score_attendance ? parseFloat(score_attendance).toFixed(2) : "0.00",
       total_score: overallScore != null ? overallScore.toFixed(2) : "0.00",
@@ -99,6 +125,9 @@ export function usePassedShortlist() {
       _cppScore: cppScore,
       _dartScore: dartScore,
       _htmlCssScore: htmlCssScore,
+      _introScore: introScore,
+      _specializedScore: specializedScore,
+      _cyberScore: cyberScore,
       _totalScore: overallScore,
       _submittedAt: submittedTime,
       raw: sub,
@@ -174,6 +203,46 @@ export function usePassedShortlist() {
       return list;
     }
 
+    // Introduction sorting
+    if (params.intro === "lowest" || params.scoreSort === "lowestINTRO" || params.scoreSort === "lowestINTRODUCTION") {
+      list.sort((a, b) => {
+        if (a._introScore != null && b._introScore != null) return a._introScore - b._introScore;
+        if (a._introScore != null) return -1;
+        if (b._introScore != null) return 1;
+        return 0;
+      });
+      return list;
+    }
+    if (params.intro === "highest" || params.scoreSort === "highestINTRO" || params.scoreSort === "highestINTRODUCTION") {
+      list.sort((a, b) => {
+        if (a._introScore != null && b._introScore != null) return b._introScore - a._introScore;
+        if (a._introScore != null) return -1;
+        if (b._introScore != null) return 1;
+        return 0;
+      });
+      return list;
+    }
+
+    // Cyber sorting
+    if (params.cyber === "lowest" || params.scoreSort === "lowestCYBER") {
+      list.sort((a, b) => {
+        if (a._cyberScore != null && b._cyberScore != null) return a._cyberScore - b._cyberScore;
+        if (a._cyberScore != null) return -1;
+        if (b._cyberScore != null) return 1;
+        return 0;
+      });
+      return list;
+    }
+    if (params.cyber === "highest" || params.scoreSort === "highestCYBER") {
+      list.sort((a, b) => {
+        if (a._cyberScore != null && b._cyberScore != null) return b._cyberScore - a._cyberScore;
+        if (a._cyberScore != null) return -1;
+        if (b._cyberScore != null) return 1;
+        return 0;
+      });
+      return list;
+    }
+
     // Overall score sorting
     if (params.scoreSort === "lowest" || params.scoreSort === "LOW") {
       list.sort((a, b) => {
@@ -242,86 +311,61 @@ export function usePassedShortlist() {
       const targetPage = Number(params.page) || 1;
       const perPage = Number(params.limit) || 10;
 
-      const filterKey = JSON.stringify({
-        shift: params.shift || "",
-        program: params.program || "",
-        group: params.group || "",
-        search: (params.search || "").trim(),
-        scoreSort: params.scoreSort || "",
-        dart: params.dart || "",
-        cpp: params.cpp || "",
-        html_css: params.html_css || "",
-        submittedAt: params.submittedAt || "",
-      });
-
-      if (filterKey === lastFilterKey && cachedSubmissions.length > 0 && !params.forceRefresh) {
-        applyPagination(cachedSubmissions, targetPage, perPage);
-        return;
-      }
-
       const queryParams = {
-        page: 1,
-        limit: 100,
+        page: targetPage,
+        limit: perPage,
       };
       if (params.shift) queryParams.shift = params.shift;
       if (params.program) queryParams.program = params.program;
       if (params.group) queryParams.group = params.group;
       if (params.search) queryParams.search = params.search;
-      if (params.dart) queryParams.dart = params.dart;
       if (params.cpp) queryParams.cpp = params.cpp;
       if (params.html_css) queryParams.html_css = params.html_css;
+      if (params.intro_web) queryParams.intro_web = params.intro_web;
+      if (params.intro_mobile) queryParams.intro_mobile = params.intro_mobile;
+      if (params.intro_cyber) queryParams.intro_cyber = params.intro_cyber;
       if (params.scoreSort && params.scoreSort !== "all") queryParams.scoreSort = params.scoreSort;
       if (params.submittedAt) queryParams.submittedAt = params.submittedAt;
 
       const response = await submissionService.getPassShortlist(queryParams);
-      let rawList = [];
-      let totalItems = 0;
-
       if (response.data?.success && response.data?.data) {
         const data = response.data.data;
-        rawList = Array.isArray(data)
-          ? [...data]
-          : [...(data.submissions || data.data || [])];
-        const meta = data.pagination;
-        totalItems = meta?.total ?? meta?.totalSubmissions ?? rawList.length;
+        const rawList = Array.isArray(data)
+          ? data
+          : Array.isArray(data.submissions)
+          ? data.submissions
+          : Array.isArray(data.data)
+          ? data.data
+          : [];
+        const meta = data.pagination || data.meta || {};
+        const page = meta.page || meta.current_page || targetPage;
+        const limit = meta.limit || meta.per_page || perPage;
+        const total = meta.total ?? meta.totalSubmissions ?? (Array.isArray(data) ? data.length : rawList.length);
+        const totalPages = meta.totalPages || meta.last_page || Math.ceil(total / limit) || 1;
+        const startNumber = (page - 1) * limit + 1;
 
-        if (totalItems > 100) {
-          const totalPages = Math.ceil(totalItems / 100);
-          const extraPromises = [];
-          for (let p = 2; p <= totalPages; p++) {
-            extraPromises.push(
-              submissionService.getPassShortlist({ ...queryParams, page: p, limit: 100 })
-            );
-          }
-          const extraResponses = await Promise.all(extraPromises);
-          for (const res of extraResponses) {
-            if (res.data?.success && res.data?.data) {
-              const extraData = res.data.data;
-              const extraList = Array.isArray(extraData)
-                ? extraData
-                : (extraData.submissions || extraData.data || []);
-              rawList.push(...extraList);
-            }
-          }
-        }
+        totalSubmissions.value = total;
+        pagination.value = {
+          current_page: page,
+          per_page: limit,
+          total: total,
+          last_page: totalPages,
+          totalPages: totalPages,
+          from: total === 0 ? 0 : startNumber,
+          to: Math.min(page * limit, total),
+          on_first_page: page === 1,
+          has_more_pages: page < totalPages,
+        };
+
+        const itemsToDisplay = (!data.pagination && !data.meta && rawList.length > limit)
+          ? rawList.slice((page - 1) * limit, page * limit)
+          : rawList;
+
+        students.value = itemsToDisplay.map((item, index) => ({
+          seq_num: startNumber + index,
+          ...transformCandidate(item),
+        }));
       }
-
-      const seen = new Set();
-      const uniqueRaw = [];
-      for (const item of rawList) {
-        if (!item?.id || !seen.has(item.id)) {
-          if (item?.id) seen.add(item.id);
-          uniqueRaw.push(item);
-        }
-      }
-
-      const transformed = uniqueRaw.map(transformCandidate);
-      const sorted = sortSubmissions(transformed, params);
-
-      cachedSubmissions = sorted;
-      lastFilterKey = filterKey;
-
-      applyPagination(sorted, targetPage, perPage);
     } catch (error) {
       console.error("Error fetching passed shortlist submissions:", error);
     } finally {
