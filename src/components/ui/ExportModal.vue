@@ -710,11 +710,28 @@ const fetchGroupSettings = async () => {
       const data = res.data.data;
       groupSetting.value = data.setting || null;
       realGroups.value = Array.isArray(data.groups) ? data.groups : [];
+
+      if (data.setting?.studentsPerGroup) {
+        groupSize.value = Number(data.setting.studentsPerGroup);
+      } else if (realGroups.value.length > 0 && activeTotalCount.value > 0) {
+        groupSize.value = Math.round(activeTotalCount.value / realGroups.value.length);
+      }
     }
   } catch (err) {
     console.warn('Error fetching group settings for export:', err);
   }
 };
+
+// Automatically synchronize groupSize when active total count updates
+watch(activeTotalCount, (count) => {
+  if (count > 0) {
+    if (groupSetting.value?.studentsPerGroup) {
+      groupSize.value = Number(groupSetting.value.studentsPerGroup);
+    } else if (realGroups.value.length > 0) {
+      groupSize.value = Math.round(count / realGroups.value.length);
+    }
+  }
+});
 
 // Reset / sync state when modal opens
 watch(
@@ -727,7 +744,13 @@ watch(
       selectedStatus.value = resolveInitialStatus();
       selectedGroup.value = props.initialGroup ? String(props.initialGroup) : '';
       selectedGroupIndex.value = 1;
-      if (!groupSize.value || groupSize.value < 1) groupSize.value = 20;
+      if (groupSetting.value?.studentsPerGroup) {
+        groupSize.value = Number(groupSetting.value.studentsPerGroup);
+      } else if (realGroups.value.length > 0 && activeTotalCount.value > 0) {
+        groupSize.value = Math.round(activeTotalCount.value / realGroups.value.length);
+      } else if (!groupSize.value || groupSize.value < 1) {
+        groupSize.value = 20;
+      }
       exportDate.value = today;
       startDate.value = '';
       endDate.value = '';
@@ -800,6 +823,9 @@ const totalGroupCount = computed(() => {
 const averageGroupSize = computed(() => {
   if (realGroups.value.length > 0 && activeTotalCount.value > 0) {
     return Math.round(activeTotalCount.value / realGroups.value.length);
+  }
+  if (groupSetting.value?.studentsPerGroup) {
+    return Number(groupSetting.value.studentsPerGroup);
   }
   return Number(groupSize.value) || 20;
 });
@@ -903,11 +929,19 @@ const handleDownload = async () => {
         payload.group = selectedGroup.value;
         payload.groupNumber = Number(selectedGroup.value);
         payload.groupIndex = Number(selectedGroup.value);
+
+        // Ensure groupSize and limit reflect the full count of the selected group
+        const matched = groupSelectOptions.value.find((o) => o.value === String(selectedGroup.value));
+        const effectiveCount = matched?.count || activeRowCount.value || Number(groupSize.value) || 20;
+        payload.groupSize = effectiveCount;
+        payload.limit = effectiveCount;
       } else {
         payload.sortBy = 'group';
-      }
-      if (groupSize.value) {
-        payload.groupSize = Number(groupSize.value);
+        const effectiveSize = Number(groupSetting.value?.studentsPerGroup) || averageGroupSize.value || Number(groupSize.value) || 20;
+        payload.groupSize = effectiveSize;
+        if (activeTotalCount.value) {
+          payload.limit = activeTotalCount.value;
+        }
       }
       if (startDate.value) payload.startDate = startDate.value;
       if (endDate.value) payload.endDate = endDate.value;
