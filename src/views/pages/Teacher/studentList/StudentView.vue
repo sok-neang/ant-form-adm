@@ -35,7 +35,7 @@
           <BaseInput 
             v-model="searchQuery" 
             type="text" 
-            placeholder="ស្វែងរក..." 
+            placeholder="ស្វែងរកតាមឈ្មោះ, អ៊ីម៉ែល..." 
             input-class="p-0"
           >
             <i class="bi bi-search search-icon"></i>
@@ -282,7 +282,7 @@ const columns = [
   { key: "year", label: "និស្សិតឆ្នាំ" },
   { key: "skill", label: "ជំនាញ" },
   { key: "study_shift", label: "វេនសិក្សា" },
-  { key: "score_intro", label: "INTRODUCTION" },
+  { key: "score_intro", label: "INTRO" },
   { key: "score_specialized", label: "C++/HTML" },
   { key: "score_cyber", label: "CYBER" },
   { key: "total_score", label: "ពិន្ទុមធ្យម" },
@@ -298,34 +298,32 @@ const loadSubmissions = async (page = 1) => {
   if (selectedSpecialization.value) params.program = selectedSpecialization.value;
   if (selectedEvaluationStatus.value) params.evaluationStatus = selectedEvaluationStatus.value;
 
-  if (selectedScoreLevel.value) {
+  if (selectedScoreLevel.value && selectedScoreLevel.value !== "all") {
     const val = selectedScoreLevel.value;
     if (val === "highest" || val === "HIGH") {
       params.scoreSort = "highest";
     } else if (val === "lowest" || val === "LOW") {
       params.scoreSort = "lowest";
-    } else if (val === "highestCPP") {
+    } else if (val === "highestCPP" || val === "cpp_highest") {
       params.cpp = "highest";
-      params.scoreSort = "highestCPP";
-    } else if (val === "lowestCPP") {
+    } else if (val === "lowestCPP" || val === "cpp_lowest") {
       params.cpp = "lowest";
-      params.scoreSort = "lowestCPP";
-    } else if (val === "highestDART") {
-      params.dart = "highest";
-      params.scoreSort = "highestDART";
-    } else if (val === "lowestDART") {
-      params.dart = "lowest";
-      params.scoreSort = "lowestDART";
-    } else if (val === "highestHTML_CSS") {
+    } else if (val === "highestHTML_CSS" || val === "html_css_highest") {
       params.html_css = "highest";
-      params.scoreSort = "highestHTML_CSS";
-    } else if (val === "lowestHTML_CSS") {
+    } else if (val === "lowestHTML_CSS" || val === "html_css_lowest") {
       params.html_css = "lowest";
-      params.scoreSort = "lowestHTML_CSS";
-    } else if (val === "all" || val === "ALL") {
-      params.scoreSort = "all";
-    } else {
-      params.scoreSort = val;
+    } else if (val === "highestINTRO_WEB" || val === "intro_web_highest") {
+      params.intro_web = "highest";
+    } else if (val === "lowestINTRO_WEB" || val === "intro_web_lowest") {
+      params.intro_web = "lowest";
+    } else if (val === "highestINTRO_MOBILE" || val === "intro_mobile_highest") {
+      params.intro_mobile = "highest";
+    } else if (val === "lowestINTRO_MOBILE" || val === "intro_mobile_lowest") {
+      params.intro_mobile = "lowest";
+    } else if (val === "highestINTRO_CYBER" || val === "intro_cyber_highest" || val === "highestCYBER") {
+      params.intro_cyber = "highest";
+    } else if (val === "lowestINTRO_CYBER" || val === "intro_cyber_lowest" || val === "lowestCYBER") {
+      params.intro_cyber = "lowest";
     }
   }
 

@@ -201,26 +201,6 @@
                 :searchable="false"
               />
             </div>
-
-            <!-- Group Size Input -->
-            <div>
-              <label class="form-label fw-semibold export-label mb-1.5 d-flex align-items-center justify-content-between">
-                <span><i class="bi bi-layers text-primary me-1"></i>ចំនួនក្នុងមួយក្រុម</span>
-                <span class="text-muted fw-normal small">
-                  សរុប៖ <strong class="text-primary">{{ activeTotalCount }}</strong> នាក់
-                </span>
-              </label>
-              <div class="position-relative">
-                <input
-                  type="number"
-                  min="1"
-                  :max="Math.max(1, activeTotalCount)"
-                  v-model.number="groupSize"
-                  class="form-control export-input shadow-none"
-                  placeholder="20"
-                />
-              </div>
-            </div>
           </template>
 
           <!-- Final Mode: Optional Reserve Limit -->
@@ -247,7 +227,7 @@
           </template>
 
           <!-- Live Summary Preview Card -->
-          <div class="export-summary-card p-3 rounded-3 mt-auto">
+          <div class="export-summary-card p-3 rounded-3">
             <div class="d-flex align-items-center justify-content-between">
               <div class="d-flex align-items-center gap-2">
                 <div class="summary-icon-box d-flex align-items-center justify-content-center me-2 flex-shrink-0">
@@ -274,6 +254,9 @@
                 </div>
               </div>
             </div>
+          </div>
+          <div class="text-muted small d-none d-sm-block">
+            <i class="bi bi-shield-check text-primary me-1"></i>ទិន្នន័យត្រូវបានទាញយកដោយស្វ័យប្រវត្តិតាមតម្រង
           </div>
         </div>
 
@@ -446,10 +429,6 @@
 
       <!-- Normal Form Actions -->
       <div v-else class="d-flex align-items-center justify-content-between w-100 pt-1">
-        <div class="text-muted small d-none d-sm-block">
-          <i class="bi bi-shield-check text-primary me-1"></i>ទិន្នន័យត្រូវបានទាញយកដោយស្វ័យប្រវត្តិតាមតម្រង
-        </div>
-
         <div class="d-flex align-items-center gap-2 ms-auto">
           <!-- Cancel Button -->
           <button

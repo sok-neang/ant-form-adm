@@ -244,7 +244,7 @@ const promoteStatus = async (status, payload = {}) => {
     }
   } catch (error) {
     console.error("Error updating status:", error);
-    toast.error("មានបញ្ហាក្នុងការកែប្រែស្ថានភាព");
+    toast.error(error?.response?.data?.message);
   } finally {
     isUpdating.value = false;
   }

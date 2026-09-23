@@ -104,7 +104,7 @@ const props = defineProps({
     readonly: Boolean,
 });
 
-const emit = defineEmits(["update:modelValue", "blur"]);
+const emit = defineEmits(["update:modelValue", "input", "blur"]);
 
 const onInput = (e) => {
   let value = e.target.value;
@@ -115,6 +115,7 @@ const onInput = (e) => {
   }
 
   emit("update:modelValue", value);
+  emit("input", value);
 };
 
 const onBlur = (e) => {

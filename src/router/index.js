@@ -13,6 +13,7 @@ import ActivityLogView from '@/views/pages/super-admin/activity-logs/ActivityLog
 import AllApplicationView from '@/views/pages/admin/application-review/AllApplicationView.vue';
 import PassedApplicationView from '@/views/pages/admin/application-review/PassedApplicationView.vue';
 import FailedApplicationView from '@/views/pages/admin/application-review/FailedApplicationView.vue';
+import ContactedApplicationView from '@/views/pages/admin/application-review/ContactedApplicationView.vue';
 import ApplicationReview from '@/views/pages/admin/application-review/ApplicationReview.vue';
 import ShortlistView from '@/views/pages/admin/shortlisted/shortlistView.vue';
 import PassedShortlistView from '@/views/pages/admin/shortlisted/PassedShortlistView.vue';
@@ -139,6 +140,15 @@ const router = createRouter({
               component: FailedApplicationView,
               meta: {
                 title: "បញ្ជីអ្នកដាក់ពាក្យធ្លាក់",
+                requiresAuth: true,
+              },
+            },
+            {
+              path: "contacted",
+              name: "contacted-application",
+              component: ContactedApplicationView,
+              meta: {
+                title: "បញ្ជីអ្នកដាក់ពាក្យទំនាក់ទំនង",
                 requiresAuth: true,
               },
             },

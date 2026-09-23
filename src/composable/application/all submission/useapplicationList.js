@@ -87,6 +87,7 @@ export function useApplicationList() {
             study_shift: shiftMap[sub.shift] || sub.shift || "N/A",
             rawProgram: sub.program,
             rawShift: sub.shift,
+            isContacted: Boolean(sub.isContacted),
             created_at: new Date(sub.submittedAt).toLocaleDateString("km-KH"),
             raw: sub,
           };

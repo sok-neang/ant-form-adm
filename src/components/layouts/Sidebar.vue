@@ -365,7 +365,7 @@ const sidebarMenu = computed(() => {
             label: "កំណត់ក្រុម",
             to: "/define-group",
             icon: "bi bi-people",
-            roles: ["ADMIN", "SUPER_ADMIN"],
+            roles: ["ADMIN"],
         }
     ];
 

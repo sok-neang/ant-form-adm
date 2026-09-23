@@ -24,7 +24,7 @@
       @page-change="getUsers">
       <template #search-filter>
         <div class="position-relative search-box">
-          <BaseInput type="text" placeholder="ស្វែងរក..." input-class="p-0" v-model="search">
+          <BaseInput type="text" placeholder="ស្វែងរកតាមឈ្មោះ, អ៊ីម៉ែល..." input-class="p-0" v-model="search">
             <i class="bi bi-search search-icon"></i>
           </BaseInput>
         </div>

@@ -61,25 +61,13 @@ import bannerBlacklistBg from "@/assets/images/img/banner_blacklist.webp";
 
 const getDropoutReason = (submission) => {
   return (
-    submission?.dropoutReason ||
-    submission?.reason ||
-    submission?.statusReason ||
-    submission?.rejectReason ||
-    submission?.rejectionReason ||
-    submission?.dropout?.reason ||
-    submission?.narrative?.reason ||
-    submission?.comments ||
-    ""
+    submission?.blacklistReason || ""
   );
 };
 
 const getDropoutNote = (submission) => {
   return (
-    submission?.dropoutNote ||
-    submission?.note ||
-    submission?.notes ||
-    submission?.dropout?.note ||
-    ""
+    submission?.blacklistNote || ""
   );
 };
 

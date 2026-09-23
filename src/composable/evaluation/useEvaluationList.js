@@ -146,6 +146,7 @@ export const useEvaluationList = () => {
       submissionId: sub.id,
       studentId: sub.studentId,
       name: sub.student?.khName || sub.student?.enName || "N/A",
+      email: sub.student?.email || sub.email || "",
       gender: genderText,
       skill: skillText,
       study_shift: shiftText,
@@ -224,6 +225,19 @@ export const useEvaluationList = () => {
       items = items.filter((s) => {
         const sh = s.raw?.shift || (s.study_shift === "ព្រឹក" ? "MORNING" : "AFTERNOON");
         return sh === filters.value.shift;
+      });
+    }
+
+    if (search.value && search.value.trim()) {
+      const q = search.value.trim().toLowerCase();
+      items = items.filter((s) => {
+        return (
+          (s.name && s.name.toLowerCase().includes(q)) ||
+          (s.email && s.email.toLowerCase().includes(q)) ||
+          (s.raw?.student?.email && s.raw.student.email.toLowerCase().includes(q)) ||
+          (s.raw?.student?.khName && s.raw.student.khName.toLowerCase().includes(q)) ||
+          (s.raw?.student?.enName && s.raw.student.enName.toLowerCase().includes(q))
+        );
       });
     }
 

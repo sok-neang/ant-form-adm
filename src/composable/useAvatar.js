@@ -1,11 +1,11 @@
 import { ref, watch, isRef } from "vue";
 import avatarService from "@/services/avatar.service";
+import defaultAvatar from "@/assets/images/img/default_avatar.webp";
 
 /**
  * Default avatar
  */
-export const DEFAULT_AVATAR =
-  "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'><circle cx='64' cy='64' r='64' fill='%23e2e8f0'/><circle cx='64' cy='46' r='24' fill='%2394a3b8'/><path d='M24 112c0-22 18-40 40-40s40 18 40 40' fill='%2394a3b8'/></svg>";
+export const DEFAULT_AVATAR = defaultAvatar;
 
 /**
  * Cache avatar Blob URLs
