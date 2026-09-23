@@ -270,7 +270,6 @@ import { useRoute, useRouter } from "vue-router";
 import BaseSkeleton from "@/components/ui/base/BaseSkeleton.vue";
 import { useEvaluationForm } from "@/composable/evaluation/useEvaluationForm";
 import { getSubmissionFileUrl, DEFAULT_AVATAR } from "@/composable/useAvatar";
-import bannerBg from "@/assets/images/teacher/bg_overall_avg_score.webp";
 import cppLogo from "@/assets/images/teacher/cpp.svg";
 import dartLogo from "@/assets/images/teacher/dart.svg";
 import html5Logo from "@/assets/images/teacher/html5.svg";

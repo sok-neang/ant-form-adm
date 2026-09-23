@@ -100,8 +100,7 @@
           </button>
           <button
             type="button"
-            class="btn btn-success px-4"
-            style="background-color: #357867; border-color: #357867;"
+            class="btn btn-primary px-4"
             @click="submitActionModal"
             :disabled="isUpdating"
           >
@@ -207,25 +206,13 @@ const submitActionModal = async () => {
 
 const getBlacklistReason = (submission) => {
   return (
-    submission?.blacklistReason ||
-    submission?.reason ||
-    submission?.statusReason ||
-    submission?.rejectReason ||
-    submission?.rejectionReason ||
-    submission?.blacklist?.reason ||
-    submission?.narrative?.reason ||
-    submission?.comments ||
-    ""
+    submission?.blacklistReason ||""
   );
 };
 
 const getBlacklistNote = (submission) => {
   return (
-    submission?.blacklistNote ||
-    submission?.note ||
-    submission?.notes ||
-    submission?.blacklist?.note ||
-    ""
+    submission?.blacklistNote || ""
   );
 };
 
@@ -292,6 +279,6 @@ const getBlacklistedDate = (submission) => {
 .btn-pass:hover:not(:disabled) {
   color: #ffff;
   background-color: #3a414b;
-  border-color: #2b6355;
+  border-color: rgb(0, 136, 255);
 }
 </style>

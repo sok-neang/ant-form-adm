@@ -14,13 +14,12 @@
       <div class="d-flex align-items-center gap-2">
         <button
           type="button"
-          class="btn btn-outline-secondary d-inline-flex align-items-center gap-2 px-3 py-2 rounded-3"
+          class="btn btn-outline-primary d-inline-flex align-items-center gap-2 px-3 py-2 rounded-3"
           :disabled="loading"
           @click="loadAllData"
           title="ផ្ទុកទិន្នន័យឡើងវិញ"
         >
           <i class="bi bi-arrow-clockwise" :class="{ 'spin-anim': loading }"></i>
-          <span class="d-none d-sm-inline">ផ្ទុកឡើងវិញ</span>
         </button>
 
         <button
@@ -48,7 +47,7 @@
               <BaseSkeleton width="80px" height="28px" radius="6px" />
             </div>
             <h3 v-else class="fw-bold mb-0 text-dark">
-              {{ currentSetting?.shortlistedCount || 0 }}
+              {{ totalShortlistedCount || 0 }}
               <span class="fs-6 fw-normal text-muted"> នាក់</span>
             </h3>
           </div>

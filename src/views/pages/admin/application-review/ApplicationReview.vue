@@ -798,7 +798,7 @@
             <!-- Image Content -->
             <div v-else-if="previewImageUrl" class="d-flex align-items-center justify-content-center w-100 h-100">
               <img
-                :src="previewImageUrl"
+                :src="previewImageUrl || defaultAvatar"
                 :alt="previewFileTitle || 'Full Size Photo'"
                 class="img-fluid rounded-3 preview-img shadow-sm"
                 @error="onPreviewImageError"
@@ -1045,7 +1045,9 @@ const openInNewTab = async (url) => {
 };
 
 const onPreviewImageError = (e) => {
-  e.target.src = defaultAvatar;
+  if (e?.target) {
+    e.target.src = defaultAvatar;
+  }
 };
 
 const viewFile = async (file) => {

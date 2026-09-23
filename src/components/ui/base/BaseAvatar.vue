@@ -1,6 +1,6 @@
 <template>
   <img
-    :src="displaySrc"
+    :src="displaySrc || defaultAvatar"
     :alt="altText"
     :width="size"
     :height="size"
