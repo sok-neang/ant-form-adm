@@ -679,8 +679,11 @@ const fetchData = async () => {
     let finalEvaluations = [];
 
     if (subRes.status === "fulfilled") {
-      let subData = subRes.value?.data?.data || subRes.value?.data;
-      if (subData?.success) subData = subData.data;
+      const resVal = subRes.value?.data;
+      let subData = resVal?.data || resVal?.submission || resVal;
+      if (subData?.success && (subData.data || subData.submission)) {
+        subData = subData.data || subData.submission;
+      }
 
       if (subData) {
         finalSubmission = { ...subData };
@@ -692,19 +695,24 @@ const fetchData = async () => {
     if (evalRes.status === "fulfilled" && evalRes.value?.data?.success) {
       const evalData = evalRes.value.data.data;
       if (evalData) {
-        if (evalData.student) finalStudent = { ...finalStudent, ...evalData.student };
-        if (evalData.evaluations?.length) {
-          finalEvaluations = [...evalData.evaluations];
-        } else if (Array.isArray(evalData) && evalData.length > 0) {
-          finalEvaluations = [...evalData];
+        if (Array.isArray(evalData)) {
+          if (evalData.length > 0) finalEvaluations = [...evalData];
+        } else {
+          if (evalData.student) finalStudent = { ...finalStudent, ...evalData.student };
+          if (evalData.evaluations?.length) {
+            finalEvaluations = [...evalData.evaluations];
+          }
+          finalSubmission = { ...evalData, ...finalSubmission };
         }
-        finalSubmission = { ...evalData, ...finalSubmission };
       }
     }
 
     if (!finalSubmission.files && subRes.status === "fulfilled") {
-      let subData = subRes.value?.data?.data || subRes.value?.data;
-      if (subData?.success) subData = subData.data;
+      const resVal = subRes.value?.data;
+      let subData = resVal?.data || resVal?.submission || resVal;
+      if (subData?.success && (subData.data || subData.submission)) {
+        subData = subData.data || subData.submission;
+      }
       if (subData?.files) finalSubmission.files = subData.files;
     }
 

@@ -18,7 +18,7 @@ export const useEvaluationStats = () => {
     },
   });
 
-  const isStatsLoading = ref(false);
+  const isStatsLoading = ref(true);
   const statsError = ref(null);
 
   const getEvaluationStats = async () => {

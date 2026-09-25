@@ -4,11 +4,8 @@
     <!-- ================= HEADER ================= -->
     <div
       class="form-header-card position-relative overflow-hidden"
-      :class="{ 'banner-blacklist-theme': isBlacklisted }"
       :style="{
-        backgroundImage: isBlacklisted
-          ? `url(${computedBannerBg})`
-          : `url(${computedBannerBg})`,
+        backgroundImage: `url(${computedBannerBg})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center right',
         backgroundRepeat: 'no-repeat'
@@ -54,10 +51,20 @@
               <span class="section-subtitle">Student Information</span>
             </div>
           </div>
-          <span class="badge rounded-pill applicant-badge">
-            <i class="bi bi-mortarboard-fill me-1"></i> 
-             {{ getProgram(application?.program) }}
-          </span>
+          <div class="d-flex align-items-center gap-2 flex-wrap">
+            <span
+              v-if="isAlreadyInContactList"
+              class="badge rounded-pill px-3 py-1.5 fw-medium d-inline-flex align-items-center gap-1.5 bg-success-subtle text-success"
+              style="font-size: 0.8rem;"
+            >
+              <i class="bi bi-check-circle-fill me-2"></i>
+              <span>បានបន្ថែមក្នុងបញ្ជីទំនាក់ទំនង</span>
+            </span>
+            <span class="badge rounded-pill applicant-badge">
+              <i class="bi bi-mortarboard-fill me-1"></i> 
+               {{ getProgram(application?.program) }}
+            </span>
+          </div>
         </div>
         <div class="section-line"></div>
       </div>
@@ -248,14 +255,28 @@
 
       <!-- ================= SCHOLARSHIP ================= -->
       <div class="form-section">
-        <div class="d-flex align-items-center gap-3 mb-2">
-          <div class="section-icon-circle applicant-badge">
-            <i class="bi bi-award-fill"></i>
+        <div class="d-flex align-items-center justify-content-between mb-2">
+          <div class="d-flex align-items-center gap-3">
+            <div class="section-icon-circle applicant-badge">
+              <i class="bi bi-award-fill"></i>
+            </div>
+            <div>
+              <h5 class="fw-bold mb-0 text-dark">ព័ត៌មានអាហារូបករណ៍</h5>
+              <span class="section-subtitle">Scholarship Information</span>
+            </div>
           </div>
-          <div>
-            <h5 class="fw-bold mb-0 text-dark">ព័ត៌មានអាហារូបករណ៍</h5>
-            <span class="section-subtitle">Scholarship Information</span>
-          </div>
+
+          <!-- Quick edit button in section if SUBMIT -->
+          <button
+            v-if="application?.status === 'SUBMIT'"
+            type="button"
+            class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1.5 px-3 py-1.5 rounded-pill fw-medium"
+            @click="openEditModal"
+            title="កែប្រែ (Shift & Program)"
+          >
+            <i class="bi bi-pencil-square"></i>
+            <span>កែប្រែ (Shift & Program)</span>
+          </button>
         </div>
         <div class="section-line"></div>
       </div>
@@ -501,29 +522,57 @@
     <!-- ================= FOOTER ACTIONS ================= -->
     <div class="review-actions">
 
-      <!-- Back -->
-      <button
-        type="button"
-        class="btn btn-light border px-4"
-        @click="goBack"
-      >
-        <i class="bi bi-arrow-left me-2"></i>
-        ត្រឡប់
-      </button>
-
-      <div class="d-flex gap-2">
-
-        <!-- Contact List (Only for SUBMIT status and not yet contacted) -->
+      <!-- Left: Back & Delete -->
+      <div class="d-flex align-items-center gap-2">
         <button
-          v-if="application?.status === 'SUBMIT' && !application?.contactList?.isContacted"
           type="button"
-          class="btn btn-outline-primary px-4"
+          class="btn btn-light border px-4"
+          @click="goBack"
+        >
+          <i class="bi bi-arrow-left me-2"></i>
+          ត្រឡប់
+        </button>
+      </div>
+
+      <!-- Right: Shift & Program, Contact, Blacklist, Reject, Shortlist -->
+      <div class="d-flex flex-wrap align-items-center gap-2 justify-content-end">
+        <!-- Delete Student (Only for SUBMIT status) -->
+        <button
+          v-if="application?.status === 'SUBMIT'"
+          type="button"
+          class="btn btn-outline-danger px-2 px-md-3 d-inline-flex align-items-center gap-2"
+          @click="openDeleteModal"
+          :disabled="isUpdating || isDeleting"
+          title="លុបសិស្ស"
+        >
+          <i class="bi bi-trash3-fill"></i>
+          <span>លុបសិស្ស</span>
+        </button>
+
+        <!-- Edit Shift & Program (Only for SUBMIT status) -->
+        <button
+          v-if="application?.status === 'SUBMIT'"
+          type="button"
+          class="btn btn-outline-primary px-2 px-md-3 d-inline-flex align-items-center gap-2"
+          @click="openEditModal"
+          :disabled="isUpdating || isSubmittingEdit"
+          title="កែប្រែ (Shift & Program)"
+        >
+          <i class="bi bi-pencil-square"></i>
+          <span>កែប្រែ</span>
+        </button>
+
+        <!-- Contact List (Only for SUBMIT status and not yet in contact list) -->
+        <button
+          v-if="application?.status === 'SUBMIT' && !isAlreadyInContactList"
+          type="button"
+          class="btn btn-outline-primary px-4 d-inline-flex align-items-center gap-2"
           @click="openContactModal"
           :disabled="isUpdating"
           title="បន្ថែមទៅបញ្ជីទំនាក់ទំនង"
         >
-          <i class="bi bi-person-lines-fill me-2"></i>
-          ទំនាក់ទំនង
+          <i class="bi bi-person-lines-fill"></i>
+          <span>ទំនាក់ទំនង</span>
         </button>
 
         <!-- Blacklist -->
@@ -641,7 +690,7 @@
           </div>
           <div>
             <h5 class="fw-bold text-dark mb-0">បន្ថែមទៅបញ្ជីទំនាក់ទំនង</h5>
-            <span class="text-muted small">សិស្ស ៖ {{ studentKhName || studentEnName }}</span>
+            <span class="text-muted small">សិស្ស ៖ {{ studentDisplayName }}</span>
           </div>
         </div>
       </template>
@@ -684,6 +733,144 @@
             ></span>
             <i v-else class="bi bi-check2-circle"></i>
             <span>{{ isSubmittingContact ? 'កំពុងបន្ថែម...' : 'បន្ថែម' }}</span>
+          </button>
+        </div>
+      </template>
+    </BaseModal>
+
+    <!-- Edit Modal (Shift & Program) -->
+    <BaseModal
+      :show="showEditModal"
+      size="md"
+      :showClose="!isSubmittingEdit"
+      @close="showEditModal = false"
+    >
+      <template #header>
+        <div class="d-flex align-items-center gap-3">
+          <div
+            class="bg-primary-subtle text-primary rounded-3 d-flex align-items-center justify-content-center"
+            style="width: 44px; height: 44px;"
+          >
+            <i class="bi bi-pencil-square fs-5"></i>
+          </div>
+          <div>
+            <h5 class="fw-bold text-dark mb-0">កែប្រែវេន និងមុខជំនាញ</h5>
+            <span class="text-muted small">សិស្ស ៖ {{ studentDisplayName }}</span>
+          </div>
+        </div>
+      </template>
+
+      <div class="py-2">
+        <div class="mb-3">
+          <label class="form-label fw-semibold text-dark small mb-1">
+            មុខជំនាញ (Program) <span class="text-danger">*</span>
+          </label>
+          <BaseSelect
+            v-model="editForm.program"
+            :options="editProgramOptions"
+            option-label="label"
+            option-value="value"
+            placeholder="ជ្រើសរើសមុខជំនាញ"
+            :clearable="false"
+            style="width: 100%"
+          />
+        </div>
+
+        <div class="mb-2">
+          <label class="form-label fw-semibold text-dark small mb-1">
+            វេនសិក្សា (Shift) <span class="text-danger">*</span>
+          </label>
+          <BaseSelect
+            v-model="editForm.shift"
+            :options="editShiftOptions"
+            option-label="label"
+            option-value="value"
+            placeholder="ជ្រើសរើសវេនសិក្សា"
+            :clearable="false"
+            style="width: 100%"
+          />
+        </div>
+      </div>
+
+      <template #footer>
+        <div class="d-flex justify-content-end gap-2 w-100">
+          <button
+            type="button"
+            class="btn btn-light px-4 border"
+            :disabled="isSubmittingEdit"
+            @click="showEditModal = false"
+          >
+            បោះបង់
+          </button>
+          <button
+            type="button"
+            class="btn btn-primary px-4 fw-semibold shadow-sm d-inline-flex align-items-center gap-2"
+            :disabled="isSubmittingEdit || !editForm.program || !editForm.shift"
+            @click="handleSaveEdit"
+          >
+            <span
+              v-if="isSubmittingEdit"
+              class="spinner-border spinner-border-sm"
+              role="status"
+              aria-hidden="true"
+            ></span>
+            <span>{{ isSubmittingEdit ? 'កំពុងរក្សាទុក...' : 'រក្សាទុក' }}</span>
+          </button>
+        </div>
+      </template>
+    </BaseModal>
+
+    <!-- Delete Confirmation Modal -->
+    <BaseModal
+      :show="showDeleteModal"
+      size="md"
+      :showClose="!isDeleting"
+      @close="showDeleteModal = false"
+    >
+      <template #header>
+        <div class="d-flex align-items-center gap-3">
+          <div
+            class="bg-danger-subtle text-danger rounded-3 d-flex align-items-center justify-content-center"
+            style="width: 44px; height: 44px;"
+          >
+            <i class="bi bi-exclamation-triangle-fill fs-5"></i>
+          </div>
+          <div>
+            <h5 class="fw-bold text-dark mb-0">បញ្ជាក់ការលុបសិស្ស</h5>
+            <span class="text-muted small">សកម្មភាពនេះមិនអាចត្រឡប់ក្រោយវិញបានឡើយ</span>
+          </div>
+        </div>
+      </template>
+
+      <div class="py-2">
+        <p class="text-secondary mb-0 fs-6 lh-base">
+          តើអ្នកពិតជាចង់លុបទិន្នន័យពាក្យស្នើសុំរបស់សិស្ស <strong class="text-dark">«{{ studentDisplayName }}»</strong> មែនទេ?
+        </p>
+      </div>
+
+      <template #footer>
+        <div class="d-flex justify-content-end gap-2 w-100">
+          <button
+            type="button"
+            class="btn btn-light px-4 border"
+            :disabled="isDeleting"
+            @click="showDeleteModal = false"
+          >
+            បោះបង់
+          </button>
+          <button
+            type="button"
+            class="btn btn-danger px-4 fw-semibold shadow-sm d-inline-flex align-items-center gap-2"
+            :disabled="isDeleting"
+            @click="handleConfirmDelete"
+          >
+            <span
+              v-if="isDeleting"
+              class="spinner-border spinner-border-sm"
+              role="status"
+              aria-hidden="true"
+            ></span>
+            <span>{{ isDeleting ? 'កំពុងលុប...' : 'យល់ព្រមលុប' }}</span>
           </button>
         </div>
       </template>
@@ -819,23 +1006,40 @@
 
 <script setup>
 import { ref, computed, watch, onMounted, onUnmounted } from "vue";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import VuePdfEmbed from "vue-pdf-embed";
 import "vue-pdf-embed/dist/styles/annotationLayer.css";
 import "vue-pdf-embed/dist/styles/textLayer.css";
 import { useApplicationReview } from "@/composable/application/applicationReview/useApplicationReview";
 import BaseModal from "@/components/ui/base/BaseModal.vue";
+import BaseSelect from "@/components/ui/base/BaseSelect.vue";
 import bannerDetailBg from "@/assets/images/img/application_banner.webp";
 import bannerBlacklistBg from "@/assets/images/img/banner_blacklist.webp";
 import defaultAvatar from "@/assets/images/img/default_avatar.webp";
 import avatarService from "@/services/avatar.service";
 import contactService from "@/services/contact.service";
+import submissionService from "@/services/submission.service";
+import { shiftOptions, specializationOptions } from "@/constants/options";
 import { useAppToast } from "@/composable/useAppToast";
 import { getSubmissionFileUrl, DEFAULT_AVATAR } from "@/composable/useAvatar";
 
 const router = useRouter();
+const route = useRoute();
 const toast = useAppToast();
 const { application, loading, isUpdating, fetchApplication, promoteStatus } = useApplicationReview();
+
+// Student Names
+const studentKhName = computed(() => {
+  return application.value?.student?.khName || application.value?.khName || "";
+});
+
+const studentEnName = computed(() => {
+  return application.value?.student?.enName || application.value?.enName || "";
+});
+
+const studentDisplayName = computed(() => {
+  return studentKhName.value || studentEnName.value || "សិស្ស";
+});
 
 // Contact Information Computeds
 const studentPhone = computed(() => {
@@ -872,17 +1076,72 @@ const studentEmailUrl = computed(() => {
   return `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(email)}`;
 });
 
-// Contact Modal State
+// Contact State & Verification
+const isContactedFromApi = ref(false);
 const showContactModal = ref(false);
 const isSubmittingContact = ref(false);
 const contactNote = ref("");
+
+const isAlreadyInContactList = computed(() => {
+  if (route.query?.from === "contacted") {
+    return true;
+  }
+  const app = application.value;
+  if (!app) return isContactedFromApi.value;
+
+  if (app.isContacted === true || app.isContacted === "true" || app.isContacted === 1) {
+    return true;
+  }
+  if (app.is_contacted === true || app.is_contacted === "true" || app.is_contacted === 1) {
+    return true;
+  }
+  if (app.contactList && typeof app.contactList === "object") {
+    return true;
+  }
+  if (app.contact_list) {
+    return true;
+  }
+  return isContactedFromApi.value;
+});
+
+const checkContactStatus = async () => {
+  const targetId = route.params.id || route.params.submissionId;
+  if (!targetId) return;
+
+  if (route.query?.from === "contacted") {
+    isContactedFromApi.value = true;
+    return;
+  }
+
+  try {
+    const res = await contactService.getContacts({ limit: 1000 });
+    if (res.data?.success) {
+      const data = res.data.data;
+      const list = Array.isArray(data)
+        ? data
+        : Array.isArray(data?.submissions)
+        ? data.submissions
+        : Array.isArray(data?.data)
+        ? data.data
+        : [];
+      const found = list.some(
+        (item) => String(item.id) === String(targetId) || String(item.submissionId) === String(targetId)
+      );
+      if (found) {
+        isContactedFromApi.value = true;
+      }
+    }
+  } catch (err) {
+    console.warn("Could not check contact status from contact-list API:", err);
+  }
+};
 
 const openContactModal = () => {
   if (application.value?.status !== "SUBMIT") {
     toast.warning("មានតែសិស្សដែលមានស្ថានភាព SUBMIT ប៉ុណ្ណោះដែលអាចបន្ថែមទៅបញ្ជីទំនាក់ទំនង");
     return;
   }
-  if (application.value?.contactList?.isContacted || application.value?.isContacted) {
+  if (isAlreadyInContactList.value) {
     toast.warning("សិស្សនេះត្រូវបានបន្ថែមទៅបញ្ជីទំនាក់ទំនងរួចហើយ");
     return;
   }
@@ -898,17 +1157,97 @@ const submitAddContact = async () => {
       contactNote: contactNote.value.trim(),
     });
     if (res.data?.success) {
-      toast.success(res.data?.message || "បានបន្ថែមទៅបញ្ជីទំនាក់ទំនងដោយជោគជ័យ");
+      toast.success("បានបន្ថែមទៅបញ្ជីទំនាក់ទំនងដោយជោគជ័យ" || res.data?.message);
       showContactModal.value = false;
+      isContactedFromApi.value = true;
       if (application.value) {
         application.value.isContacted = true;
       }
       await fetchApplication();
     }
   } catch (err) {
-    toast.error(err.response?.data?.message || "បរាជ័យក្នុងការបន្ថែមទៅបញ្ជីទំនាក់ទំនង");
+    toast.error("បរាជ័យក្នុងការបន្ថែមទៅបញ្ជីទំនាក់ទំនង" || err.response?.data?.message);
   } finally {
     isSubmittingContact.value = false;
+  }
+};
+
+// Edit Modal State (Shift & Program)
+const showEditModal = ref(false);
+const isSubmittingEdit = ref(false);
+const editForm = ref({
+  program: "",
+  shift: "",
+});
+
+const editProgramOptions = specializationOptions.filter((opt) => opt.value);
+const editShiftOptions = shiftOptions.filter((opt) => opt.value);
+
+const openEditModal = () => {
+  if (application.value?.status !== "SUBMIT") {
+    toast.warning("អាចកែប្រែបានតែសិស្សដែលមានស្ថានភាព SUBMIT ប៉ុណ្ណោះ");
+    return;
+  }
+  const prog = application.value?.program || "";
+  const shft = application.value?.shift || "";
+
+  editForm.value = {
+    program: prog || "WEB_DEVELOPMENT",
+    shift: shft || "MORNING",
+  };
+  showEditModal.value = true;
+};
+
+const handleSaveEdit = async () => {
+  if (!application.value?.id) return;
+  if (!editForm.value.program || !editForm.value.shift) {
+    toast.warning("សូមជ្រើសរើសមុខជំនាញ និងវេនសិក្សា");
+    return;
+  }
+  isSubmittingEdit.value = true;
+  try {
+    await submissionService.updateShiftOrProgram(application.value.id, {
+      program: editForm.value.program,
+      shift: editForm.value.shift,
+    });
+    toast.success("បានកែប្រែវេន និងមុខជំនាញដោយជោគជ័យ");
+    showEditModal.value = false;
+    await fetchApplication();
+  } catch (error) {
+    toast.error("បរាជ័យក្នុងការកែប្រែ" || error.response?.data?.message);
+  } finally {
+    isSubmittingEdit.value = false;
+  }
+};
+
+// Delete Modal State
+const showDeleteModal = ref(false);
+const isDeleting = ref(false);
+
+const openDeleteModal = () => {
+  if (application.value?.status !== "SUBMIT") {
+    toast.warning("អាចលុបបានតែសិស្សដែលមានស្ថានភាព SUBMIT ប៉ុណ្ណោះ");
+    return;
+  }
+  showDeleteModal.value = true;
+};
+
+const handleConfirmDelete = async () => {
+  if (!application.value?.id) return;
+  isDeleting.value = true;
+  try {
+    await submissionService.deleteSubmission(application.value.id);
+    toast.success("បានលុបទិន្នន័យសិស្សដោយជោគជ័យ");
+    showDeleteModal.value = false;
+    if (window.history.state?.back) {
+      router.back();
+    } else {
+      router.replace("/all-application");
+    }
+  } catch (error) {
+    toast.error("បរាជ័យក្នុងការលុបសិស្ស" || error.response?.data?.message);
+  } finally {
+    isDeleting.value = false;
   }
 };
 
@@ -1226,9 +1565,6 @@ const actionModalPrompt = computed(() => {
 });
 
 const computedBannerBg = computed(() => {
-  if (isBlacklisted.value) {
-    return bannerBlacklistBg;
-  }
   return bannerDetailBg;
 });
 
@@ -1240,6 +1576,7 @@ const handleKeyDown = (e) => {
 
 onMounted(() => {
   fetchApplication();
+  checkContactStatus();
   window.addEventListener("keydown", handleKeyDown);
 });
 
@@ -1697,6 +2034,8 @@ const getShift = (s) => {
   justify-content: space-between;
 
   align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
 
   background: #ffffff;
   border: 1px solid #e5e7eb;

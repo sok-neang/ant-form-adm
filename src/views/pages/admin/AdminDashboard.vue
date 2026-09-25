@@ -31,7 +31,7 @@
       <!-- Card 1 -->
       <div class="col-12 col-md-3">
         <router-link to="/all-application" class="text-decoration-none">
-          <BaseStatCard v-if="!loading"
+          <BaseStatCard v-if="!loading && statsData"
             label="សិស្សស្នើសុំទាំងអស់" 
             :value="statsData?.submissions?.total || 0" 
             valueClass="text-dark"
@@ -63,7 +63,7 @@
       <!-- Card 2 -->
       <div class="col-12 col-md-3">
         <router-link to="/all-shortlist" class="text-decoration-none">
-        <BaseStatCard v-if="!loading"
+        <BaseStatCard v-if="!loading && statsData"
           label="សិស្សជ្រើសសម្រាំង (Short list)" 
           :value="statsData?.shortlist?.passed?.total || 0" 
           valueClass="text-dark"
@@ -95,7 +95,7 @@
       <!-- Card 3 -->
       <div class="col-12 col-md-3">
         <router-link to="/final-results" class="text-decoration-none">
-          <BaseStatCard v-if="!loading"
+          <BaseStatCard v-if="!loading && statsData"
             label="សិស្សជ័យលាភី (Final Result)" 
             :value="(statsData?.evaluation?.passed?.total) + (statsData?.reserved?.total) || 0" 
             valueClass="text-dark"
@@ -129,7 +129,7 @@
       <!-- Card 4 -->
       <div class="col-12 col-md-3">
         <router-link to="/blacklisted" class="text-decoration-none">
-        <BaseStatCard v-if="!loading"
+        <BaseStatCard v-if="!loading && statsData"
           label="សិស្សបញ្ជីខ្មៅ (Black List)" 
           :value="statsData?.blacklist?.total || 0" 
           valueClass="text-dark"
@@ -208,7 +208,7 @@
           <h6 class="fw-bold text-muted mb-4 mt-2">ចំនួនសិស្ស - តាមភេទ</h6>
           <div class="row align-items-center justify-content-center mb-5 gx-0">
             <div class="col-md-6 d-flex justify-content-center border-end">
-              <BaseSkeleton v-if="loading" width="220px" height="220px" circle />
+              <BaseSkeleton v-if="loading || !statsData" width="220px" height="220px" circle />
               <GenderDonutChart v-else
                 title="Web Development"
                 :total="chartData.webTotal"
@@ -217,7 +217,7 @@
               />
             </div>
             <div class="col-md-6 d-flex justify-content-center">
-              <BaseSkeleton v-if="loading" width="220px" height="220px" circle />
+              <BaseSkeleton v-if="loading || !statsData" width="220px" height="220px" circle />
               <GenderDonutChart v-else
                 title="Mobile App"
                 :total="chartData.mobileTotal"
@@ -228,7 +228,7 @@
           </div>
 
           <!-- Year Bar Chart -->
-          <BaseSkeleton v-if="loading" width="100%" height="300px" radius="8px" />
+          <BaseSkeleton v-if="loading || !statsData" width="100%" height="300px" radius="8px" />
           <YearBarChart v-else
             :categories="chartData.yearCategories"
             :series1Name="'ប្រុស'"

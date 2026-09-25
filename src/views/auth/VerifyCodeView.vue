@@ -58,7 +58,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
 
 import BaseButton from "@/components/ui/base/BaseButton.vue";
@@ -88,6 +88,12 @@ const otpValue = computed(() => {
   return otp.value.join("");
 });
 
+const handleExpiredSession = () => {
+  toast.error("Session ផ្ទៀងផ្ទាត់បានផុតកំណត់។ សូមចូលប្រើប្រាស់ម្តងទៀត។");
+  authStore.clearTwoFactor();
+  router.push("/auth/login");
+};
+
 //Handle OTP input
 const handleInput = (event, index) => {
   let value = event.target.value;
@@ -108,14 +114,22 @@ const handleBackspace = (event, index) => {
   }
 };
 
+onMounted(() => {
+  if (!authStore.interimToken) {
+    handleExpiredSession();
+    return;
+  }
+  otpRefs.value[0]?.focus();
+});
+
 const handleVerifyOTP = async () => {
-   if (otpValue.value.length !== 6) {
+  if (otpValue.value.length !== 6) {
     toast.warning("សូមបញ្ចូលលេខកូដ 6 ខ្ទង់");
     return;
   }
 
   if (!authStore.interimToken) {
-    toast.error("Session ផ្ទៀងផ្ទាត់មិនត្រឹមត្រូវ");
+    handleExpiredSession();
     return;
   }
 
@@ -138,7 +152,7 @@ const handleVerifyOTP = async () => {
     // Normal Login
     if (response.data?.user && response.data?.accessToken) {
       toast.success("ចូលប្រើប្រាស់បានជោគជ័យ");
-        authStore.clearTwoFactor();
+      authStore.clearTwoFactor();
 
       router.push("/");
       return;
@@ -150,5 +164,4 @@ const handleVerifyOTP = async () => {
     toast.error(backendData?.message || "លេខកូដផ្ទៀងផ្ទាត់មិនត្រឹមត្រូវ");
   }
 };
-
 </script>

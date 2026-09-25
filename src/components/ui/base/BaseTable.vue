@@ -46,7 +46,7 @@
                 <div class="skeleton skeleton-text"></div>
               </td>
 
-              <td v-if="showActions">
+              <td v-if="showActions" class="d-flex gap-2 justify-content-start">
                 <div class="skeleton skeleton-action"></div>
               </td>
 

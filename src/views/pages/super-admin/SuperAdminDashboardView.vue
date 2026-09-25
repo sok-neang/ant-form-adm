@@ -57,8 +57,8 @@
             <h6 class="fw-bold mb-4 w-100 text-start text-muted">អ្នកប្រើប្រាស់តាមភេទ</h6>
             
             <!-- Chart Skeleton vs Actual Chart -->
-            <BaseSkeleton v-if="isUserStatsLoading" width="260px" height="260px" circle />
-            <apexchart v-else-if="summaries" type="donut" width="100%" height="320" :options="genderOptions" :series="genderSeries"></apexchart>
+            <BaseSkeleton v-if="isUserStatsLoading || !summaries" width="260px" height="260px" circle />
+            <apexchart v-else-if="genderSeries.length > 0" type="donut" width="100%" height="320" :options="genderOptions" :series="genderSeries"></apexchart>
           </div>
         </div>
       </div>
@@ -71,10 +71,10 @@
             <h6 class="fw-bold mb-4 w-100 text-start text-muted">អ្នកប្រើប្រាស់តាមតួនាទី</h6>
             
             <!-- Chart Skeleton vs Actual Chart -->
-            <div v-if="isUserStatsLoading" class="w-100">
+            <div v-if="isUserStatsLoading || !summaries" class="w-100">
               <BaseSkeleton width="100%" height="280px" radius="8px" />
             </div>
-            <apexchart v-else-if="summaries" type="bar" width="100%" height="320" :options="roleOptions" :series="roleSeries"></apexchart>
+            <apexchart v-else-if="roleSeries.length > 0" type="bar" width="100%" height="320" :options="roleOptions" :series="roleSeries"></apexchart>
           </div>
         </div>
       </div>
