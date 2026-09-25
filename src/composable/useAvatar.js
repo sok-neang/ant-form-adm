@@ -2,74 +2,33 @@ import { ref, watch, isRef } from "vue";
 import avatarService from "@/services/avatar.service";
 import defaultAvatar from "@/assets/images/img/default_avatar.webp";
 
-/**
- * Default avatar
- */
+
 export const DEFAULT_AVATAR = defaultAvatar;
 
-/**
- * Cache avatar Blob URLs
- * key: fileUrl
- * value: blob URL
- */
 const avatarBlobCache = new Map();
-
-/**
- * Prevent duplicate avatar requests
- */
 const inFlightRequests = new Map();
-
-/**
- * Cache submission file Blob URLs
- * key: fileUrl
- * value: blob URL
- */
 const submissionBlobCache = new Map();
-
-/**
- * Prevent duplicate submission file requests
- */
 const inFlightSubmissionRequests = new Map();
-
-/**
- * Get a submission file as an object URL.
- *
- * IMPORTANT:
- * Uses the complete fileUrl from backend.
- *
- * Example:
- * https://ant-form-backend.g2.ant.com.kh/uploads/submissions/file.pdf
- */
 export async function getSubmissionFileUrl(fileUrl) {
   if (!fileUrl) {
     return DEFAULT_AVATAR;
   }
-
-  // Already an object/data URL
   if (
     fileUrl.startsWith("data:") ||
     fileUrl.startsWith("blob:")
   ) {
     return fileUrl;
   }
-
-  // Use the complete backend fileUrl as cache key
   const cacheKey = fileUrl;
-
-  // Return cached URL
   if (submissionBlobCache.has(cacheKey)) {
     return submissionBlobCache.get(cacheKey);
   }
-
-  // Reuse existing request
   if (inFlightSubmissionRequests.has(cacheKey)) {
     return inFlightSubmissionRequests.get(cacheKey);
   }
 
   const fetchPromise = (async () => {
     try {
-      // IMPORTANT:
-      // Send the FULL fileUrl to avatarService
       const blob =
         await avatarService.getSubmissionFileBlob(fileUrl);
 
@@ -94,27 +53,17 @@ export async function getSubmissionFileUrl(fileUrl) {
 
   return fetchPromise;
 }
-
-/**
- * Get an avatar as an object URL.
- *
- * Uses the complete fileUrl from backend.
- */
 export async function getAvatarUrl(fileUrl) {
   if (!fileUrl) {
     return DEFAULT_AVATAR;
   }
 
-  // Already an object/data URL
   if (
     fileUrl.startsWith("data:") ||
     fileUrl.startsWith("blob:")
   ) {
     return fileUrl;
   }
-
-  // External URL
-  // Example: Google profile image
   const isHttpUrl =
     fileUrl.startsWith("http://") ||
     fileUrl.startsWith("https://");
@@ -124,29 +73,19 @@ export async function getAvatarUrl(fileUrl) {
     fileUrl.includes("uploads/avatars/") ||
     fileUrl.includes("ant-form-backend");
 
-  // If it's an external image URL, use it directly
   if (isHttpUrl && !isBackendAvatar) {
     return fileUrl;
   }
-
-  // Use complete URL as cache key
   const cacheKey = fileUrl;
-
-  // Return cached URL
   if (avatarBlobCache.has(cacheKey)) {
     return avatarBlobCache.get(cacheKey);
   }
-
-  // Reuse existing request
   if (inFlightRequests.has(cacheKey)) {
     return inFlightRequests.get(cacheKey);
   }
 
   const fetchPromise = (async () => {
     try {
-
-      // IMPORTANT:
-      // Send FULL fileUrl to service
       const blob =
         await avatarService.getAvatarBlob(fileUrl);
 
@@ -171,10 +110,6 @@ export async function getAvatarUrl(fileUrl) {
 
   return fetchPromise;
 }
-
-/**
- * Remove avatar from cache
- */
 export function invalidateAvatarCache(fileUrl) {
   if (!fileUrl) {
     for (const [, objectUrl] of avatarBlobCache.entries()) {
@@ -198,10 +133,6 @@ export function invalidateAvatarCache(fileUrl) {
     avatarBlobCache.delete(cacheKey);
   }
 }
-
-/**
- * Vue composable
- */
 export const useAvatar = (initialPath = null) => {
   const avatarUrl = ref(DEFAULT_AVATAR);
   const loading = ref(false);

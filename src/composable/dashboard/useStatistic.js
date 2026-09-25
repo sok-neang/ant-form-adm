@@ -3,7 +3,7 @@ import dashboardService from "@/services/dashboard.service";
 
 export function useStatistic() {
 
-    const loading = ref(false);
+    const loading = ref(true);
     const statsData = ref(null);
 
     const getStatsUser = async () => {

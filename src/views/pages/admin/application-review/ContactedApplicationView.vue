@@ -199,7 +199,7 @@
             class="bg-success-subtle text-success rounded-3 d-flex align-items-center justify-content-center"
             style="width: 44px; height: 44px;"
           >
-            <i class="bi bi-telephone-check fs-5"></i>
+            <i class="bi bi-check-circle fs-5"></i>
           </div>
           <div>
             <h5 class="fw-bold text-dark mb-0">សម្គាល់ថាបានទាក់ទង</h5>

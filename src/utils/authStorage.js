@@ -92,16 +92,16 @@ export const saveAuthData = ({
     );
   }
 
-  if (user) {
-    localStorage.setItem(
-      STORAGE_KEYS.user,
-      JSON.stringify(user)
-    );
-  }
+  // if (user) {
+  //   localStorage.setItem(
+  //     STORAGE_KEYS.user,
+  //     JSON.stringify(user)
+  //   );
+  // }
 };
 
 export const getAuthData = () => {
-  const user = localStorage.getItem(STORAGE_KEYS.user) || sessionStorage.getItem(STORAGE_KEYS.user);
+  // const user = localStorage.getItem(STORAGE_KEYS.user) || sessionStorage.getItem(STORAGE_KEYS.user);
 
   return {
     accessToken:
@@ -112,7 +112,7 @@ export const getAuthData = () => {
       localStorage.getItem(STORAGE_KEYS.refreshToken) ||
       sessionStorage.getItem(STORAGE_KEYS.refreshToken),
 
-    user: user ? JSON.parse(user) : null,
+    // user: user ? JSON.parse(user) : null,
   };
 };
 
@@ -120,7 +120,7 @@ export const clearAuthData = () => {
   [
     STORAGE_KEYS.accessToken,
     STORAGE_KEYS.refreshToken,
-    STORAGE_KEYS.user,
+    // STORAGE_KEYS.user,
   ].forEach((key) => {
     localStorage.removeItem(key);
     sessionStorage.removeItem(key);

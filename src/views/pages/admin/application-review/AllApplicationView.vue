@@ -548,17 +548,17 @@ const handleConfirmChangeGroup = async () => {
     );
 
     if (res.data?.success !== false) {
-      toast.success(res.data?.message || "បានផ្លាស់ប្ដូរក្រុមសិស្សដោយជោគជ័យ");
+      toast.success("បានផ្លាស់ប្ដូរក្រុមសិស្សដោយជោគជ័យ" || res.data?.message);
       showGroupModal.value = false;
       selectedStudentForGroup.value = null;
       newGroupNumber.value = "";
       await loadSubmissions(pagination.value.current_page || 1);
     } else {
-      toast.error(res.data?.message || "បរាជ័យក្នុងការប្ដូរក្រុម");
+      toast.error("បរាជ័យក្នុងការប្ដូរក្រុម" || res.data?.message);
     }
   } catch (err) {
     console.error("Error updating group in all submissions:", err);
-    const msg = err.response?.data?.message || err.message || "មិនអាចប្ដូរក្រុមបានទេ";
+    const msg = "មិនអាចប្ដូរក្រុមបានទេ" || err.response?.data?.message || err.message;
     toast.error(msg);
   } finally {
     isSubmittingGroup.value = false;
@@ -632,7 +632,7 @@ const handleSaveEdit = async () => {
     showEditModal.value = false;
     await loadSubmissions(pagination.value.current_page);
   } catch (error) {
-    toast.error(error.response?.data?.message || "បរាជ័យក្នុងការកែប្រែ");
+    toast.error("បរាជ័យក្នុងការកែប្រែ" || error.response?.data?.message);
   } finally {
     isSubmittingEdit.value = false;
   }
@@ -664,7 +664,7 @@ const handleConfirmDelete = async () => {
       }),
     ]);
   } catch (error) {
-    toast.error(error.response?.data?.message || "បរាជ័យក្នុងការលុបសិស្ស");
+    toast.error("បរាជ័យក្នុងការលុបសិស្ស" || error.response?.data?.message);
   } finally {
     isDeleting.value = false;
   }
@@ -705,7 +705,7 @@ const confirmAddContact = async () => {
       }
     }
   } catch (error) {
-    toast.error(error.response?.data?.message || "បរាជ័យក្នុងការបន្ថែមទៅបញ្ជីទំនាក់ទំនង");
+    toast.error("បរាជ័យក្នុងការបន្ថែមទៅបញ្ជីទំនាក់ទំនង" || error.response?.data?.message);
   } finally {
     isSubmittingContact.value = false;
   }

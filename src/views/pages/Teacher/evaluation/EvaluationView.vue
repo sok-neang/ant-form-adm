@@ -72,7 +72,7 @@
 
               <!-- Introduction Icon -->
               <span v-else-if="tab.logo === 'introduction'" class="tab-icon d-inline-flex align-items-center">
-                <img :src="introLogo" alt="Introduction" width="35" height="35" class="object-fit-contain" />
+                <img :src="introLogo" alt="Introduction" width="30" height="30" class="object-fit-contain" />
               </span>
 
               <!-- Dart Icon / Fallback -->
@@ -397,13 +397,11 @@ const studentYear = computed(() => {
 
 const handleScoreInput = (field, event) => {
   let val = event.target.value;
-  // Allow only digits and at most one decimal point
   val = val.replace(/[^0-9.]/g, "");
   const parts = val.split(".");
   if (parts.length > 2) {
     val = parts[0] + "." + parts.slice(1).join("");
   }
-  // Cap at 100
   if (parseFloat(val) > 100) {
     val = "100";
   }
@@ -465,7 +463,6 @@ onMounted(() => {
   letter-spacing: -0.2px;
 }
 
-/* SUBJECT TABS (50/50 SPLIT) */
 .subject-tabs-container {
   width: 100%;
 }

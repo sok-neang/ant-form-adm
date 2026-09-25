@@ -222,14 +222,6 @@
                 :aria-valuemax="totalShortlistedCount || 100"
               ></div>
             </div>
-
-            <div class="d-flex justify-content-between align-items-center text-muted small mt-3 pt-2 border-top">
-              <span>ស្ថានភាពវគ្គ</span>
-              <span class="text-primary fw-semibold d-inline-flex align-items-center gap-1">
-                <i class="bi bi-clock-history"></i>
-                ត្រៀមដំណើរការ
-              </span>
-            </div>
           </div>
         </div>
       </div>
@@ -559,7 +551,7 @@ const submitAssignGroups = async () => {
 
     const res = await groupService.assignGroups(payload);
     if (res.data?.success) {
-      toast.success(res.data.message || `បានបែងចែកសិស្សចំនួន ${studentsCount} នាក់ជា ${groupsCount} ក្រុមដោយជោគជ័យ`);
+      toast.success(`បានបែងចែកសិស្សចំនួន ${studentsCount} នាក់ជា ${groupsCount} ក្រុមដោយជោគជ័យ` || res.data.message);
 
       if (res.data.data) {
         currentSetting.value = res.data.data.setting || currentSetting.value;
@@ -572,12 +564,11 @@ const submitAssignGroups = async () => {
       showAssignModal.value = false;
       await fetchGroupSettings();
     } else {
-      toast.error(res.data?.message || "ការបែងចែកក្រុមបរាជ័យ");
+      toast.error("ការបែងចែកក្រុមបរាជ័យ" || res.data.message);
     }
   } catch (err) {
     console.error("Failed to assign groups:", err);
-    const msg = "មិនអាចបែងចែកក្រុមបានម្តងទៀតទេ";
-    toast.error(msg);
+    toast.error("ការបែងចែកក្រុមបរាជ័យ" || res.data.message);
     closeAssignModal();
   } finally {
     isAssigning.value = false;

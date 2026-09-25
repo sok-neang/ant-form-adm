@@ -187,12 +187,23 @@ const handleResetPassword = async () => {
       authStore.clearTwoFactor();
       router.push("/");
     }
-} catch (error) {  
-  const backendData = error.response?.data;
-  if (backendData?.errors) {
-    applyBackendErrors(backendData.errors);
+  } catch (error) {  
+    const backendData = error.response?.data;
+    if (backendData?.errors) {
+      applyBackendErrors(backendData.errors);
+    }
+    const message = backendData?.message || "មិនអាចផ្លាស់ប្តូរពាក្យសម្ងាត់បានទេ";
+    toast.error(message);
+
+    const isInterimTokenExpired =
+      error.response?.status === 401 ||
+      message.toLowerCase().includes("interim") ||
+      message.toLowerCase().includes("expired");
+
+    if (isInterimTokenExpired) {
+      authStore.clearTwoFactor();
+      router.push("/auth/login");
+    }
   }
-  toast.error(backendData?.message || "មិនអាចផ្លាស់ប្តូរពាក្យសម្ងាត់បានទេ");
-}
 };
 </script>

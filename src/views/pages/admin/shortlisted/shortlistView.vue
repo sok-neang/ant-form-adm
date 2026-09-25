@@ -418,7 +418,7 @@ const handleConfirmChangeGroup = async () => {
     );
 
     if (res.data?.success !== false) {
-      toast.success(res.data?.message || "បានផ្លាស់ប្ដូរក្រុមសិស្សដោយជោគជ័យ");
+      toast.success("បានផ្លាស់ប្ដូរក្រុមសិស្សដោយជោគជ័យ" || res.data?.message);
 
       // Update local row immediately for snappy feedback
       if (selectedStudent.value) {
@@ -432,11 +432,11 @@ const handleConfirmChangeGroup = async () => {
       // Reload current page to maintain sync
       await loadSubmissions(pagination.value.current_page || 1);
     } else {
-      toast.error(res.data?.message || "បរាជ័យក្នុងការប្ដូរក្រុម");
+      toast.error("បរាជ័យក្នុងការប្ដូរក្រុម" || res.data?.message);
     }
   } catch (err) {
     console.error("Error updating student group:", err);
-    const msg = err.response?.data?.message || err.message || "មិនអាចប្ដូរក្រុមបានទេ";
+    const msg = "មិនអាចប្ដូរក្រុមបានទេ" || err.response?.data?.message;
     toast.error(msg);
   } finally {
     isSubmittingGroup.value = false;

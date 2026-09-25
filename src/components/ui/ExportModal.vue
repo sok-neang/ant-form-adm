@@ -959,7 +959,7 @@ const handleDownload = async () => {
     emit('success', result);
     isSuccess.value = true;
   } catch (err) {
-    toast.error(err.message || 'បរាជ័យក្នុងការទាញយកឯកសារ');
+    toast.error('បរាជ័យក្នុងការទាញយកឯកសារ' || err.message);
   } finally {
     isDownloading.value = false;
   }
