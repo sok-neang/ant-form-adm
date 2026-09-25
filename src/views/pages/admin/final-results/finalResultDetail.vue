@@ -125,8 +125,7 @@
           </button>
           <button 
             type="button" 
-            class="btn btn-success px-4" 
-            style="background-color: #357867; border-color: #357867;"
+            class="btn shortlist-btn text-light px-4" 
             @click="submitActionModal" 
             :disabled="isUpdating || (isReasonRequired && !actionReason.trim())"
           >
@@ -283,10 +282,11 @@ const submitActionModal = async () => {
 }
 
 .shortlist-btn {
-  border: 1px solid #357867;
+  border: 1px solid rgb(0, 108, 208) !important;
+  background: rgb(0, 108, 208) !important;
 }
 
 .shortlist-btn:hover {
-  background-color: #2e6658 !important;
+  background-color: rgb(0, 87, 168) !important;
 }
 </style>
