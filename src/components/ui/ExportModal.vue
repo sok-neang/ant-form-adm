@@ -531,8 +531,8 @@ const selectedGroup = ref(props.initialGroup ? String(props.initialGroup) : '');
 const selectedGroupIndex = ref(1);
 const realGroups = ref([]);
 const groupSetting = ref(null);
-const selectedProgram = ref(props.initialProgram || '');
-const selectedShift = ref(props.initialShift || '');
+const selectedProgram = ref('');
+const selectedShift = ref('');
 const selectedStatus = ref(resolveInitialStatus());
 const selectedFormat = ref('pdf');
 
@@ -605,13 +605,11 @@ const extractCount = (settledRes) => {
   return null;
 };
 
-// Fetch live total candidate counts according to selected program and shift
+// Fetch live total candidate counts across all students
 const fetchTotalCounts = async () => {
   isLoadingCounts.value = true;
   try {
     const queryParams = { page: 1, limit: 1 };
-    if (selectedProgram.value) queryParams.program = selectedProgram.value;
-    if (selectedShift.value) queryParams.shift = selectedShift.value;
 
     const [
       shortlistRes,
@@ -657,8 +655,8 @@ const fetchTotalCounts = async () => {
   }
 };
 
-// Re-fetch counts when filters change
-watch([selectedProgram, selectedShift, selectedStatus], () => {
+// Re-fetch counts when status changes
+watch(selectedStatus, () => {
   if (isOpenModel.value) {
     selectedGroupIndex.value = 1;
     fetchTotalCounts();
@@ -710,8 +708,8 @@ watch(
   (open) => {
     if (open) {
       isSuccess.value = false;
-      selectedProgram.value = props.initialProgram || '';
-      selectedShift.value = props.initialShift || '';
+      selectedProgram.value = '';
+      selectedShift.value = '';
       selectedStatus.value = resolveInitialStatus();
       selectedGroup.value = props.initialGroup ? String(props.initialGroup) : '';
       selectedGroupIndex.value = 1;
@@ -727,7 +725,7 @@ watch(
       endDate.value = '';
       reserveLimit.value = null;
 
-      if (props.totalCount && !props.initialProgram && !props.initialShift) {
+      if (props.totalCount) {
         if (props.exportType === 'final') {
           passCount.value = props.totalCount;
         } else {
@@ -890,8 +888,6 @@ const handleDownload = async () => {
 
     const payload = {
       format: selectedFormat.value,
-      program: selectedProgram.value || undefined,
-      shift: selectedShift.value || undefined,
       exportDate: exportDate.value || undefined,
     };
 
@@ -907,11 +903,10 @@ const handleDownload = async () => {
         payload.groupSize = effectiveCount;
         payload.limit = effectiveCount;
       } else {
+        // No group selected -> take ALL students
         payload.sortBy = 'group';
-        const effectiveSize = Number(groupSetting.value?.studentsPerGroup) || averageGroupSize.value || Number(groupSize.value) || 20;
-        payload.groupSize = effectiveSize;
         if (activeTotalCount.value) {
-          payload.limit = activeTotalCount.value;
+          payload.limit = Math.max(activeTotalCount.value, 1000);
         }
       }
       if (startDate.value) payload.startDate = startDate.value;
