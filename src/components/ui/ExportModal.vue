@@ -175,10 +175,6 @@
                 </span>
               </div>
             </div>
-            <div class="d-flex align-items-center justify-content-between bg-white px-3 py-2 rounded-2 border small text-muted">
-              <span>ចែកជា <strong class="text-dark">{{ totalGroupCount }}</strong> ក្រុម</span>
-              <span>មធ្យម <strong class="text-dark">{{ averageGroupSize }}</strong> នាក់/ក្រុម</span>
-            </div>
           </div>
 
           <!-- Shortlist Mode: Group Config & Group Selector -->
@@ -268,36 +264,11 @@
           <div class="filter-box-card p-3 rounded-3 border">
             <div class="small fw-bold text-dark mb-2.5 d-flex align-items-center gap-1.5">
               <i class="bi bi-funnel text-primary me-2"></i>
-              <span>លក្ខខណ្ឌតម្រងទិន្នន័យ</span>
+              <span>ជ្រើសរើសស្ថានភាពទិន្នន័យ</span>
             </div>
             <div class="row g-2">
-              <!-- Program -->
-              <div class="col-4">
-                <label class="form-label small fw-semibold text-muted mb-1">ជំនាញ</label>
-                <BaseSelect
-                  v-model="selectedProgram"
-                  :options="programOptions"
-                  option-label="label"
-                  option-value="value"
-                  :clearable="false"
-                  :searchable="false"
-                />
-              </div>
-              <!-- Shift -->
-              <div class="col-4">
-                <label class="form-label small fw-semibold text-muted mb-1">វេន</label>
-                <BaseSelect
-                  v-model="selectedShift"
-                  :options="shiftOptions"
-                  option-label="label"
-                  option-value="value"
-                  :clearable="false"
-                  :searchable="false"
-                />
-              </div>
               <!-- Status / Type -->
-              <div class="col-4">
-                <label class="form-label small fw-semibold text-muted mb-1">ស្ថានភាព</label>
+              <div class="col-12">
                 <BaseSelect
                   v-model="selectedStatus"
                   :options="statusOptions"
@@ -346,9 +317,8 @@
               </div>
             </div>
           </div>
-
           <!-- Document Export Date -->
-          <div>
+          <div class="col-12">
             <label class="form-label fw-semibold export-label mb-1.5 d-flex align-items-center justify-content-between">
               <span><i class="bi bi-calendar-event text-primary me-2"></i>កាលបរិច្ឆេទលើកឯកសារ</span>
               <span class="text-muted fw-normal small">ថ្ងៃទាញយក / ហត្ថលេខា</span>
@@ -364,6 +334,7 @@
               popper-class="export-date-popper"
             />
           </div>
+
 
           <!-- File Format Selection (Modern Interactive Cards) -->
           <div>
