@@ -29,7 +29,7 @@
                 option-label="label"
                 option-value="value"
                 placeholder="ជ្រើសរើសកម្រិតពិន្ទុ"
-                :clearable="false"
+                :clearable="true"
                 style="width: 220px"
             />
            <BaseSelect
@@ -38,7 +38,7 @@
                 option-label="label"
                 option-value="value"
                 placeholder="ជ្រើសរើសពេល"
-                :clearable="false"
+                :clearable="true"
                 style="width: 150px"
             />
           <BaseSelect
@@ -47,7 +47,7 @@
                 option-label="label"
                 option-value="value"
                 placeholder="ជ្រើសរើសមុខជំនាញ"
-                :clearable="false"
+                :clearable="true"
                 style="width: 190px"
             />
           <BaseButton
@@ -187,8 +187,9 @@ import BaseSelect from "@/components/ui/base/BaseSelect.vue";
 import BaseButton from "@/components/ui/base/BaseButton.vue";
 import ExportModal from "@/components/ui/ExportModal.vue";
 import { shiftOptions, specializationOptions, scoreLevelOptions } from "@/constants/options";
-import { useFailedShortlist } from "@/composable/application/short list/useFailedShortlist";
+import { useFailedShortlist } from "@/composable/application/short list/useShortlist";
 import { useStatistic } from "@/composable/dashboard/useStatistic";
+import { useTableFilterSync } from "@/composable/useTableFilterSync";
 const router = useRouter();
 
 const isExportModalOpen = ref(false);
@@ -204,6 +205,13 @@ const selectedScoreLevel = ref("all");
 const selectedShift = ref("");
 const selectedSpecialization = ref("");
 const searchQuery = ref("");
+
+const { getInitialPage, syncPage } = useTableFilterSync("shortlist_failed", {
+  shift: selectedShift,
+  program: selectedSpecialization,
+  scoreLevel: selectedScoreLevel,
+  search: searchQuery,
+});
 
 const {
   loading,
@@ -271,6 +279,7 @@ const loadSubmissions = async (page = 1) => {
 };
 
 const handlePageChange = (page) => {
+  syncPage(page);
   loadSubmissions(page);
 };
 
@@ -287,7 +296,7 @@ watch([selectedShift, selectedSpecialization, selectedScoreLevel], () => {
 });
 
 onMounted(() => {
-  loadSubmissions();
+  loadSubmissions(getInitialPage());
 });
 </script>
 <style scoped>
