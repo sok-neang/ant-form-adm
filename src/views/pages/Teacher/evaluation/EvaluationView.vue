@@ -409,7 +409,11 @@ const handleScoreInput = (field, event) => {
 };
 
 const goBack = () => {
-  router.push({ name: "student-lists" });
+  if (window.history.state?.back) {
+    router.back();
+  } else {
+    router.push({ name: "student-lists" });
+  }
 };
 
 const handleSubmit = async () => {

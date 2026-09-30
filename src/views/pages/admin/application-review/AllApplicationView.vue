@@ -469,6 +469,7 @@ import { useApplicationList } from "@/composable/application/all submission/usea
 import contactService from "@/services/contact.service";
 import groupService from "@/services/group.service";
 import submissionService from "@/services/submission.service";
+import { useTableFilterSync } from "@/composable/useTableFilterSync";
 
 const router = useRouter();
 const toast = useAppToast();
@@ -477,6 +478,12 @@ const selectedTrack = ref("");
 const searchQuery = ref("");
 const statistic = useStatistic();
 const total_student = ref(0);
+
+const { getInitialPage, syncPage } = useTableFilterSync("all_application", {
+  shift: selectedShift,
+  program: selectedTrack,
+  search: searchQuery,
+});
 
 // Change Group State
 const showGroupModal = ref(false);
@@ -741,6 +748,7 @@ const loadSubmissions = async (page = 1) => {
 };
 
 const handlePageChange = (page) => {
+  syncPage(page);
   loadSubmissions(page);
 };
 
@@ -758,7 +766,7 @@ watch([selectedShift, selectedTrack], () => {
 });
 
 onMounted(() => {
-  loadSubmissions();
+  loadSubmissions(getInitialPage());
 });
 </script>
 

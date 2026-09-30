@@ -1,7 +1,13 @@
-import { ref, computed, watch } from "vue";
+import { ref, computed } from "vue";
 import evaluationService from "@/services/evaluation.service";
 import submissionService from "@/services/submission.service";
 import { useAppToast } from "@/composable/useAppToast";
+import {
+  SUBJECT_TABS_CONFIG,
+  isMatchingSubject,
+  createEmptyEvaluationForm,
+  normalizeScore,
+} from "@/utils/candidateEvaluation";
 
 export const useEvaluationForm = (submissionId) => {
   const toast = useAppToast();
@@ -17,64 +23,17 @@ export const useEvaluationForm = (submissionId) => {
   const activeSubject = ref("CPP");
 
   // Form state for each subject
-  const forms = ref({
-    CPP: { technicalScore: "", attendanceScore: "", comment: "" },
-    HTML_CSS: { technicalScore: "", attendanceScore: "", comment: "" },
-    INTRO_MOBILE: { technicalScore: "", attendanceScore: "", comment: "" },
-    INTRO_WEB: { technicalScore: "", attendanceScore: "", comment: "" },
-    INTRO_CYBER: { technicalScore: "", attendanceScore: "", comment: "" },
-  });
+  const forms = ref(createEmptyEvaluationForm());
 
   // Pristine snapshot of forms for dirty-checking
-  const originalForms = ref({
-    CPP: { technicalScore: "", attendanceScore: "", comment: "" },
-    HTML_CSS: { technicalScore: "", attendanceScore: "", comment: "" },
-    INTRO_MOBILE: { technicalScore: "", attendanceScore: "", comment: "" },
-    INTRO_WEB: { technicalScore: "", attendanceScore: "", comment: "" },
-    INTRO_CYBER: { technicalScore: "", attendanceScore: "", comment: "" },
-  });
-
-  const isMatchingSubject = (evalSubject, targetSubject) => {
-    const s = String(evalSubject || "").toUpperCase().trim();
-    const t = String(targetSubject || "").toUpperCase().trim();
-    if (s === t) return true;
-
-    if (t === "CPP") {
-      return s === "CPP" || s === "C++" || s.includes("CPP");
-    }
-    if (t === "HTML_CSS") {
-      return s === "HTML_CSS" || s === "HTML&CSS" || s.includes("HTML") || s.includes("CSS");
-    }
-    if (t === "INTRO_MOBILE") {
-      return (
-        s === "INTRO_MOBILE" ||
-        (s.includes("INTRO") && s.includes("MOBILE")) ||
-        (s === "INTRODUCTION" && submission.value?.program === "MOBILE_APP")
-      );
-    }
-    if (t === "INTRO_WEB") {
-      return (
-        s === "INTRO_WEB" ||
-        (s.includes("INTRO") && s.includes("WEB")) ||
-        (s === "INTRODUCTION" && submission.value?.program !== "MOBILE_APP")
-      );
-    }
-    if (t === "INTRO_CYBER") {
-      return s === "INTRO_CYBER" || s === "CYBER" || s.includes("CYBER");
-    }
-    return false;
-  };
+  const originalForms = ref(createEmptyEvaluationForm());
 
   // Check if active subject has already been evaluated
   const isUpdateEvaluation = computed(() => {
-    return evaluations.value?.some((e) => isMatchingSubject(e.subject, activeSubject.value));
+    return evaluations.value?.some((e) =>
+      isMatchingSubject(e.subject, activeSubject.value, submission.value?.program)
+    );
   });
-
-  const normalizeScore = (val) => {
-    if (val === "" || val == null) return "";
-    const n = Number(val);
-    return isNaN(n) ? String(val).trim() : String(n);
-  };
 
   // Check if teacher has changed any old values for the active subject
   const hasFormChanged = computed(() => {
@@ -91,11 +50,7 @@ export const useEvaluationForm = (submissionId) => {
     const origComment = (orig.comment || "").trim();
     const currComment = (curr.comment || "").trim();
 
-    const techChanged = origTech !== currTech;
-    const attChanged = origAtt !== currAtt;
-    const commentChanged = origComment !== currComment;
-
-    return techChanged || attChanged || commentChanged;
+    return origTech !== currTech || origAtt !== currAtt || origComment !== currComment;
   });
 
   // Check if the current form has valid inputs
@@ -107,26 +62,14 @@ export const useEvaluationForm = (submissionId) => {
     const attStr = String(form.attendanceScore ?? "").trim();
     const commentStr = String(form.comment ?? "").trim();
 
-    // Scores cannot be empty
-    if (techStr === "" || attStr === "") {
-      return false;
-    }
+    if (techStr === "" || attStr === "") return false;
 
     const tech = Number(techStr);
     const att = Number(attStr);
 
-    if (isNaN(tech) || tech < 0 || tech > 100) {
-      return false;
-    }
-
-    if (isNaN(att) || att < 0 || att > 100) {
-      return false;
-    }
-
-    // Comment is required
-    if (!commentStr) {
-      return false;
-    }
+    if (isNaN(tech) || tech < 0 || tech > 100) return false;
+    if (isNaN(att) || att < 0 || att > 100) return false;
+    if (!commentStr) return false;
 
     return true;
   });
@@ -144,18 +87,7 @@ export const useEvaluationForm = (submissionId) => {
   // Allowed subjects based on student program
   const subjectTabs = computed(() => {
     const program = submission.value?.program || "WEB_DEVELOPMENT";
-    if (program === "MOBILE_APP") {
-      return [
-        { key: "CPP", name: "C++", logo: "cpp" },
-        { key: "INTRO_MOBILE", name: "Introduction", logo: "introduction" },
-        { key: "INTRO_CYBER", name: "Cyber Security", logo: "cyber" },
-      ];
-    }
-    return [
-      { key: "HTML_CSS", name: "HTML & CSS", logo: "html_css" },
-      { key: "INTRO_WEB", name: "Introduction", logo: "introduction" },
-      { key: "INTRO_CYBER", name: "Cyber Security", logo: "cyber" },
-    ];
+    return SUBJECT_TABS_CONFIG[program] || SUBJECT_TABS_CONFIG.WEB_DEVELOPMENT;
   });
 
   // Current active form
@@ -177,7 +109,6 @@ export const useEvaluationForm = (submissionId) => {
     error.value = null;
 
     try {
-      // Fetch both submission details and evaluation details
       const [subRes, evalRes] = await Promise.allSettled([
         submissionService.getById(submissionId),
         evaluationService.getBySubmissionId(submissionId),
@@ -214,35 +145,19 @@ export const useEvaluationForm = (submissionId) => {
       evaluations.value = mergedEvaluations;
 
       // Reset forms
-      forms.value = {
-        CPP: { technicalScore: "", attendanceScore: "", comment: "" },
-        HTML_CSS: { technicalScore: "", attendanceScore: "", comment: "" },
-        INTRO_MOBILE: { technicalScore: "", attendanceScore: "", comment: "" },
-        INTRO_WEB: { technicalScore: "", attendanceScore: "", comment: "" },
-        INTRO_CYBER: { technicalScore: "", attendanceScore: "", comment: "" },
-      };
+      forms.value = createEmptyEvaluationForm();
 
       // Populate form data from existing evaluations
       if (evaluations.value.length > 0) {
+        const program = mergedSubmission.program;
         evaluations.value.forEach((ev) => {
-          const subKey = (ev.subject || "").toUpperCase().trim();
-          let targetKey = subKey;
-          if (subKey === "CPP" || subKey === "C++" || subKey.includes("CPP")) {
-            targetKey = "CPP";
-          } else if (subKey.includes("HTML") || subKey.includes("CSS")) {
-            targetKey = "HTML_CSS";
-          } else if (subKey.includes("CYBER")) {
-            targetKey = "INTRO_CYBER";
-          } else if (subKey.includes("MOBILE")) {
-            targetKey = "INTRO_MOBILE";
-          } else if (subKey.includes("WEB")) {
-            targetKey = "INTRO_WEB";
-          } else if (subKey.includes("INTRO") || subKey === "INTRODUCTION") {
-            targetKey = mergedSubmission.program === "MOBILE_APP" ? "INTRO_MOBILE" : "INTRO_WEB";
-          }
+          const subjects = ["CPP", "HTML_CSS", "INTRO_MOBILE", "INTRO_WEB", "INTRO_CYBER"];
+          const matchedKey = subjects.find((targetKey) =>
+            isMatchingSubject(ev.subject, targetKey, program)
+          );
 
-          if (forms.value[targetKey]) {
-            forms.value[targetKey] = {
+          if (matchedKey && forms.value[matchedKey]) {
+            forms.value[matchedKey] = {
               technicalScore: ev.technicalScore != null ? String(ev.technicalScore) : "",
               attendanceScore: ev.attendanceScore != null ? String(ev.attendanceScore) : "",
               comment: ev.comment || "",
@@ -292,15 +207,23 @@ export const useEvaluationForm = (submissionId) => {
 
     validKeys.forEach((key) => {
       const f = forms.value[key];
-      const ev = evaluations.value.find((e) => isMatchingSubject(e.subject, key));
+      const ev = evaluations.value.find((e) =>
+        isMatchingSubject(e.subject, key, submission.value?.program)
+      );
 
-      const tech = f && f.technicalScore !== "" && !isNaN(Number(f.technicalScore))
-        ? Number(f.technicalScore)
-        : ev?.technicalScore != null ? Number(ev.technicalScore) : null;
+      const tech =
+        f && f.technicalScore !== "" && !isNaN(Number(f.technicalScore))
+          ? Number(f.technicalScore)
+          : ev?.technicalScore != null
+          ? Number(ev.technicalScore)
+          : null;
 
-      const att = f && f.attendanceScore !== "" && !isNaN(Number(f.attendanceScore))
-        ? Number(f.attendanceScore)
-        : ev?.attendanceScore != null ? Number(ev.attendanceScore) : null;
+      const att =
+        f && f.attendanceScore !== "" && !isNaN(Number(f.attendanceScore))
+          ? Number(f.attendanceScore)
+          : ev?.attendanceScore != null
+          ? Number(ev.attendanceScore)
+          : null;
 
       if (tech != null) {
         totalTech += tech;
@@ -314,9 +237,12 @@ export const useEvaluationForm = (submissionId) => {
 
     const avgTech = techCount > 0 ? Math.round((totalTech / techCount) * 10) / 10 : 0;
     const avgAtt = attCount > 0 ? Math.round((totalAtt / attCount) * 10) / 10 : 0;
-    const overall = (techCount > 0 || attCount > 0)
-      ? Math.round(((avgTech + avgAtt) / 2))
-      : submission.value?.overallAverageScore != null ? Math.round(submission.value.overallAverageScore) : 0;
+    const overall =
+      techCount > 0 || attCount > 0
+        ? Math.round((avgTech + avgAtt) / 2)
+        : submission.value?.overallAverageScore != null
+        ? Math.round(submission.value.overallAverageScore)
+        : 0;
 
     return {
       avgTech,
@@ -361,9 +287,8 @@ export const useEvaluationForm = (submissionId) => {
         ],
       };
 
-      // Check if this subject has already been evaluated
       const existingEval = evaluations.value.find((e) =>
-        isMatchingSubject(e.subject, activeSubject.value)
+        isMatchingSubject(e.subject, activeSubject.value, submission.value?.program)
       );
 
       let response;

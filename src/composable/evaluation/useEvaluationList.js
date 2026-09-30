@@ -1,6 +1,14 @@
 import { ref, watch, computed } from "vue";
 import submissionService from "@/services/submission.service";
 import dashboardService from "@/services/dashboard.service";
+import { usePagination } from "@/composable/usePagination";
+import { cleanQueryParams } from "@/composable/usePaginatedList";
+import {
+  PROGRAM_MAP,
+  SHIFT_MAP,
+  SHIFT_SHORT_MAP,
+  GENDER_MAP,
+} from "@/constants/mappings";
 
 export const useEvaluationList = () => {
   const students = ref([]);
@@ -16,13 +24,7 @@ export const useEvaluationList = () => {
     shift: "",
   });
 
-  const pagination = ref({
-    current_page: 1,
-    per_page: 10,
-    total: 0,
-    totalPages: 1,
-  });
-
+  const { pagination, updatePagination } = usePagination(10);
   const rawDashboardStats = ref(null);
 
   const fetchShortlistStats = async () => {
@@ -43,20 +45,18 @@ export const useEvaluationList = () => {
   });
 
   const mapSubjects = (program, evaluations = []) => {
-    let required = [];
-    if (program === "MOBILE_APP") {
-      required = [
-        { key: "CPP", name: "C++", color: "green" },
-        { key: "INTRO_MOBILE", name: "Introduction", color: "blue" },
-        { key: "INTRO_CYBER", name: "Cyber Security", color: "purple" },
-      ];
-    } else {
-      required = [
-        { key: "HTML_CSS", name: "HTML & CSS", color: "orange" },
-        { key: "INTRO_WEB", name: "Introduction", color: "blue" },
-        { key: "INTRO_CYBER", name: "Cyber Security", color: "purple" },
-      ];
-    }
+    const required =
+      program === "MOBILE_APP"
+        ? [
+            { key: "CPP", name: "C++", color: "green" },
+            { key: "INTRO_MOBILE", name: "Introduction", color: "blue" },
+            { key: "INTRO_CYBER", name: "Cyber Security", color: "purple" },
+          ]
+        : [
+            { key: "HTML_CSS", name: "HTML & CSS", color: "orange" },
+            { key: "INTRO_WEB", name: "Introduction", color: "blue" },
+            { key: "INTRO_CYBER", name: "Cyber Security", color: "purple" },
+          ];
 
     return required.map((req) => {
       const match = evaluations.find((e) => {
@@ -81,6 +81,7 @@ export const useEvaluationList = () => {
         }
         return false;
       });
+
       return {
         name: req.name,
         key: req.key,
@@ -95,24 +96,12 @@ export const useEvaluationList = () => {
     const subjects = mapSubjects(sub.program, sub.evaluations || []);
     const evaluationCount = Array.isArray(sub.evaluations) ? sub.evaluations.length : 0;
     const evaluatedSubjectsCount = subjects.filter((s) => s.evaluated).length;
-    const isBothEvaluated = Boolean(sub.isEvaluated) || evaluationCount >= 2 || evaluatedSubjectsCount >= 2;
+    const isBothEvaluated =
+      Boolean(sub.isEvaluated) || evaluationCount >= 2 || evaluatedSubjectsCount >= 2;
 
-    const genderText =
-      sub.student?.gender === "FEMALE"
-        ? "ស្រី"
-        : sub.student?.gender === "MALE"
-        ? "ប្រុស"
-        : "N/A";
-
-    const shiftText =
-      sub.shift === "MORNING"
-        ? "ព្រឹក"
-        : sub.shift === "AFTERNOON"
-        ? "រសៀល"
-        : sub.shift || "N/A";
-
-    const skillText =
-      sub.program === "WEB_DEVELOPMENT" ? "Web Development" : "Mobile App";
+    const genderText = GENDER_MAP[sub.student?.gender] || sub.student?.gender || "N/A";
+    const shiftText = SHIFT_SHORT_MAP[sub.shift] || SHIFT_MAP[sub.shift] || sub.shift || "N/A";
+    const skillText = PROGRAM_MAP[sub.program] || sub.program || "N/A";
 
     let numericScore = null;
     if (sub.overallAverageScore != null && Number(sub.overallAverageScore) > 0) {
@@ -137,9 +126,7 @@ export const useEvaluationList = () => {
     }
 
     const totalScoreText =
-      numericScore != null
-        ? String(Math.round(numericScore))
-        : "N/A";
+      numericScore != null ? String(Math.round(numericScore)) : "N/A";
 
     return {
       id: sub.id,
@@ -160,20 +147,14 @@ export const useEvaluationList = () => {
 
   // Fetch all shortlist candidates (handles backend pagination if > 100)
   const fetchAllShortlistCandidates = async () => {
-    const params = {
+    const params = cleanQueryParams({
       page: 1,
       limit: 100,
-    };
-    if (search.value.trim()) {
-      params.search = search.value.trim();
-    }
-    if (filters.value.skill) {
-      params.program = filters.value.skill;
-      params.track = filters.value.skill;
-    }
-    if (filters.value.shift) {
-      params.shift = filters.value.shift;
-    }
+      search: search.value.trim(),
+      program: filters.value.skill,
+      track: filters.value.skill,
+      shift: filters.value.shift,
+    });
 
     const response = await submissionService.getShortlist(params);
     let rawList = [];
@@ -200,7 +181,7 @@ export const useEvaluationList = () => {
           if (res.data?.success && res.data?.data) {
             const extraList = Array.isArray(res.data.data)
               ? res.data.data
-              : (res.data.data.submissions || []);
+              : res.data.data.submissions || [];
             rawList.push(...extraList);
           }
         }
@@ -217,13 +198,17 @@ export const useEvaluationList = () => {
     // Client-side fallback filter for skill & shift in case backend ignored
     if (filters.value.skill) {
       items = items.filter((s) => {
-        const prog = s.raw?.program || (s.skill === "Web Development" ? "WEB_DEVELOPMENT" : "MOBILE_APP");
+        const prog =
+          s.raw?.program ||
+          (s.skill === "Web Development" ? "WEB_DEVELOPMENT" : "MOBILE_APP");
         return prog === filters.value.skill;
       });
     }
     if (filters.value.shift) {
       items = items.filter((s) => {
-        const sh = s.raw?.shift || (s.study_shift === "ព្រឹក" ? "MORNING" : "AFTERNOON");
+        const sh =
+          s.raw?.shift ||
+          (s.study_shift === "ព្រឹក" ? "MORNING" : "AFTERNOON");
         return sh === filters.value.shift;
       });
     }
@@ -246,29 +231,31 @@ export const useEvaluationList = () => {
     const hasShiftFilter = Boolean(filters.value.shift);
     const hasSearch = Boolean(search.value.trim());
 
-    if (rawDashboardStats.value?.shortlistEvaluation && !hasSearch && !(hasSkillFilter && hasShiftFilter)) {
+    if (
+      rawDashboardStats.value?.shortlistEvaluation &&
+      !hasSearch &&
+      !(hasSkillFilter && hasShiftFilter)
+    ) {
       const sEval = rawDashboardStats.value.shortlistEvaluation;
       let total = sEval.total ?? 0;
       let evaluated = sEval.evaluated ?? 0;
       let pending = sEval.pending ?? 0;
 
       if (hasSkillFilter) {
-        const progKey = filters.value.skill === "WEB_DEVELOPMENT" ? "web" : "mobile";
+        const progKey =
+          filters.value.skill === "WEB_DEVELOPMENT" ? "web" : "mobile";
         total = sEval.byProgram?.[progKey]?.total ?? total;
         evaluated = sEval.byProgram?.[progKey]?.evaluated ?? evaluated;
         pending = sEval.byProgram?.[progKey]?.pending ?? pending;
       } else if (hasShiftFilter) {
-        const shiftKey = filters.value.shift === "MORNING" ? "morning" : "afternoon";
+        const shiftKey =
+          filters.value.shift === "MORNING" ? "morning" : "afternoon";
         total = sEval.byShift?.[shiftKey]?.total ?? total;
         evaluated = sEval.byShift?.[shiftKey]?.evaluated ?? evaluated;
         pending = sEval.byShift?.[shiftKey]?.pending ?? pending;
       }
 
-      summaryStats.value = {
-        total,
-        evaluated,
-        pending,
-      };
+      summaryStats.value = { total, evaluated, pending };
     } else {
       const totalCount = items.length;
       const evaluatedCount = items.filter((s) => s.is_evaluated).length;
@@ -312,12 +299,12 @@ export const useEvaluationList = () => {
     const totalPages = Math.ceil(totalFiltered / perPage) || 1;
     const safePage = Math.min(Math.max(1, page), totalPages);
 
-    pagination.value = {
+    updatePagination({
       current_page: safePage,
       per_page: perPage,
       total: totalFiltered,
       totalPages: totalPages,
-    };
+    });
 
     students.value = items.slice((safePage - 1) * perPage, safePage * perPage);
   };

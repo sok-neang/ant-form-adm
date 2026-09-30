@@ -28,7 +28,7 @@
             option-label="label"
             option-value="value"
             placeholder="ជ្រើសរើសពេល"
-            :clearable="false"
+            :clearable="true"
             style="width: 150px"
           />
           <BaseSelect
@@ -37,7 +37,7 @@
             option-label="label"
             option-value="value"
             placeholder="ជ្រើសរើសមុខជំនាញ"
-            :clearable="false"
+            :clearable="true"
             style="width: 190px"
           />
         </div>
@@ -84,6 +84,7 @@ import BaseSelect from "@/components/ui/base/BaseSelect.vue";
 import { shiftOptions, specializationOptions } from "@/constants/options";
 import { useDropout } from "@/composable/application/dropout/useDropout";
 import { useStatistic } from "@/composable/dashboard/useStatistic";
+import { useTableFilterSync } from "@/composable/useTableFilterSync";
 const router = useRouter();
 const statistic = useStatistic();
 const total_student = ref(0);
@@ -94,6 +95,12 @@ onMounted(async() => {
 const selectedShift = ref("");
 const selectedSpecialization = ref("");
 const searchQuery = ref("");
+
+const { getInitialPage, syncPage } = useTableFilterSync("dropout", {
+  shift: selectedShift,
+  program: selectedSpecialization,
+  search: searchQuery,
+});
 
 const {
   loading,
@@ -132,6 +139,7 @@ const loadSubmissions = async (page = 1) => {
 };
 
 const handlePageChange = (page) => {
+  syncPage(page);
   loadSubmissions(page);
 };
 
@@ -148,6 +156,6 @@ watch([selectedShift, selectedSpecialization], () => {
 });
 
 onMounted(() => {
-  loadSubmissions();
+  loadSubmissions(getInitialPage());
 });
 </script>

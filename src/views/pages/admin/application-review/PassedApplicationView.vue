@@ -113,8 +113,9 @@ import BaseSelect from "@/components/ui/base/BaseSelect.vue";
 import BaseButton from "@/components/ui/base/BaseButton.vue";
 import ExportModal from "@/components/ui/ExportModal.vue";
 import { shiftOptions, specializationOptions } from "@/constants/options";
-import { usePassedApplicationList } from "@/composable/application/all submission/usePassedApplicationList";
+import { usePassedApplicationList } from "@/composable/application/all submission/useapplicationList";
 import { useStatistic } from "@/composable/dashboard/useStatistic";
+import { useTableFilterSync } from "@/composable/useTableFilterSync";
 const router = useRouter();
 
 // Filters
@@ -124,6 +125,12 @@ const searchQuery = ref("");
 const isExportModalOpen = ref(false);
 const statistic = useStatistic();
 const total_student = ref(0);
+
+const { getInitialPage, syncPage } = useTableFilterSync("passed_application", {
+  shift: selectedShift,
+  program: selectedTrack,
+  search: searchQuery,
+});
 
 onMounted(async() => {
   await statistic.getStatsUser();
@@ -165,6 +172,7 @@ const loadSubmissions = async (page = 1) => {
 };
 
 const handlePageChange = (page) => {
+  syncPage(page);
   loadSubmissions(page);
 };
 
@@ -182,6 +190,6 @@ watch([selectedShift, selectedTrack], () => {
 });
 
 onMounted(() => {
-  loadSubmissions();
+  loadSubmissions(getInitialPage());
 });
 </script>

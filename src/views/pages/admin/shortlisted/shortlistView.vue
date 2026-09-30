@@ -29,7 +29,7 @@
                 option-label="label"
                 option-value="value"
                 placeholder="ជ្រើសរើសកម្រិតពិន្ទុ"
-                :clearable="false"
+                :clearable="true"
                 style="width: 220px"
             />
             <BaseSelect
@@ -38,7 +38,7 @@
                 option-label="label"
                 option-value="value"
                 placeholder="ជ្រើសរើសក្រុម"
-                :clearable="false"
+                :clearable="true"
                 style="width: 140px"
             />
            <BaseSelect
@@ -47,7 +47,7 @@
                 option-label="label"
                 option-value="value"
                 placeholder="ជ្រើសរើសពេល"
-                :clearable="false"
+                :clearable="true"
                 style="width: 150px"
             />
           <BaseSelect
@@ -56,7 +56,7 @@
                 option-label="label"
                 option-value="value"
                 placeholder="ជ្រើសរើសមុខជំនាញ"
-                :clearable="false"
+                :clearable="true"
                 style="width: 190px"
             />
           <BaseButton
@@ -331,6 +331,7 @@ import groupService from "@/services/group.service";
 import submissionService from "@/services/submission.service";
 import { useStatistic } from "@/composable/dashboard/useStatistic";
 import { useAppToast } from "@/composable/useAppToast";
+import { useTableFilterSync } from "@/composable/useTableFilterSync";
 
 const router = useRouter();
 const toast = useAppToast();
@@ -357,6 +358,14 @@ const selectedSpecialization = ref("");
 const searchQuery = ref("");
 const showCreateModal = ref(false);
 const isExportModalOpen = ref(false);
+
+const { getInitialPage, syncPage } = useTableFilterSync("shortlist_all", {
+  shift: selectedShift,
+  program: selectedSpecialization,
+  scoreLevel: selectedScoreLevel,
+  group: selectedGroup,
+  search: searchQuery,
+});
 
 const fetchGroupOptions = async () => {
   try {
@@ -510,6 +519,7 @@ const loadSubmissions = async (page = 1) => {
 };
 
 const handlePageChange = (page) => {
+  syncPage(page);
   loadSubmissions(page);
 };
 
@@ -527,7 +537,7 @@ watch([selectedGroup, selectedShift, selectedSpecialization, selectedScoreLevel]
 
 onMounted(() => {
   fetchGroupOptions();
-  loadSubmissions();
+  loadSubmissions(getInitialPage());
 });
 </script>
 

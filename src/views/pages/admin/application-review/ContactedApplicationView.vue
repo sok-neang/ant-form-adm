@@ -314,6 +314,7 @@ import BaseModal from "@/components/ui/base/BaseModal.vue";
 import { shiftOptions, specializationOptions, contactStatusOptions } from "@/constants/options";
 import { useContactList } from "@/composable/contact/contact";
 import { useStatistic } from "@/composable/dashboard/useStatistic";
+import { useTableFilterSync } from "@/composable/useTableFilterSync";
 
 const router = useRouter();
 const statistic = useStatistic();
@@ -329,6 +330,13 @@ const searchQuery = ref("");
 const selectedStatus = ref("");
 const selectedShift = ref("");
 const selectedTrack = ref("");
+
+const { getInitialPage, syncPage } = useTableFilterSync("contacted_application", {
+  isContacted: selectedStatus,
+  shift: selectedShift,
+  program: selectedTrack,
+  search: searchQuery,
+});
 
 // Actions & Modal State
 const actionLoadingId = ref(null);
@@ -377,6 +385,7 @@ const loadContacts = async (page = 1) => {
 };
 
 const handlePageChange = (page) => {
+  syncPage(page);
   loadContacts(page);
 };
 
@@ -446,7 +455,7 @@ watch([selectedStatus, selectedShift, selectedTrack], () => {
 });
 
 onMounted(() => {
-  loadContacts();
+  loadContacts(getInitialPage());
 });
 </script>
 

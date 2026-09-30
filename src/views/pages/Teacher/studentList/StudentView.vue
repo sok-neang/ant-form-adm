@@ -50,7 +50,7 @@
             option-label="label"
             option-value="value"
             placeholder="ជ្រើសរើសស្ថានភាព"
-            :clearable="false"
+            :clearable="true"
             style="width: 175px;"
           />
           <BaseSelect
@@ -59,7 +59,7 @@
             option-label="label"
             option-value="value"
             placeholder="ជ្រើសរើសកម្រិតពិន្ទុ"
-            :clearable="false"
+            :clearable="true"
             style="width: 200px;"
           />
           <BaseSelect
@@ -68,7 +68,7 @@
             option-label="label"
             option-value="value"
             placeholder="ជ្រើសរើសពេល"
-            :clearable="false"
+            :clearable="true"
             style="width: 140px;"
           />
           <BaseSelect
@@ -77,7 +77,7 @@
             option-label="label"
             option-value="value"
             placeholder="ជ្រើសរើសមុខជំនាញ"
-            :clearable="false"
+            :clearable="true"
             style="width: 175px;"
           />
         </div>
@@ -208,6 +208,7 @@ import {
 } from "@/constants/options";
 import { useShortlist } from "@/composable/application/short list/useShortlist";
 import dashboardService from "@/services/dashboard.service";
+import { useTableFilterSync } from "@/composable/useTableFilterSync";
 
 const router = useRouter();
 const statistic = useStatistic();
@@ -223,6 +224,14 @@ const selectedShift = ref("");
 const selectedSpecialization = ref("");
 const selectedEvaluationStatus = ref("");
 const searchQuery = ref("");
+
+const { getInitialPage, syncPage } = useTableFilterSync("teacher_student_list", {
+  shift: selectedShift,
+  program: selectedSpecialization,
+  scoreLevel: selectedScoreLevel,
+  evaluationStatus: selectedEvaluationStatus,
+  search: searchQuery,
+});
 
 // Stats State for Top Cards
 const statsLoading = ref(true);
@@ -333,6 +342,7 @@ const loadSubmissions = async (page = 1) => {
 };
 
 const handlePageChange = (page) => {
+  syncPage(page);
   loadSubmissions(page);
 };
 
@@ -357,7 +367,7 @@ watch([selectedShift, selectedSpecialization, selectedScoreLevel, selectedEvalua
 });
 
 onMounted(() => {
-  loadSubmissions();
+  loadSubmissions(getInitialPage());
   fetchStats();
 });
 </script>
