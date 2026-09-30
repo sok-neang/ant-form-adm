@@ -6,7 +6,7 @@ import api from "@/api/axios";
  * The backend must provide the full fileUrl, for example:
  * https://ant-form-backend.g2.ant.com.kh/uploads/submissions/file.pdf
  */
-const BACKEND_BASE_URL = "https://ant-form-backend.g2.ant.com.kh";
+const BACKEND_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 function buildFullUrl(fileUrl, defaultFolder = "avatars") {
   if (!fileUrl) return "";
