@@ -1,619 +1,651 @@
 <template>
   <div class="review-container">
-
-    <!-- ================= HEADER ================= -->
-    <div
-      class="form-header-card position-relative overflow-hidden"
-      :style="{
-        backgroundImage: `url(${computedBannerBg})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center right',
-        backgroundRepeat: 'no-repeat'
-      }"
-    >
-      <div class="d-flex align-items-center justify-content-between position-relative z-1">
-        <div class="d-flex align-items-center gap-3 gap-md-4 min-w-0">
-          <div class="header-icon">
-            <i class="bi bi-file-earmark-text-fill"></i>
+      <!-- ================= HEADER ================= -->
+      <div
+        class="form-header-card position-relative overflow-hidden"
+        :style="{
+          backgroundImage: `url(${computedBannerBg})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center right',
+          backgroundRepeat: 'no-repeat'
+        }"
+      >
+        <div class="d-flex align-items-center justify-content-between position-relative z-1">
+          <div class="d-flex align-items-center gap-3 gap-md-4 min-w-0">
+            <div class="header-icon">
+              <i class="bi bi-file-earmark-text-fill"></i>
+            </div>
+  
+            <div class="min-w-0">
+              <h4 class="fw-bold mb-1 banner-title text-truncate">
+                ព័ត៌មានពាក្យស្នើសុំអាហារូបករណ៍
+              </h4>
+  
+              <p class="mb-0 banner-subtitle text-truncate">
+                ពិនិត្យព័ត៌មានរបស់អ្នកមុនបញ្ជូនយល់ព្រមជ្រើសរើស
+              </p>
+            </div>
           </div>
+        </div>
+      </div>
+  
+  
+      <!-- ================= SCROLL AREA ================= -->
+      <div v-if="loading" class="d-flex justify-content-center align-items-center flex-grow-1" style="height: 400px;">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+      </div>
+      
+      <template v-else-if="application">
+        <div class="review-scroll">
+  
+          <!-- ================= PERSONAL INFORMATION ================= -->
+          <div class="form-section">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+              <div class="d-flex align-items-center gap-3">
+                <div class="section-icon-circle applicant-badge">
+                  <i class="bi bi-person-fill"></i>
+                </div>
+                <div>
+                  <h5 class="fw-bold mb-0 text-dark">ព័ត៌មានផ្ទាល់ខ្លួន</h5>
+                  <span class="section-subtitle">Student Information</span>
+                </div>
+              </div>
+              <div class="d-flex align-items-center gap-2 flex-wrap">
+                <span
+                  v-if="isAlreadyInContactList"
+                  class="badge rounded-pill px-3 py-1.5 fw-medium d-inline-flex align-items-center gap-1.5 bg-success-subtle text-success"
+                  style="font-size: 0.8rem;"
+                >
+                  <i class="bi bi-check-circle-fill me-2"></i>
+                  <span>បានបន្ថែមក្នុងបញ្ជីទំនាក់ទំនង</span>
+                </span>
+                <span class="badge rounded-pill applicant-badge">
+                  <i class="bi bi-mortarboard-fill me-1"></i> 
+                  {{ getProgram(application?.program) }}
+                </span>
+              </div>
+            </div>
+            <div class="section-line"></div>
+          </div>
+  
+          <!-- 1 -->
+          <div class="question-card">
+            <div class="question">1. លេខទូរសព្ទរបស់អ្នក</div>
+            <div class="answer">
+              <a
+                v-if="studentPhoneUrl"
+                :href="studentPhoneUrl"
+                class="contact-link"
+                :title="`ហៅទូរស័ព្ទទៅកាន់ ${studentPhone}`"
+              >
+                <i class="bi bi-telephone text-primary me-1"></i>
+                {{ studentPhone }}
+              </a>
+              <span v-else>{{ studentPhone }}</span>
+            </div>
+          </div>
+  
+          <!-- 2 -->
+          <div class="question-card">
+            <div class="question">2. Username Telegram</div>
+            <div class="answer">
+              <a
+                v-if="telegramUrl"
+                :href="telegramUrl"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="contact-link"
+                :title="`បើក ${studentTelegram} ក្នុង Telegram`"
+              >
+                <i class="bi bi-telegram text-primary me-1"></i>
+                {{ studentTelegram }}
+              </a>
+              <span v-else>{{ studentTelegram }}</span>
+            </div>
+          </div>
+  
+          <!-- 3 -->
+          <div class="question-card">
+            <div class="question">3. អុីម៉ែលរបស់អ្នក</div>
+            <div class="answer">
+              <a
+                v-if="studentEmailUrl"
+                :href="studentEmailUrl"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="contact-link"
+                :title="`ផ្ញើអ៊ីម៉ែលទៅកាន់ ${studentEmail}`"
+              >
+                <i class="bi bi-envelope text-primary me-1"></i>
+                {{ studentEmail }}
+              </a>
+              <span v-else>{{ studentEmail }}</span>
+            </div>
+          </div>
+  
+          <!-- 4 -->
+          <div class="question-card">
+            <div class="question">4. ឈ្មោះជាភាសាខ្មែរ</div>
+            <div class="answer">{{ application?.student?.khName || application?.khName || '-' }}</div>
+          </div>
+  
+          <!-- 5 -->
+          <div class="question-card">
+            <div class="question">5. ឈ្មោះជាភាសាឡាតាំង</div>
+            <div class="answer">{{ application?.student?.enName || application?.enName || '-' }}</div>
+          </div>
+  
+          <!-- 6 -->
+          <div class="question-card">
+            <div class="question">6. ភេទ</div>
+            <div class="selected-option">
+              <i class="bi bi-check-circle-fill"></i>
+              {{ (application?.student?.gender || application?.gender) === 'MALE' ? 'ប្រុស' : ((application?.student?.gender || application?.gender) === 'FEMALE' ? 'ស្រី' : (application?.student?.gender || application?.gender || '-')) }}
+            </div>
+          </div>
+  
+          <!-- 7 -->
+          <div class="question-card">
+            <div class="question">7. ថ្ងៃ ខែ ឆ្នាំកំណើត</div>
+            <div class="answer">{{ formatDate(application?.student?.dateOfBirth || application?.student?.dob || application?.dateOfBirth || application?.dob) }}</div>
+          </div>
+  
+  
+          <!-- ================= EDUCATION ================= -->
+          <div class="form-section">
+            <div class="d-flex align-items-center gap-3 mb-2">
+              <div class="section-icon-circle applicant-badge">
+                <i class="bi bi-mortarboard-fill"></i>
+              </div>
+              <div>
+                <h5 class="fw-bold mb-0 text-dark">ព័ត៌មានការសិក្សា</h5>
+                <span class="section-subtitle">Education Information</span>
+              </div>
+            </div>
+            <div class="section-line"></div>
+          </div>
+  
+          <!-- 8 -->
+          <div class="question-card">
+            <div class="question">8. តើអ្នកកំពុងសិក្សានៅកម្រិតសញ្ញាបត្រណាដែរ?</div>
+            <div class="selected-option">
+              <i class="bi bi-check-circle-fill"></i>
+              {{ getEducationLevel(application?.educationLevel || application?.student?.educationLevel) }}
+            </div>
+          </div>
+  
+          <!-- 9 -->
+          <div class="question-card">
+            <div class="question">9. តើអ្នកកំពុងសិក្សានៅសាលាណាដែរ?</div>
+            <div class="answer">{{ application?.student?.university?.name || application?.student?.university?.code || application?.student?.universityOther || application?.student?.university || application?.university || '-' }}</div>
+          </div>
+  
+          <!-- 10 -->
+          <div class="question-card">
+            <div class="question">10. តើអ្នកកំពុងសិក្សាឆ្នាំទីប៉ុន្មាន?</div>
+            <div class="answer">{{ getYearOfStudy(application?.yearOfStudy || application?.student?.yearOfStudy) }}</div>
+          </div>
+  
+          <!-- 11 -->
+          <div class="question-card">
+            <div class="question">11. តើអ្នកកំពុងសិក្សាឆមាសទីប៉ុន្មាន?</div>
+            <div class="answer">{{ getSemester(application?.semester || application?.student?.semester) }}</div>
+          </div>
+  
+          <!-- ================= ADDITIONAL INFORMATION ================= -->
+          <div class="form-section">
+            <div class="d-flex align-items-center gap-3 mb-2">
+              <div class="section-icon-circle applicant-badge">
+                <i class="bi bi-chat-left-text-fill"></i>
+              </div>
+              <div>
+                <h5 class="fw-bold mb-0 text-dark">ព័ត៌មានបន្ថែម</h5>
+                <span class="section-subtitle">Additional Information</span>
+              </div>
+            </div>
+            <div class="section-line"></div>
+          </div>
+  
+          <!-- 13 -->
+          <div class="question-card">
+            <div class="question">13. សូមបំពេញទីលំនៅបច្ចុប្បន្ន</div>
+            <div class="answer long-answer">{{ application?.student?.address || application?.address || '-' }}</div>
+          </div>
+  
+          <!-- 14 -->
+          <div class="question-card">
+            <div class="question">14. តើអ្នកទទួលបានព័ត៌មានអាហារូបករណ៍របស់យើងតាមរយៈអ្វីដែរ?</div>
+            <div class="selected-option">
+              <i class="bi bi-check-circle-fill"></i>
+              {{ formatReferralSource(application?.referralSource) }}
+            </div>
+          </div>
+  
+          <!-- 15 -->
+          <div class="question-card">
+            <div class="question">15. តើអ្នកមើលឃើញថា AI ជាឱកាស ឬជាហានិភ័យសម្រាប់ វិស័យសន្តិសុខព័ត៌មាន (Cybersecurity)?</div>
+            <div class="answer long-answer">{{ application?.narrative?.aiCybersecurityImpact || '-' }}</div>
+          </div>
+  
+          <!-- 16 -->
+          <div class="question-card">
+            <div class="question">16. តើអ្នកមើលឃើញថា AI នឹងដណ្ដើមការងារអ្នក programmer (developer)?</div>
+            <div class="answer long-answer">{{ application?.narrative?.opportunityGoals || '-' }}</div>
+          </div>
+  
+          <!-- 17 -->
+          <div class="question-card">
+            <div class="question">17. តើអ្វីដែលជាគោលបំណងក្នុងថ្ងៃអនាគតរបស់អ្នក?</div>
+            <div class="answer long-answer">{{ application?.narrative?.goals || application?.goals || '-' }}</div>
+          </div>
+  
+          <!-- 18 -->
+          <div class="question-card">
+            <div class="question">18. មូលហេតុដែលអ្នកចង់ទទួលបានអាហារូបករណ៍ពីថ្នាក់បណ្តុះបណ្តាលបច្ចេកវិទ្យាអាន-ANT</div>
+            <div class="answer long-answer">{{ application?.narrative?.opportunities || application?.narrative?.reasonAnt || application?.opportunities || '-' }}</div>
+          </div>
+  
+          <!-- 19 -->
+          <div class="question-card">
+            <div class="question">19. ចូររៀបរាប់ពីស្ថានភាពបច្ចុប្បន្នរបស់អ្នក</div>
+            <div class="answer long-answer">{{ application?.narrative?.familySituation || application?.familySituation || '-' }}</div>
+          </div>
+  
+  
+          <!-- ================= SCHOLARSHIP ================= -->
+          <div class="form-section">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+              <div class="d-flex align-items-center gap-3">
+                <div class="section-icon-circle applicant-badge">
+                  <i class="bi bi-award-fill"></i>
+                </div>
+                <div>
+                  <h5 class="fw-bold mb-0 text-dark">ព័ត៌មានអាហារូបករណ៍</h5>
+                  <span class="section-subtitle">Scholarship Information</span>
+                </div>
+              </div>
+  
+              <!-- Quick edit button in section if SUBMIT -->
+              <button
+                v-if="application?.status === 'SUBMIT'"
+                type="button"
+                class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1.5 px-3 py-1.5 rounded-pill fw-medium"
+                @click="openEditModal"
+                title="កែប្រែ (Shift & Program)"
+              >
+                <i class="bi bi-pencil-square"></i>
+                <span>កែប្រែ (Shift & Program)</span>
+              </button>
+            </div>
+            <div class="section-line"></div>
+          </div>
+  
+          <!-- 20 -->
+          <div class="question-card">
+            <div class="question">20. សូមជ្រើសរើសអាហារូបករណ៍ដែលអ្នកចង់ស្នើសុំ</div>
+            <div class="selected-option">
+              <i class="bi bi-check-circle-fill"></i>
+              {{ getProgram(application?.program) }}
+            </div>
+          </div>
+  
+          <!-- 21 -->
+          <div class="question-card">
+            <div class="question">21. សូមជ្រើសរើសម៉ោងសិក្សាដែលអ្នកចង់រៀន</div>
+            <div class="selected-option">
+              <i class="bi bi-check-circle-fill"></i>
+              {{ getShift(application?.shift) }}
+            </div>
+            <div class="schedule-text">
+              {{ application?.shift === 'MORNING' ? 'ចន្ទ ដល់ សៅរ៍ · 07:50 ដល់ 10:50' : 'ចន្ទ ដល់ សៅរ៍ · 14:00 ដល់ 17:00' }}
+            </div>
+          </div>
+  
+          <!-- 22 -->
+          <div class="question-card">
+            <div class="question">22. ហេតុអ្វីអ្នកចង់ជ្រើសរើសជំនាញខាងលើ?</div>
+            <div class="answer long-answer">{{ application?.narrative?.reason || application?.reason || '-' }}</div>
+          </div>
+  
+          <!-- 23 -->
+          <div class="question-card">
+            <div class="question">23. Website ឬ App ដែលអ្នកចាប់អារម្មណ៍</div>
+            <div class="answer">{{ application?.narrative?.webAppInterest || application?.webAppInterest || '-' }}</div>
+          </div>
+  
+          <!-- 24 -->
+          <div class="question-card">
+            <div class="question">24. តើអាហារូបករណ៍នេះនឹងចូលរួមជាប្រយោជន៍អ្វីខ្លះទៅដល់ប្រទេសរបស់យើង?</div>
+            <div class="answer long-answer">{{ application?.narrative?.scholarshipVision || application?.scholarshipVision || '-' }}</div>
+          </div>
+  
+          <!-- ================= FILES ================= -->
+          <div class="form-section">
+            <div class="d-flex align-items-center gap-3 mb-2">
+              <div class="section-icon-circle applicant-badge">
+                <i class="bi bi-file-earmark-check-fill"></i>
+              </div>
+              <div>
+                <h5 class="fw-bold mb-0 text-dark">ឯកសារ និងរូបថត</h5>
+                <span class="section-subtitle">Documents & Photo</span>
+              </div>
+            </div>
+            <div class="section-line"></div>
+          </div>
+  
+          <!-- 25 -->
+          <div class="question-card">
+            <div class="question">25. សូម Upload រូបថតទំហំ ៤x៦ ផ្ទៃពណ៌ខៀវ</div>
+            <div v-if="photoFile" class="file-answer">
+              <div class="file-icon">
+                <i class="bi bi-image"></i>
+              </div>
+  
+              <div class="flex-grow-1 min-w-0">
+                <div class="fw-semibold text-truncate">
+                  {{ photoFile.originalFilename || 'Profile_Photo_4x6.jpg' }}
+                </div>
+                <small class="text-muted">
+                  រូបថត ៤x៦ (Photo)
+                </small>
+              </div>
+  
+              <div class="d-flex align-items-center gap-2 flex-shrink-0">
+                <button
+                  type="button"
+                  class="btn btn-sm btn-light border d-inline-flex align-items-center justify-content-center"
+                  @click="viewFile(photoFile)"
+                  :disabled="loadingFileId === (photoFile.id || photoFile.fileUrl || photoFile.filePath)"
+                  title="មើលរូបភាព"
+                >
+                  <span v-if="loadingFileId === (photoFile.id || photoFile.fileUrl || photoFile.filePath)" class="spinner-border spinner-border-sm"></span>
+                  <i v-else class="bi bi-eye"></i>
+                </button>
+  
+                <button
+                  type="button"
+                  class="btn btn-sm btn-light border d-inline-flex align-items-center justify-content-center"
+                  @click="downloadFile(photoFile, 'Profile_Photo_4x6')"
+                  :disabled="downloadingFileId === (photoFile.id || photoFile.fileUrl || photoFile.filePath)"
+                  title="ទាញយក"
+                >
+                  <span v-if="downloadingFileId === (photoFile.id || photoFile.fileUrl || photoFile.filePath)" class="spinner-border spinner-border-sm"></span>
+                  <i v-else class="bi bi-download"></i>
+                </button>
+              </div>
+            </div>
+  
+            <div v-else class="answer text-muted">
+              មិនមានរូបថតភ្ជាប់
+            </div>
+          </div>
+  
+          <!-- 12 -->
+          <div class="question-card">
+            <div class="question">
+              12. ប្រសិនបើអ្នកពិតជាសិក្សាចាប់ពីឆ្នាំទី 2
+              ឆមាសទី 2 ឡើងទៅ សូម Upload បណ្ណសម្គាល់ខ្លួននិស្សិត
+              ឬវិក្កយបត្របង់ថ្លៃសិក្សាចុងក្រោយ
+            </div>
+  
+            <div v-if="transcriptFile" class="file-answer">
+              <div class="file-icon">
+                <i class="bi bi-file-earmark-text"></i>
+              </div>
+  
+              <div class="flex-grow-1 min-w-0">
+                <div class="fw-semibold text-truncate">
+                  {{ getTranscriptTitle(transcriptFile) }}
+                </div>
+                <small class="text-muted">
+                  {{ getTranscriptSubtitle(transcriptFile) }}
+                </small>
+              </div>
+  
+              <div class="d-flex align-items-center gap-2 flex-shrink-0">
+                <button
+                  type="button"
+                  class="btn btn-sm btn-light border d-inline-flex align-items-center justify-content-center"
+                  @click="viewFile(transcriptFile)"
+                  :disabled="loadingFileId === (transcriptFile.fileUrl)"
+                  title="មើលឯកសារ"
+                >
+                  <span v-if="loadingFileId === (transcriptFile.fileUrl)" class="spinner-border spinner-border-sm"></span>
+                  <i v-else class="bi bi-eye"></i>
+                </button>
+  
+                <button
+                  type="button"
+                  class="btn btn-sm btn-light border d-inline-flex align-items-center justify-content-center"
+                  @click="downloadFile(transcriptFile, 'Transcript')"
+                  :disabled="downloadingFileId === (transcriptFile.fileUrl)"
+                  title="ទាញយក"
+                >
+                  <span v-if="downloadingFileId === (transcriptFile.fileUrl)" class="spinner-border spinner-border-sm"></span>
+                  <i v-else class="bi bi-download"></i>
+                </button>
+              </div>
+            </div>
+  
+            <div v-else class="answer text-muted">
+              មិនមានឯកសារភ្ជាប់
+            </div>
+          </div>
+  
+          <!-- Additional files if any -->
+          <div v-if="otherFiles && otherFiles.length > 0" class="question-card">
+            <div class="question">ឯកសារភ្ជាប់ផ្សេងៗ (Additional Files)</div>
+            <div class="d-flex flex-column gap-2">
+              <div v-for="file in otherFiles" :key="file.fileUrl" class="file-answer">
+                <div class="file-icon">
+                  <i class="bi bi-file-earmark-text"></i>
+                </div>
+                <div class="flex-grow-1 min-w-0">
+                  <div class="fw-semibold text-truncate">
+                    {{ file.originalFilename || file.fileType || 'ឯកសារភ្ជាប់' }}
+                  </div>
+                  <small class="text-muted">
+                    {{ getTranscriptSubtitle(file) }}
+                  </small>
+                </div>
+                <div class="d-flex align-items-center gap-2 flex-shrink-0">
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-light border d-inline-flex align-items-center justify-content-center"
+                    @click="viewFile(file)"
+                    :disabled="loadingFileId === (file.fileUrl)"
+                    title="មើលឯកសារ"
+                  >
+                    <span v-if="loadingFileId === (file.fileUrl)" class="spinner-border spinner-border-sm"></span>
+                    <i v-else class="bi bi-eye"></i>
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-light border d-inline-flex align-items-center justify-content-center"
+                    @click="downloadFile(file, file.fileType || 'Document')"
+                    :disabled="downloadingFileId === (file.fileUrl)"
+                    title="ទាញយក"
+                  >
+                    <span v-if="downloadingFileId === (file.fileUrl)" class="spinner-border spinner-border-sm"></span>
+                    <i v-else class="bi bi-download"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+  
+          <!-- ================= AGREEMENTS ================= -->
+          <div class="form-section">
+            <div class="d-flex align-items-center gap-3 mb-2">
+              <div class="section-icon-circle applicant-badge">
+                <i class="bi bi-shield-check"></i>
+              </div>
+              <div>
+                <h5 class="fw-bold mb-0 text-dark">ការយល់ព្រមលក្ខខណ្ឌ</h5>
+                <span class="section-subtitle">Terms & Conditions</span>
+              </div>
+            </div>
+            <div class="section-line"></div>
+          </div>
+  
+          <!-- 26 -->
+          <div class="question-card">
+            <div class="question">
+              26. តើអ្នកយល់ព្រមតាមលក្ខខណ្ឌដែលទាមទារឱ្យមានកុំព្យូទ័រផ្ទាល់ខ្លួន ពេលវេលាសិក្សាគ្រប់គ្រាន់ និងធានាថាព័ត៌មានដែលបានផ្តល់គឺត្រឹមត្រូវពិតប្រាកដ ដោយទទួលស្គាល់ថាសាលាអាន-ANT 
+              នឹងបញ្ឈប់ការសិក្សានិងផ្តាច់ឱកាសអាហារូបករណ៍នៅពេលក្រោយ ប្រសិនបើរកឃើញការក្លែងបន្លំ ឬមានការបោះបង់ការសិក្សាដែរឬទេ?
+            </div>
+  
+            <div :class="(application?.agreedToEligibilityPolicy ?? true) ? 'approved-answer' : 'rejected-answer'">
+              <i :class="(application?.agreedToEligibilityPolicy ?? true) ? 'bi bi-check-circle-fill' : 'bi bi-x-circle-fill'"></i>
+              {{ (application?.agreedToEligibilityPolicy ?? true) ? 'យល់ព្រម' : 'មិនយល់ព្រម' }}
+            </div>
+          </div>
+  
+          <!-- Blacklist / Dropout Reason Alert (if present) -->
+          <div v-if="isBlacklisted || isDropout || application?.blacklistReason || application?.dropoutReason" class="question-card border-danger-subtle bg-danger-subtle bg-opacity-10 mt-3">
+            <div class="d-flex align-items-center gap-2 mb-2 text-danger fw-bold">
+              <i class="bi bi-exclamation-triangle-fill"></i>
+              <span>{{ isBlacklisted ? 'ព័ត៌មានបញ្ជីខ្មៅ (Blacklist Information)' : 'ព័ត៌មានបោះបង់ (Dropout Information)' }}</span>
+            </div>
+            <div class="mb-1 text-dark">
+              <strong>មូលហេតុ (Reason):</strong> {{ application?.blacklistReason || application?.dropoutReason || 'មិនមានបញ្ជាក់' }}
+            </div>
+            <div v-if="application?.blacklistNote || application?.dropoutNote" class="text-muted small">
+              <strong>កំណត់ចំណាំ (Note):</strong> {{ application?.blacklistNote || application?.dropoutNote }}
+            </div>
+          </div>
+  
+        </div>
 
-          <div class="min-w-0">
-            <h4 class="fw-bold mb-1 banner-title text-truncate">
-              ព័ត៌មានពាក្យស្នើសុំអាហារូបករណ៍
-            </h4>
+        <!-- ================= FOOTER ACTIONS ================= -->
+        <div class="review-actions">
+  
+          <!-- Left: Back & Delete -->
+          <div class="d-flex align-items-center gap-2">
+            <button
+              type="button"
+              class="btn btn-light border px-4"
+              @click="goBack"
+            >
+              <i class="bi bi-arrow-left me-2"></i>
+              ត្រឡប់
+            </button>
+          </div>
+  
+          <!-- Right: Shift & Program, Contact, Blacklist, Reject, Shortlist -->
+          <div class="d-flex flex-wrap align-items-center gap-2 justify-content-end">
+            <!-- Delete Student (Only for SUBMIT status) -->
+            <button
+              v-if="application?.status === 'SUBMIT'"
+              type="button"
+              class="btn btn-outline-danger px-2 px-md-3 d-inline-flex align-items-center gap-2"
+              @click="openDeleteModal"
+              :disabled="isUpdating || isDeleting"
+              title="លុបសិស្ស"
+            >
+              <i class="bi bi-trash3-fill"></i>
+              <span>លុបសិស្ស</span>
+            </button>
+  
+            <!-- Edit Shift & Program (Only for SUBMIT status) -->
+            <button
+              v-if="application?.status === 'SUBMIT'"
+              type="button"
+              class="btn btn-outline-primary px-2 px-md-3 d-inline-flex align-items-center gap-2"
+              @click="openEditModal"
+              :disabled="isUpdating || isSubmittingEdit"
+              title="កែប្រែ (Shift & Program)"
+            >
+              <i class="bi bi-pencil-square"></i>
+              <span>កែប្រែ</span>
+            </button>
+  
+            <!-- Contact List (Only for SUBMIT status and not yet in contact list) -->
+            <button
+              v-if="application?.status === 'SUBMIT' && !isAlreadyInContactList"
+              type="button"
+              class="btn btn-outline-primary px-4 d-inline-flex align-items-center gap-2"
+              @click="openContactModal"
+              :disabled="isUpdating"
+              title="បន្ថែមទៅបញ្ជីទំនាក់ទំនង"
+            >
+              <i class="bi bi-person-lines-fill"></i>
+              <span>ទំនាក់ទំនង</span>
+            </button>
+  
+            <!-- Blacklist -->
+            <button
+              v-if="!isBlacklisted"
+              type="button"
+              class="btn blacklist-btn px-4"
+              @click="handleBlacklist"
+              :disabled="isUpdating"
+            >
+              <i class="bi bi-person-x-fill me-2"></i>
+              បញ្ជីខ្មៅ
+            </button>
+  
+            <!-- Reject -->
+            <button
+              v-if="!isFailedShortlist && !isBlacklisted"
+              type="button"
+              class="btn reject-btn px-4"
+              @click="handleReject"
+              :disabled="isUpdating"
+            >
+              <i class="bi bi-x-circle-fill me-2"></i>
+              ធ្លាក់
+            </button>
+            
+            <!-- Shortlist -->
+            <button
+              v-if="!isShortlisted && !isBlacklisted"
+              type="button"
+              class="btn shortlist-btn px-4"
+              @click="handleShortlist"
+              :disabled="isUpdating"
+            >
+              <i class="bi bi-person-check-fill me-2"></i>
+              ជាប់
+            </button>
+  
+          </div>
+  
+        </div>
+      </template>
 
-            <p class="mb-0 banner-subtitle text-truncate">
-              ពិនិត្យព័ត៌មានរបស់អ្នកមុនបញ្ជូនយល់ព្រមជ្រើសរើស
+      <!-- DATA NOT FOUND STATE -->
+      <div v-else class="container-fluid py-5 text-center d-flex flex-column align-items-center justify-content-center" style="min-height: 520px;">
+        <div class="p-4 p-md-5 text-center">
+          <div class="py-10 text-center">
+  
+            <div class="empty-icon mb-4">
+              <i class="bi bi-search fs-1"></i>
+            </div>
+  
+            <h5 class="fw-bold mb-2">
+              មិនមានទិន្នន័យ
+            </h5>
+  
+            <p class="text-muted mb-0">
+              មិនអាចរកឃើញទិន្នន័យដែលអ្នកកំពុងស្វែងរកទេ។
             </p>
           </div>
-        </div>
-      </div>
-    </div>
-
-
-    <!-- ================= SCROLL AREA ================= -->
-    <div v-if="loading" class="d-flex justify-content-center align-items-center flex-grow-1" style="height: 400px;">
-      <div class="spinner-border text-primary" role="status">
-        <span class="visually-hidden">Loading...</span>
-      </div>
-    </div>
-    <div class="review-scroll" v-else-if="application">
-
-      <!-- ================= PERSONAL INFORMATION ================= -->
-      <div class="form-section">
-        <div class="d-flex align-items-center justify-content-between mb-2">
-          <div class="d-flex align-items-center gap-3">
-            <div class="section-icon-circle applicant-badge">
-              <i class="bi bi-person-fill"></i>
-            </div>
-            <div>
-              <h5 class="fw-bold mb-0 text-dark">ព័ត៌មានផ្ទាល់ខ្លួន</h5>
-              <span class="section-subtitle">Student Information</span>
-            </div>
-          </div>
-          <div class="d-flex align-items-center gap-2 flex-wrap">
-            <span
-              v-if="isAlreadyInContactList"
-              class="badge rounded-pill px-3 py-1.5 fw-medium d-inline-flex align-items-center gap-1.5 bg-success-subtle text-success"
-              style="font-size: 0.8rem;"
-            >
-              <i class="bi bi-check-circle-fill me-2"></i>
-              <span>បានបន្ថែមក្នុងបញ្ជីទំនាក់ទំនង</span>
-            </span>
-            <span class="badge rounded-pill applicant-badge">
-              <i class="bi bi-mortarboard-fill me-1"></i> 
-               {{ getProgram(application?.program) }}
-            </span>
-          </div>
-        </div>
-        <div class="section-line"></div>
-      </div>
-
-      <!-- 1 -->
-      <div class="question-card">
-        <div class="question">1. លេខទូរសព្ទរបស់អ្នក</div>
-        <div class="answer">
-          <a
-            v-if="studentPhoneUrl"
-            :href="studentPhoneUrl"
-            class="contact-link"
-            :title="`ហៅទូរស័ព្ទទៅកាន់ ${studentPhone}`"
-          >
-            <i class="bi bi-telephone text-primary me-1"></i>
-            {{ studentPhone }}
-          </a>
-          <span v-else>{{ studentPhone }}</span>
-        </div>
-      </div>
-
-      <!-- 2 -->
-      <div class="question-card">
-        <div class="question">2. Username Telegram</div>
-        <div class="answer">
-          <a
-            v-if="telegramUrl"
-            :href="telegramUrl"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="contact-link"
-            :title="`បើក ${studentTelegram} ក្នុង Telegram`"
-          >
-            <i class="bi bi-telegram text-primary me-1"></i>
-            {{ studentTelegram }}
-          </a>
-          <span v-else>{{ studentTelegram }}</span>
-        </div>
-      </div>
-
-      <!-- 3 -->
-      <div class="question-card">
-        <div class="question">3. អុីម៉ែលរបស់អ្នក</div>
-        <div class="answer">
-          <a
-            v-if="studentEmailUrl"
-            :href="studentEmailUrl"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="contact-link"
-            :title="`ផ្ញើអ៊ីម៉ែលទៅកាន់ ${studentEmail}`"
-          >
-            <i class="bi bi-envelope text-primary me-1"></i>
-            {{ studentEmail }}
-          </a>
-          <span v-else>{{ studentEmail }}</span>
-        </div>
-      </div>
-
-      <!-- 4 -->
-      <div class="question-card">
-        <div class="question">4. ឈ្មោះជាភាសាខ្មែរ</div>
-        <div class="answer">{{ application?.student?.khName || application?.khName || '-' }}</div>
-      </div>
-
-      <!-- 5 -->
-      <div class="question-card">
-        <div class="question">5. ឈ្មោះជាភាសាឡាតាំង</div>
-        <div class="answer">{{ application?.student?.enName || application?.enName || '-' }}</div>
-      </div>
-
-      <!-- 6 -->
-      <div class="question-card">
-        <div class="question">6. ភេទ</div>
-        <div class="selected-option">
-          <i class="bi bi-check-circle-fill"></i>
-          {{ (application?.student?.gender || application?.gender) === 'MALE' ? 'ប្រុស' : ((application?.student?.gender || application?.gender) === 'FEMALE' ? 'ស្រី' : (application?.student?.gender || application?.gender || '-')) }}
-        </div>
-      </div>
-
-      <!-- 7 -->
-      <div class="question-card">
-        <div class="question">7. ថ្ងៃ ខែ ឆ្នាំកំណើត</div>
-        <div class="answer">{{ formatDate(application?.student?.dateOfBirth || application?.student?.dob || application?.dateOfBirth || application?.dob) }}</div>
-      </div>
-
-
-      <!-- ================= EDUCATION ================= -->
-      <div class="form-section">
-        <div class="d-flex align-items-center gap-3 mb-2">
-          <div class="section-icon-circle applicant-badge">
-            <i class="bi bi-mortarboard-fill"></i>
-          </div>
+  
           <div>
-            <h5 class="fw-bold mb-0 text-dark">ព័ត៌មានការសិក្សា</h5>
-            <span class="section-subtitle">Education Information</span>
-          </div>
-        </div>
-        <div class="section-line"></div>
-      </div>
-
-      <!-- 8 -->
-      <div class="question-card">
-        <div class="question">8. តើអ្នកកំពុងសិក្សានៅកម្រិតសញ្ញាបត្រណាដែរ?</div>
-        <div class="selected-option">
-          <i class="bi bi-check-circle-fill"></i>
-          {{ getEducationLevel(application?.educationLevel || application?.student?.educationLevel) }}
-        </div>
-      </div>
-
-      <!-- 9 -->
-      <div class="question-card">
-        <div class="question">9. តើអ្នកកំពុងសិក្សានៅសាលាណាដែរ?</div>
-        <div class="answer">{{ application?.student?.university?.name || application?.student?.university?.code || application?.student?.universityOther || application?.student?.university || application?.university || '-' }}</div>
-      </div>
-
-      <!-- 10 -->
-      <div class="question-card">
-        <div class="question">10. តើអ្នកកំពុងសិក្សាឆ្នាំទីប៉ុន្មាន?</div>
-        <div class="answer">{{ getYearOfStudy(application?.yearOfStudy || application?.student?.yearOfStudy) }}</div>
-      </div>
-
-      <!-- 11 -->
-      <div class="question-card">
-        <div class="question">11. តើអ្នកកំពុងសិក្សាឆមាសទីប៉ុន្មាន?</div>
-        <div class="answer">{{ getSemester(application?.semester || application?.student?.semester) }}</div>
-      </div>
-
-      <!-- ================= ADDITIONAL INFORMATION ================= -->
-      <div class="form-section">
-        <div class="d-flex align-items-center gap-3 mb-2">
-          <div class="section-icon-circle applicant-badge">
-            <i class="bi bi-chat-left-text-fill"></i>
-          </div>
-          <div>
-            <h5 class="fw-bold mb-0 text-dark">ព័ត៌មានបន្ថែម</h5>
-            <span class="section-subtitle">Additional Information</span>
-          </div>
-        </div>
-        <div class="section-line"></div>
-      </div>
-
-      <!-- 13 -->
-      <div class="question-card">
-        <div class="question">13. សូមបំពេញទីលំនៅបច្ចុប្បន្ន</div>
-        <div class="answer long-answer">{{ application?.student?.address || application?.address || '-' }}</div>
-      </div>
-
-      <!-- 14 -->
-      <div class="question-card">
-        <div class="question">14. តើអ្នកទទួលបានព័ត៌មានអាហារូបករណ៍របស់យើងតាមរយៈអ្វីដែរ?</div>
-        <div class="selected-option">
-          <i class="bi bi-check-circle-fill"></i>
-          {{ formatReferralSource(application?.referralSource) }}
-        </div>
-      </div>
-
-      <!-- 15 -->
-      <div class="question-card">
-        <div class="question">15. តើអ្នកមើលឃើញថា AI ជាឱកាស ឬជាហានិភ័យសម្រាប់ វិស័យសន្តិសុខព័ត៌មាន (Cybersecurity)?</div>
-        <div class="answer long-answer">{{ application?.narrative?.aiCybersecurityImpact || '-' }}</div>
-      </div>
-
-      <!-- 16 -->
-      <div class="question-card">
-        <div class="question">16. តើអ្នកមើលឃើញថា AI នឹងដណ្ដើមការងារអ្នក programmer (developer)?</div>
-        <div class="answer long-answer">{{ application?.narrative?.opportunityGoals || '-' }}</div>
-      </div>
-
-      <!-- 17 -->
-      <div class="question-card">
-        <div class="question">17. តើអ្វីដែលជាគោលបំណងក្នុងថ្ងៃអនាគតរបស់អ្នក?</div>
-        <div class="answer long-answer">{{ application?.narrative?.goals || application?.goals || '-' }}</div>
-      </div>
-
-      <!-- 18 -->
-      <div class="question-card">
-        <div class="question">18. មូលហេតុដែលអ្នកចង់ទទួលបានអាហារូបករណ៍ពីថ្នាក់បណ្តុះបណ្តាលបច្ចេកវិទ្យាអាន-ANT</div>
-        <div class="answer long-answer">{{ application?.narrative?.opportunities || application?.narrative?.reasonAnt || application?.opportunities || '-' }}</div>
-      </div>
-
-      <!-- 19 -->
-      <div class="question-card">
-        <div class="question">19. ចូររៀបរាប់ពីស្ថានភាពបច្ចុប្បន្នរបស់អ្នក</div>
-        <div class="answer long-answer">{{ application?.narrative?.familySituation || application?.familySituation || '-' }}</div>
-      </div>
-
-
-      <!-- ================= SCHOLARSHIP ================= -->
-      <div class="form-section">
-        <div class="d-flex align-items-center justify-content-between mb-2">
-          <div class="d-flex align-items-center gap-3">
-            <div class="section-icon-circle applicant-badge">
-              <i class="bi bi-award-fill"></i>
-            </div>
-            <div>
-              <h5 class="fw-bold mb-0 text-dark">ព័ត៌មានអាហារូបករណ៍</h5>
-              <span class="section-subtitle">Scholarship Information</span>
-            </div>
-          </div>
-
-          <!-- Quick edit button in section if SUBMIT -->
-          <button
-            v-if="application?.status === 'SUBMIT'"
-            type="button"
-            class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1.5 px-3 py-1.5 rounded-pill fw-medium"
-            @click="openEditModal"
-            title="កែប្រែ (Shift & Program)"
-          >
-            <i class="bi bi-pencil-square"></i>
-            <span>កែប្រែ (Shift & Program)</span>
-          </button>
-        </div>
-        <div class="section-line"></div>
-      </div>
-
-      <!-- 20 -->
-      <div class="question-card">
-        <div class="question">20. សូមជ្រើសរើសអាហារូបករណ៍ដែលអ្នកចង់ស្នើសុំ</div>
-        <div class="selected-option">
-          <i class="bi bi-check-circle-fill"></i>
-          {{ getProgram(application?.program) }}
-        </div>
-      </div>
-
-      <!-- 21 -->
-      <div class="question-card">
-        <div class="question">21. សូមជ្រើសរើសម៉ោងសិក្សាដែលអ្នកចង់រៀន</div>
-        <div class="selected-option">
-          <i class="bi bi-check-circle-fill"></i>
-          {{ getShift(application?.shift) }}
-        </div>
-        <div class="schedule-text">
-          {{ application?.shift === 'MORNING' ? 'ចន្ទ ដល់ សៅរ៍ · 07:50 ដល់ 10:50' : 'ចន្ទ ដល់ សៅរ៍ · 14:00 ដល់ 17:00' }}
-        </div>
-      </div>
-
-      <!-- 22 -->
-      <div class="question-card">
-        <div class="question">22. ហេតុអ្វីអ្នកចង់ជ្រើសរើសជំនាញខាងលើ?</div>
-        <div class="answer long-answer">{{ application?.narrative?.reason || application?.reason || '-' }}</div>
-      </div>
-
-      <!-- 23 -->
-      <div class="question-card">
-        <div class="question">23. Website ឬ App ដែលអ្នកចាប់អារម្មណ៍</div>
-        <div class="answer">{{ application?.narrative?.webAppInterest || application?.webAppInterest || '-' }}</div>
-      </div>
-
-      <!-- 24 -->
-      <div class="question-card">
-        <div class="question">24. តើអាហារូបករណ៍នេះនឹងចូលរួមជាប្រយោជន៍អ្វីខ្លះទៅដល់ប្រទេសរបស់យើង?</div>
-        <div class="answer long-answer">{{ application?.narrative?.scholarshipVision || application?.scholarshipVision || '-' }}</div>
-      </div>
-
-      <!-- ================= FILES ================= -->
-      <div class="form-section">
-        <div class="d-flex align-items-center gap-3 mb-2">
-          <div class="section-icon-circle applicant-badge">
-            <i class="bi bi-file-earmark-check-fill"></i>
-          </div>
-          <div>
-            <h5 class="fw-bold mb-0 text-dark">ឯកសារ និងរូបថត</h5>
-            <span class="section-subtitle">Documents & Photo</span>
-          </div>
-        </div>
-        <div class="section-line"></div>
-      </div>
-
-      <!-- 25 -->
-      <div class="question-card">
-        <div class="question">25. សូម Upload រូបថតទំហំ ៤x៦ ផ្ទៃពណ៌ខៀវ</div>
-        <div v-if="photoFile" class="file-answer">
-          <div class="file-icon">
-            <i class="bi bi-image"></i>
-          </div>
-
-          <div class="flex-grow-1 min-w-0">
-            <div class="fw-semibold text-truncate">
-              {{ photoFile.originalFilename || 'Profile_Photo_4x6.jpg' }}
-            </div>
-            <small class="text-muted">
-              រូបថត ៤x៦ (Photo)
-            </small>
-          </div>
-
-          <div class="d-flex align-items-center gap-2 flex-shrink-0">
             <button
               type="button"
-              class="btn btn-sm btn-light border d-inline-flex align-items-center justify-content-center"
-              @click="viewFile(photoFile)"
-              :disabled="loadingFileId === (photoFile.id || photoFile.fileUrl || photoFile.filePath)"
-              title="មើលរូបភាព"
+              class="btn btn-primary mt-4 px-4 py-2 rounded-3 d-inline-flex align-items-center gap-2"
+              @click="goBack"
             >
-              <span v-if="loadingFileId === (photoFile.id || photoFile.fileUrl || photoFile.filePath)" class="spinner-border spinner-border-sm"></span>
-              <i v-else class="bi bi-eye"></i>
-            </button>
-
-            <button
-              type="button"
-              class="btn btn-sm btn-light border d-inline-flex align-items-center justify-content-center"
-              @click="downloadFile(photoFile, 'Profile_Photo_4x6')"
-              :disabled="downloadingFileId === (photoFile.id || photoFile.fileUrl || photoFile.filePath)"
-              title="ទាញយក"
-            >
-              <span v-if="downloadingFileId === (photoFile.id || photoFile.fileUrl || photoFile.filePath)" class="spinner-border spinner-border-sm"></span>
-              <i v-else class="bi bi-download"></i>
+              <i class="bi bi-arrow-left"></i>
+              <span>ត្រឡប់ក្រោយ</span>
             </button>
           </div>
         </div>
-
-        <div v-else class="answer text-muted">
-          មិនមានរូបថតភ្ជាប់
-        </div>
       </div>
-
-      <!-- 12 -->
-      <div class="question-card">
-        <div class="question">
-          12. ប្រសិនបើអ្នកពិតជាសិក្សាចាប់ពីឆ្នាំទី 2
-          ឆមាសទី 2 ឡើងទៅ សូម Upload បណ្ណសម្គាល់ខ្លួននិស្សិត
-          ឬវិក្កយបត្របង់ថ្លៃសិក្សាចុងក្រោយ
-        </div>
-
-        <div v-if="transcriptFile" class="file-answer">
-          <div class="file-icon">
-            <i class="bi bi-file-earmark-text"></i>
-          </div>
-
-          <div class="flex-grow-1 min-w-0">
-            <div class="fw-semibold text-truncate">
-              {{ getTranscriptTitle(transcriptFile) }}
-            </div>
-            <small class="text-muted">
-              {{ getTranscriptSubtitle(transcriptFile) }}
-            </small>
-          </div>
-
-          <div class="d-flex align-items-center gap-2 flex-shrink-0">
-            <button
-              type="button"
-              class="btn btn-sm btn-light border d-inline-flex align-items-center justify-content-center"
-              @click="viewFile(transcriptFile)"
-              :disabled="loadingFileId === (transcriptFile.fileUrl)"
-              title="មើលឯកសារ"
-            >
-              <span v-if="loadingFileId === (transcriptFile.fileUrl)" class="spinner-border spinner-border-sm"></span>
-              <i v-else class="bi bi-eye"></i>
-            </button>
-
-            <button
-              type="button"
-              class="btn btn-sm btn-light border d-inline-flex align-items-center justify-content-center"
-              @click="downloadFile(transcriptFile, 'Transcript')"
-              :disabled="downloadingFileId === (transcriptFile.fileUrl)"
-              title="ទាញយក"
-            >
-              <span v-if="downloadingFileId === (transcriptFile.fileUrl)" class="spinner-border spinner-border-sm"></span>
-              <i v-else class="bi bi-download"></i>
-            </button>
-          </div>
-        </div>
-
-        <div v-else class="answer text-muted">
-          មិនមានឯកសារភ្ជាប់
-        </div>
-      </div>
-
-      <!-- Additional files if any -->
-      <div v-if="otherFiles && otherFiles.length > 0" class="question-card">
-        <div class="question">ឯកសារភ្ជាប់ផ្សេងៗ (Additional Files)</div>
-        <div class="d-flex flex-column gap-2">
-          <div v-for="file in otherFiles" :key="file.fileUrl" class="file-answer">
-            <div class="file-icon">
-              <i class="bi bi-file-earmark-text"></i>
-            </div>
-            <div class="flex-grow-1 min-w-0">
-              <div class="fw-semibold text-truncate">
-                {{ file.originalFilename || file.fileType || 'ឯកសារភ្ជាប់' }}
-              </div>
-              <small class="text-muted">
-                {{ getTranscriptSubtitle(file) }}
-              </small>
-            </div>
-            <div class="d-flex align-items-center gap-2 flex-shrink-0">
-              <button
-                type="button"
-                class="btn btn-sm btn-light border d-inline-flex align-items-center justify-content-center"
-                @click="viewFile(file)"
-                :disabled="loadingFileId === (file.fileUrl)"
-                title="មើលឯកសារ"
-              >
-                <span v-if="loadingFileId === (file.fileUrl)" class="spinner-border spinner-border-sm"></span>
-                <i v-else class="bi bi-eye"></i>
-              </button>
-              <button
-                type="button"
-                class="btn btn-sm btn-light border d-inline-flex align-items-center justify-content-center"
-                @click="downloadFile(file, file.fileType || 'Document')"
-                :disabled="downloadingFileId === (file.fileUrl)"
-                title="ទាញយក"
-              >
-                <span v-if="downloadingFileId === (file.fileUrl)" class="spinner-border spinner-border-sm"></span>
-                <i v-else class="bi bi-download"></i>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ================= AGREEMENTS ================= -->
-      <div class="form-section">
-        <div class="d-flex align-items-center gap-3 mb-2">
-          <div class="section-icon-circle applicant-badge">
-            <i class="bi bi-shield-check"></i>
-          </div>
-          <div>
-            <h5 class="fw-bold mb-0 text-dark">ការយល់ព្រមលក្ខខណ្ឌ</h5>
-            <span class="section-subtitle">Terms & Conditions</span>
-          </div>
-        </div>
-        <div class="section-line"></div>
-      </div>
-
-      <!-- 26 -->
-      <div class="question-card">
-        <div class="question">
-          26. តើអ្នកយល់ព្រមតាមលក្ខខណ្ឌដែលទាមទារឱ្យមានកុំព្យូទ័រផ្ទាល់ខ្លួន ពេលវេលាសិក្សាគ្រប់គ្រាន់ និងធានាថាព័ត៌មានដែលបានផ្តល់គឺត្រឹមត្រូវពិតប្រាកដ ដោយទទួលស្គាល់ថាសាលាអាន-ANT 
-          នឹងបញ្ឈប់ការសិក្សានិងផ្តាច់ឱកាសអាហារូបករណ៍នៅពេលក្រោយ ប្រសិនបើរកឃើញការក្លែងបន្លំ ឬមានការបោះបង់ការសិក្សាដែរឬទេ?
-        </div>
-
-        <div :class="(application?.agreedToEligibilityPolicy ?? true) ? 'approved-answer' : 'rejected-answer'">
-          <i :class="(application?.agreedToEligibilityPolicy ?? true) ? 'bi bi-check-circle-fill' : 'bi bi-x-circle-fill'"></i>
-          {{ (application?.agreedToEligibilityPolicy ?? true) ? 'យល់ព្រម' : 'មិនយល់ព្រម' }}
-        </div>
-      </div>
-
-      <!-- Blacklist / Dropout Reason Alert (if present) -->
-      <div v-if="isBlacklisted || isDropout || application?.blacklistReason || application?.dropoutReason" class="question-card border-danger-subtle bg-danger-subtle bg-opacity-10 mt-3">
-        <div class="d-flex align-items-center gap-2 mb-2 text-danger fw-bold">
-          <i class="bi bi-exclamation-triangle-fill"></i>
-          <span>{{ isBlacklisted ? 'ព័ត៌មានបញ្ជីខ្មៅ (Blacklist Information)' : 'ព័ត៌មានបោះបង់ (Dropout Information)' }}</span>
-        </div>
-        <div class="mb-1 text-dark">
-          <strong>មូលហេតុ (Reason):</strong> {{ application?.blacklistReason || application?.dropoutReason || 'មិនមានបញ្ជាក់' }}
-        </div>
-        <div v-if="application?.blacklistNote || application?.dropoutNote" class="text-muted small">
-          <strong>កំណត់ចំណាំ (Note):</strong> {{ application?.blacklistNote || application?.dropoutNote }}
-        </div>
-      </div>
-
-    </div>
-
-
-    <!-- ================= FOOTER ACTIONS ================= -->
-    <div class="review-actions">
-
-      <!-- Left: Back & Delete -->
-      <div class="d-flex align-items-center gap-2">
-        <button
-          type="button"
-          class="btn btn-light border px-4"
-          @click="goBack"
-        >
-          <i class="bi bi-arrow-left me-2"></i>
-          ត្រឡប់
-        </button>
-      </div>
-
-      <!-- Right: Shift & Program, Contact, Blacklist, Reject, Shortlist -->
-      <div class="d-flex flex-wrap align-items-center gap-2 justify-content-end">
-        <!-- Delete Student (Only for SUBMIT status) -->
-        <button
-          v-if="application?.status === 'SUBMIT'"
-          type="button"
-          class="btn btn-outline-danger px-2 px-md-3 d-inline-flex align-items-center gap-2"
-          @click="openDeleteModal"
-          :disabled="isUpdating || isDeleting"
-          title="លុបសិស្ស"
-        >
-          <i class="bi bi-trash3-fill"></i>
-          <span>លុបសិស្ស</span>
-        </button>
-
-        <!-- Edit Shift & Program (Only for SUBMIT status) -->
-        <button
-          v-if="application?.status === 'SUBMIT'"
-          type="button"
-          class="btn btn-outline-primary px-2 px-md-3 d-inline-flex align-items-center gap-2"
-          @click="openEditModal"
-          :disabled="isUpdating || isSubmittingEdit"
-          title="កែប្រែ (Shift & Program)"
-        >
-          <i class="bi bi-pencil-square"></i>
-          <span>កែប្រែ</span>
-        </button>
-
-        <!-- Contact List (Only for SUBMIT status and not yet in contact list) -->
-        <button
-          v-if="application?.status === 'SUBMIT' && !isAlreadyInContactList"
-          type="button"
-          class="btn btn-outline-primary px-4 d-inline-flex align-items-center gap-2"
-          @click="openContactModal"
-          :disabled="isUpdating"
-          title="បន្ថែមទៅបញ្ជីទំនាក់ទំនង"
-        >
-          <i class="bi bi-person-lines-fill"></i>
-          <span>ទំនាក់ទំនង</span>
-        </button>
-
-        <!-- Blacklist -->
-        <button
-          v-if="!isBlacklisted"
-          type="button"
-          class="btn blacklist-btn px-4"
-          @click="handleBlacklist"
-          :disabled="isUpdating"
-        >
-          <i class="bi bi-person-x-fill me-2"></i>
-          បញ្ជីខ្មៅ
-        </button>
-
-        <!-- Reject -->
-        <button
-          v-if="!isFailedShortlist && !isBlacklisted"
-          type="button"
-          class="btn reject-btn px-4"
-          @click="handleReject"
-          :disabled="isUpdating"
-        >
-          <i class="bi bi-x-circle-fill me-2"></i>
-          ធ្លាក់
-        </button>
-        
-        <!-- Shortlist -->
-        <button
-          v-if="!isShortlisted && !isBlacklisted"
-          type="button"
-          class="btn shortlist-btn px-4"
-          @click="handleShortlist"
-          :disabled="isUpdating"
-        >
-          <i class="bi bi-person-check-fill me-2"></i>
-          ជាប់
-        </button>
-
-      </div>
-
-    </div>
 
     <!-- ACTION MODAL -->
     <BaseModal 
@@ -1019,6 +1051,7 @@ import defaultAvatar from "@/assets/images/img/default_avatar.webp";
 import avatarService from "@/services/avatar.service";
 import contactService from "@/services/contact.service";
 import submissionService from "@/services/submission.service";
+import notFoundImage from "@/assets/images/auth/404.png";
 import { shiftOptions, specializationOptions } from "@/constants/options";
 import { useAppToast } from "@/composable/useAppToast";
 import { getSubmissionFileUrl, DEFAULT_AVATAR } from "@/composable/useAvatar";
@@ -1573,6 +1606,16 @@ const handleKeyDown = (e) => {
     closePreview();
   }
 };
+
+watch(
+  () => route.params.id,
+  (newId) => {
+    if (newId) {
+      fetchApplication(newId);
+      checkContactStatus();
+    }
+  }
+);
 
 onMounted(() => {
   fetchApplication();

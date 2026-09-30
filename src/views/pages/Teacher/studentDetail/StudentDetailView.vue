@@ -1,5 +1,8 @@
 <template>
-  <DetailStudent @loaded="onDataLoaded">
+  <DetailStudent
+    :allowed-statuses="['SHORTLIST', 'SHORTLISTED', 'PASS', 'PASSED', 'RESERVED', 'RESERVE', 'FAILED_EVALUATION', 'FAIL', 'FAILED']"
+    @loaded="onDataLoaded"
+  >
     <!-- Badge -->
     <template #badge="{ submission }">
       <span

@@ -28,6 +28,8 @@ import DropoutDetail from '@/views/pages/admin/drop-out/dropoutDetail.vue';
 
 import StudentView from '@/views/pages/Teacher/studentList/StudentView.vue';
 import ProfileView from '@/views/pages/profile/ProfileView.vue';
+import ForbiddenView from '@/views/pages/error/ForbiddenView.vue';
+import NotFoundView from '@/views/pages/error/NotFoundView.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -50,7 +52,7 @@ const router = createRouter({
       meta: {
         title: "ការផ្ទៀងផ្ទាត់ពីរដំណាក់កាល",
         requiresGuest: true,
-         requiresInterimToken: true,
+        requiresInterimToken: true,
       },
     },
 
@@ -79,7 +81,9 @@ const router = createRouter({
     {
       path: "/",
       component: DefaultLayout,
-
+      meta: {
+        requiresAuth: true,
+      },
       children: [
         {
           path: "",
@@ -88,6 +92,7 @@ const router = createRouter({
           meta: {
             title: "ផ្ទាំងគ្រប់គ្រង",
             requiresAuth: true,
+            roles: ["SUPER_ADMIN", "ADMIN", "TEACHER"],
           },
         },
 
@@ -98,6 +103,7 @@ const router = createRouter({
           meta: {
             title: "អ្នកប្រើប្រាស់",
             requiresAuth: true,
+            roles: ["SUPER_ADMIN"],
           },
         },
 
@@ -108,12 +114,14 @@ const router = createRouter({
           meta: {
             title: "កំណត់ហេតុសកម្មភាព",
             requiresAuth: true,
+            roles: ["SUPER_ADMIN"],
           },
         },
         {
           path: "/all-application",
           meta: {
             requiresAuth: true,
+            roles: ["ADMIN"],
           },
           children: [
             {
@@ -123,6 +131,7 @@ const router = createRouter({
               meta: {
                 title: "បញ្ជីអ្នកដាក់ពាក្យទាំងអស់",
                 requiresAuth: true,
+                roles: ["ADMIN"],
               },
             },
             {
@@ -132,6 +141,7 @@ const router = createRouter({
               meta: {
                 title: "បញ្ជីអ្នកដាក់ពាក្យជាប់",
                 requiresAuth: true,
+                roles: ["ADMIN"],
               },
             },
             {
@@ -141,6 +151,7 @@ const router = createRouter({
               meta: {
                 title: "បញ្ជីអ្នកដាក់ពាក្យធ្លាក់",
                 requiresAuth: true,
+                roles: ["ADMIN"],
               },
             },
             {
@@ -150,6 +161,7 @@ const router = createRouter({
               meta: {
                 title: "បញ្ជីអ្នកដាក់ពាក្យទំនាក់ទំនង",
                 requiresAuth: true,
+                roles: ["ADMIN"],
               },
             },
           ],
@@ -161,6 +173,7 @@ const router = createRouter({
           meta: {
             title: "ពិនិត្យបញ្ជីអ្នកដាក់ពាក្យ",
             requiresAuth: true,
+            roles: ["ADMIN"],
           },
         },
         {
@@ -170,21 +183,24 @@ const router = createRouter({
           meta: {
             title: "ព័ត៌មានលម្អិតបញ្ជីសម្រាំង",
             requiresAuth: true,
+            roles: ["ADMIN"],
           },
         },
         {
           path: "/all-shortlist",
           meta: {
             requiresAuth: true,
+            roles: ["ADMIN"],
           },
           children: [
             {
               path: "",
-              name: "",
+              name: "all-shortlist",
               component: ShortlistView,
               meta: {
                 title: "បញ្ជីសម្រាំងទាំងអស់",
                 requiresAuth: true,
+                roles: ["ADMIN"],
               },
             },
             {
@@ -194,6 +210,7 @@ const router = createRouter({
               meta: {
                 title: "បញ្ជីសម្រាំងជាប់",
                 requiresAuth: true,
+                roles: ["ADMIN"],
               },
             },
             {
@@ -203,6 +220,7 @@ const router = createRouter({
               meta: {
                 title: "បញ្ជីសម្រាំងធ្លាក់",
                 requiresAuth: true,
+                roles: ["ADMIN"],
               },
             },
           ],
@@ -214,6 +232,7 @@ const router = createRouter({
           meta: {
             title: "ព័ត៌មានលម្អិតលទ្ធផលចុងក្រោយ",
             requiresAuth: true,
+            roles: ["ADMIN"],
           },
         },
         {
@@ -221,8 +240,9 @@ const router = createRouter({
           name: "blacklisted",
           component: Blacklist,
           meta: {
-            title: "បញ្ជីសម្រាំង",
+            title: "បញ្ជីខ្មៅ",
             requiresAuth: true,
+            roles: ["ADMIN"],
           },
         },
         {
@@ -232,6 +252,7 @@ const router = createRouter({
           meta: {
             title: "ព័ត៌មានលម្អិតបញ្ជីខ្មៅ",
             requiresAuth: true,
+            roles: ["ADMIN"],
           },
         },
         {
@@ -241,6 +262,7 @@ const router = createRouter({
           meta: {
             title: "សិស្សដែលបោះបង់",
             requiresAuth: true,
+            roles: ["ADMIN"],
           },
         },
         {
@@ -250,21 +272,24 @@ const router = createRouter({
           meta: {
             title: "ព័ត៌មានលម្អិតសិស្សដែលបោះបង់",
             requiresAuth: true,
+            roles: ["ADMIN"],
           },
         },
         {
           path: "/final-results",
           meta: {
             requiresAuth: true,
+            roles: ["ADMIN"],
           },
           children: [
             {
               path: "",
-              name: "",
+              name: "all-final-results",
               component: FinalResultView,
               meta: {
                 title: "លទ្ធផលចុងក្រោយទាំងអស់",
                 requiresAuth: true,
+                roles: ["ADMIN"],
               },
             },
             {
@@ -274,6 +299,7 @@ const router = createRouter({
               meta: {
                 title: "លទ្ធផលចុងក្រោយជាប់",
                 requiresAuth: true,
+                roles: ["ADMIN"],
               },
             },
             {
@@ -283,6 +309,7 @@ const router = createRouter({
               meta: {
                 title: "លទ្ធផលចុងក្រោយបម្រុង",
                 requiresAuth: true,
+                roles: ["ADMIN"],
               },
             },
           ]
@@ -294,6 +321,7 @@ const router = createRouter({
           meta: {
             title: "កំណត់ក្រុម",
             requiresAuth: true,
+            roles: ["ADMIN"],
           },
         },
         {
@@ -303,6 +331,7 @@ const router = createRouter({
           meta: {
             title: "បញ្ជីសិស្ស",
             requiresAuth: true,
+            roles: ["TEACHER"],
           },
         },
         {
@@ -312,6 +341,7 @@ const router = createRouter({
           meta: {
             title: "ការវាយតម្លៃ",
             requiresAuth: true,
+            roles: ["TEACHER"],
           },
         },
         {
@@ -321,6 +351,7 @@ const router = createRouter({
           meta: {
             title: "ព័ត៌មានលម្អិត",
             requiresAuth: true,
+            roles: ["TEACHER"],
           },
         },
         {
@@ -330,9 +361,29 @@ const router = createRouter({
           meta: {
             title: "ប្រវត្តិរូប",
             requiresAuth: true,
+            roles: ["SUPER_ADMIN", "ADMIN", "TEACHER"],
           },
         },
       ],
+    },
+    {
+      path: "/403",
+      name: "forbidden",
+      component: ForbiddenView,
+      meta: {
+        title: "គ្មានសិទ្ធិចូលប្រើប្រាស់",
+        requiresAuth: true,
+      },
+    },
+    {
+      path: "/:catchAll(.*)",
+      name: "not-found",
+      component: NotFoundView,
+      meta: { 
+        title: "មិនស្គាល់ទំព័រ",
+        // requiresAuth: true,
+        // roles: ["SUPER_ADMIN", "ADMIN", "TEACHER"],
+      },
     },
     {
       path: "/:pathMatch(.*)*",
@@ -343,15 +394,15 @@ const router = createRouter({
     },
   ]
 })
-router.beforeEach((to) => {
+
+router.beforeEach(async (to) => {
   const authStore = useAuthStore();
 
   const isAuthenticated = authStore.isAuthenticated;
-
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
   const requiresGuest = to.matched.some(record => record.meta.requiresGuest);
   const requiresInterimToken = to.matched.some((record) => record.meta.requiresInterimToken);
-  
+
   // 1. User IS logged in → cannot access auth pages (login, 2fa, verify-code, etc.)
   if (requiresGuest && isAuthenticated) {
     return { name: "dashboard" };
@@ -365,6 +416,37 @@ router.beforeEach((to) => {
   // 3. Prevent accessing 2FA/Reset steps without a login interimToken
   if (requiresInterimToken && !authStore.interimToken) {
     return { name: "login" };
+  }
+
+  // 4. Role-based Access Control (RBAC)
+  if (requiresAuth && isAuthenticated) {
+    // If user profile is not yet in store (e.g. initial load or browser refresh), fetch it
+    if (!authStore.user) {
+      try {
+        await authStore.getProfile();
+      } catch (error) {
+        console.error("Failed to load user profile in router guard:", error);
+        await authStore.logout();
+        return { name: "login" };
+      }
+    }
+
+    const userRole = authStore.user?.role;
+
+    // Check roles across all matched route records
+    const roleRestrictedRecords = to.matched.filter(
+      (record) => record.meta && Array.isArray(record.meta.roles)
+    );
+
+    if (roleRestrictedRecords.length > 0) {
+      const hasPermission = roleRestrictedRecords.every((record) =>
+        record.meta.roles.includes(userRole)
+      );
+
+      if (!hasPermission) {
+        return { name: "forbidden" };
+      }
+    }
   }
 
   return true;

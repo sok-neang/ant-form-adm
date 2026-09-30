@@ -36,9 +36,22 @@ export function useApplicationReview() {
           };
         });
       }
+
+      if (appData) {
+        const rawStatus = String(appData.status || "").toUpperCase();
+        const isBlacklist = ["BLACKLIST", "BLACKLISTED"].includes(rawStatus) || Boolean(appData.blacklistReason || appData.blacklistedAt || appData.blacklist);
+        const isDropout = ["DROPOUT", "DROP_OUT"].includes(rawStatus) || Boolean(appData.dropoutReason || appData.droppedOutAt || appData.dropout);
+
+        if (isBlacklist || isDropout) {
+          application.value = null;
+          return;
+        }
+      }
+
       application.value = appData;
     } catch (error) {
       console.error("Error fetching application details:", error);
+      application.value = null;
     } finally {
       loading.value = false;
     }

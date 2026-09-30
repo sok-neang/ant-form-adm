@@ -1,8 +1,7 @@
 <template>
     <form @submit.prevent>
-         <div class="col-md-12 my-3">
+         <div class="mb-3">
              <BaseInput
-               class="my-2"
                v-model="form.name"
                :error="errors.name"
                label="ឈ្មោះពេញ​ *"
@@ -11,11 +10,10 @@
                @input="$emit('input', 'name')">
            <i class="bi bi-person"></i>
            </BaseInput>
-
          </div>
 
         <!-- Email -->
-          <div class="col-md-12 my-3">
+          <div class="mb-3">
               <BaseInput
                   v-model="form.email"
                   :error="errors.email"
@@ -27,9 +25,8 @@
               </BaseInput>
           </div>
 
-
         <!-- Gender -->
-          <div class="col-md-12 my-3">
+          <div class="mb-3">
               <BaseSelect
                 v-model="form.gender"
                 label="ភេទ *"
@@ -42,12 +39,10 @@
                 icon="bi bi-gender-ambiguous"
               >
             </BaseSelect>
-
           </div>
 
-
         <!-- Role -->
-          <div class="col-md-12 my-3">
+          <div class="mb-3">
               <BaseSelect
                 v-model="form.role"
                 label="តួនាទី *"
@@ -63,7 +58,7 @@
           </div>
 
         <!-- type subject -->
-          <div class="col-md-12 my-3" v-show="form.role == 'TEACHER'">
+          <div class="mb-3" v-show="form.role == 'TEACHER'">
               <BaseSelect
                 v-model="form.teachingSubject"
                 label="អាហារូបករណ៍ *"

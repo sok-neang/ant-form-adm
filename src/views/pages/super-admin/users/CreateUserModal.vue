@@ -40,6 +40,7 @@
   </BaseModal>
 </template>
 <script setup>
+import { watch } from "vue";
 import UserForm from "@/components/form/UserForm.vue";
 import BaseButton from "@/components/ui/base/BaseButton.vue";
 import BaseModal from "@/components/ui/base/BaseModal.vue";
@@ -58,11 +59,20 @@ const props = defineProps({
 });
 
 const emit = defineEmits(["close", "created",]);
-const { form,errors,loading,resetForm, validateForm,onInput,onBlur,resetValidation,applyBackendErrors} = useUserForm("create");
+const { form, errors, loading, resetForm, validateForm, onInput, onBlur, resetValidation, applyBackendErrors } = useUserForm("create");
+
+watch(
+  () => props.show,
+  (isOpen) => {
+    if (isOpen) {
+      resetForm();
+    }
+  }
+);
+
 const handleClose = () => {
   if (loading.value) return;
-  resetValidation();
-  resetForm()
+  resetForm();
   emit("close");
 };
 
@@ -99,9 +109,10 @@ const handleCreate = async () => {
         role: data.role || form.role,
         password: data.plainPassword,
       };
+
+      resetForm();
       emit("created", user);
       emit("close");
-      resetValidation();
     }
   } catch (err) {
     console.error("Create user error:", err);
@@ -112,7 +123,7 @@ const handleCreate = async () => {
     }
     const backendErrors = response?.data?.details;
     if (backendErrors && typeof backendErrors === "object" ) {
-      applyBackendErrors(backendErrors, mapBackendMessage);
+      applyBackendErrors(backendErrors);
     }
   } finally {
     loading.value = false;

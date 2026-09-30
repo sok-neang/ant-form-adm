@@ -20,12 +20,12 @@ import {
 export const useAuthStore = defineStore("auth", () => {
   const storedTwoFactorData = getTwoFactorData();
   const interimToken = ref(storedTwoFactorData.interimToken || null);
-  const twoFactorStep = ref( storedTwoFactorData.twoFactorStep || null );
+  const twoFactorStep = ref(storedTwoFactorData.twoFactorStep || null);
   const qrCodeDataUri = ref(storedTwoFactorData.qrCodeDataUri || null);
   const totpSecret = ref(storedTwoFactorData.totpSecret || null);
 
   const initialAuth = getAuthData();
-  const accessToken = ref(initialAuth.accessToken || localStorage.getItem("accessToken") || sessionStorage.getItem("accessToken") || "" );
+  const accessToken = ref(initialAuth.accessToken || localStorage.getItem("accessToken") || sessionStorage.getItem("accessToken") || "");
   const user = ref(initialAuth.user || null);
   const userAvatarUrl = ref(DEFAULT_AVATAR);
   const loading = ref(false);
@@ -34,7 +34,7 @@ export const useAuthStore = defineStore("auth", () => {
   const isDeleteAvatarLoading = ref(false);
   const isLogoutLoading = ref(false);
 
-  const isAuthenticated = computed(() => {return !!accessToken.value;});
+  const isAuthenticated = computed(() => { return !!accessToken.value; });
 
   const getUserAvatarPath = () => {
     if (!user.value) return null;
@@ -167,7 +167,7 @@ export const useAuthStore = defineStore("auth", () => {
       if (result.success) {
         user.value = result.data;
         await loadUserAvatar();
-        
+
         saveAuthData({
           accessToken: accessToken.value,
           user: user.value,

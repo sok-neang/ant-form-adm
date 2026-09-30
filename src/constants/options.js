@@ -97,6 +97,10 @@ export const specializationOptions = [
     value: "MOBILE_APP",
     label: "Mobile App",
   },
+  {
+    value: "CYBERSECURITY",
+    label: "Cyber Security",
+  },
 ];
 
 export const resultStatusOptions = [

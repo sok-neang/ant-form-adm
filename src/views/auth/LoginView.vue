@@ -139,16 +139,16 @@ const handleLogin = async () => {
       return;
     }
   } catch (error) {
-  
-  const backendData = error.response?.data;
-  // Field-level validation errors
-  if (backendData?.errors) {
-    applyBackendErrors(backendData.errors);
-  }
-  // General backend error
-  const errorMessages = {
-    "Invalid email or password.": "អុីម៉ែល ឬពាក្យសម្ងាត់មិនត្រឹមត្រូវ សូមព្យាយាមម្តងទៀត",
-  };
+    const backendData = error.response?.data;
+    // Field-level validation errors
+    if (backendData?.errors) {
+      applyBackendErrors(backendData.errors);
+    }
+    // General backend error
+    const errorMessages = {
+      "Invalid email or password.": "អុីម៉ែល ឬពាក្យសម្ងាត់មិនត្រឹមត្រូវ សូមព្យាយាមម្តងទៀត",
+      "Too many requests. Please try again later.": "អ្នកព្យាយាមចូលប្រើប្រាស់ច្រើនពេក សូមព្យាយាមម្តងទៀតនៅពេលក្រោយ",
+    };
 
     const message = errorMessages[backendData?.message] || backendData?.message || "ការចូលប្រើប្រាស់បរាជ័យ"; 
     toast.error(message);

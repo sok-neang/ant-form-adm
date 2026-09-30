@@ -121,9 +121,6 @@
           </ul>
         </div>
       </template>
-
-
-
     </BaseTable>
 
     <CreateUserModal :show="showCreateModal" @close="showCreateModal = false" @created="handleCreateSuccess" />
@@ -234,12 +231,6 @@ const handleStatusChange = async ({ id, status }) => {
        statusLoading.value = false; 
       } 
     };
-
-
-
-
-
-
 
 const columns = [
   { key: "user", label: "អ្នកប្រើប្រាស់" },

@@ -210,7 +210,7 @@ onBeforeUnmount(() => {
 .modal-content {
   border: none;
   border-radius: 16px;
-  overflow: hidden;
+  overflow: visible;
   box-shadow: 0 15px 45px rgba(0, 0, 0, 0.18);
   width: 100%;
   background: #fff;
@@ -218,15 +218,23 @@ onBeforeUnmount(() => {
 
 .modal-header {
   padding: 18px 24px;
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
 }
 
 .modal-body {
   padding: 10px 24px;
+  position: relative;
+  z-index: 2;
 }
 
 .modal-footer {
   padding: 0 24px 24px;
   border-top: 0 !important;
+  border-bottom-left-radius: 16px;
+  border-bottom-right-radius: 16px;
+  position: relative;
+  z-index: 1;
 }
 
 /* =========================

@@ -1,5 +1,5 @@
 <template>
-  <DetailStudent :banner-src="bannerBlacklistBg">
+  <DetailStudent :banner-src="bannerBlacklistBg" :allowed-statuses="['DROPOUT', 'DROP_OUT']">
     <!-- Badge -->
     <template #badge>
       <span class="badge rounded-pill px-3 py-2 fw-semibold" style="background-color: #fee2e2; color: #dc2626; font-size: 0.85rem;">

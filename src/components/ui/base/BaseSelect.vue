@@ -638,11 +638,11 @@ onBeforeUnmount(() => {
 
 .base-select.is-open {
   position: relative;
-  z-index: 1050;
+  z-index: 1060;
 }
 
 .base-select.is-open .base-select__group {
-  z-index: 1050;
+  z-index: 1060;
 }
 .base-select__icon {
   display: flex;
@@ -769,7 +769,7 @@ onBeforeUnmount(() => {
   font-size: 14px;
   padding: 10px 5px;
   background: #fff;
-  z-index: 1050;
+  z-index: 1060;
 }
 
 .base-select__group

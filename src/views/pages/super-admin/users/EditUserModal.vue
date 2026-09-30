@@ -161,6 +161,7 @@ const handleUpdate = async () => {
 
     const payload = {
       name: form.name,
+      email: form.email,
       gender: form.gender,
       role: form.role,
     };

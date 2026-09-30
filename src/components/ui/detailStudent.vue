@@ -1,5 +1,36 @@
 <template>
-  <div class="container-fluid shortlist-container">
+  <!-- Data not found state -->
+  <div v-if="isNotFoundComputed" class="container-fluid py-5 text-center d-flex flex-column align-items-center justify-content-center" style="min-height: 520px;">
+    <div class="p-4 p-md-5 text-center">
+      <div class="py-10 text-center">
+
+        <div class="empty-icon mb-4">
+          <i class="bi bi-search fs-1"></i>
+        </div>
+
+        <h5 class="fw-bold mb-2">
+          មិនមានទិន្នន័យ
+        </h5>
+
+        <p class="text-muted mb-0">
+          មិនអាចរកឃើញទិន្នន័យដែលអ្នកកំពុងស្វែងរកទេ។
+        </p>
+      </div>
+
+      <div>
+        <button
+          type="button"
+          class="btn btn-primary mt-4 px-4 py-2 rounded-3 d-inline-flex align-items-center gap-2"
+          @click="goBack"
+        >
+          <i class="bi bi-arrow-left"></i>
+          <span>ត្រឡប់ក្រោយ</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div v-else class="container-fluid shortlist-container">
     <!-- OPTIONAL TOP HEADER (Used in Teacher View) -->
     <div v-if="showTopHeader" class="d-flex align-items-center gap-3 mb-3">
       <button
@@ -554,6 +585,14 @@ const props = defineProps({
     type: [String, Number],
     default: null,
   },
+  isNotFound: {
+    type: Boolean,
+    default: false,
+  },
+  allowedStatuses: {
+    type: [Array, String],
+    default: () => [],
+  },
   showTopHeader: {
     type: Boolean,
     default: false,
@@ -636,6 +675,11 @@ const loading = ref(true);
 const submission = ref(null);
 const student = ref(null);
 const evaluations = ref([]);
+const internalNotFound = ref(false);
+
+const isNotFoundComputed = computed(() => {
+  return Boolean(props.isNotFound || internalNotFound.value);
+});
 
 // Photo / Avatar & Preview state
 const studentAvatar = ref(defaultAvatar);
@@ -664,17 +708,132 @@ watch(showPreviewModal, (value) => {
   }
 });
 
+watch(activeId, (newId) => {
+  if (newId) {
+    fetchData();
+  }
+});
+
+const checkStatusAllowed = (sub) => {
+  if (!sub || typeof sub !== "object") return false;
+
+  const rawStatus = String(sub.status || "").toUpperCase();
+
+  const isBlacklist =
+    ["BLACKLIST", "BLACKLISTED"].includes(rawStatus) ||
+    Boolean(sub.blacklistReason || sub.blacklistedAt || sub.blacklist);
+
+  const isDropout =
+    ["DROPOUT", "DROP_OUT"].includes(rawStatus) ||
+    Boolean(sub.dropoutReason || sub.droppedOutAt || sub.dropout);
+
+  const isShortlist =
+    ["SHORTLIST", "SHORTLISTED"].includes(rawStatus) ||
+    [
+      "PASS",
+      "PASSED",
+      "RESERVED",
+      "RESERVE",
+      "FAIL",
+      "FAILED",
+      "FAILED_EVALUATION",
+    ].includes(rawStatus);
+
+  const isFinalResult = [
+    "PASS",
+    "PASSED",
+    "RESERVED",
+    "RESERVE",
+    "FAIL",
+    "FAILED",
+    "FAILED_EVALUATION",
+  ].includes(rawStatus);
+
+  // 1. Explicit allowedStatuses prop
+  let expectedList = [];
+  if (props.allowedStatuses) {
+    if (Array.isArray(props.allowedStatuses)) {
+      expectedList = props.allowedStatuses.map((s) => String(s).toUpperCase());
+    } else if (typeof props.allowedStatuses === "string" && props.allowedStatuses) {
+      expectedList = [props.allowedStatuses.toUpperCase()];
+    }
+  }
+
+  if (expectedList.length > 0) {
+    if (expectedList.includes("BLACKLIST") || expectedList.includes("BLACKLISTED")) {
+      return isBlacklist;
+    }
+    if (expectedList.includes("DROPOUT") || expectedList.includes("DROP_OUT")) {
+      return isDropout;
+    }
+    // If expecting other status, ensure record is not blacklisted or dropped out
+    if (isBlacklist || isDropout) {
+      return false;
+    }
+    return expectedList.includes(rawStatus);
+  }
+
+  // 2. Auto-detect from current route path / name
+  const routePath = String(route?.path || "").toLowerCase();
+  const routeName = String(route?.name || "").toLowerCase();
+
+  // Blacklist route
+  if (routePath.includes("blacklist") || routeName.includes("blacklist")) {
+    return isBlacklist;
+  }
+
+  // Dropout route
+  if (
+    routePath.includes("drop-out") ||
+    routePath.includes("dropout") ||
+    routeName.includes("dropout")
+  ) {
+    return isDropout;
+  }
+
+  // Shortlist route
+  if (routePath.includes("shortlist") || routeName.includes("shortlist")) {
+    if (isBlacklist || isDropout) return false;
+    if (rawStatus === "SUBMIT" || rawStatus === "SUBMITTED") return false;
+    return isShortlist;
+  }
+
+  // Final result route
+  if (routePath.includes("final-result") || routeName.includes("final-result")) {
+    if (isBlacklist || isDropout) return false;
+    if (
+      rawStatus === "SUBMIT" ||
+      rawStatus === "SUBMITTED" ||
+      rawStatus === "SHORTLIST" ||
+      rawStatus === "SHORTLISTED"
+    ) {
+      return false;
+    }
+    return isFinalResult;
+  }
+
+  // Student list (Teacher) route
+  if (routePath.includes("student-lists") || routeName.includes("student")) {
+    if (isBlacklist || isDropout) return false;
+    if (rawStatus === "SUBMIT" || rawStatus === "SUBMITTED") return false;
+    return true;
+  }
+
+  return true;
+};
+
 const fetchData = async () => {
   const targetId = activeId.value;
   if (!targetId) return;
   loading.value = true;
+  internalNotFound.value = false;
   try {
     const [evalRes, subRes] = await Promise.allSettled([
       evaluationService.getBySubmissionId(targetId),
       submissionService.getById(targetId),
     ]);
 
-    let finalSubmission = {};
+    let finalSubmission = null;
     let finalStudent = {};
     let finalEvaluations = [];
 
@@ -685,12 +844,32 @@ const fetchData = async () => {
         subData = subData.data || subData.submission;
       }
 
-      if (subData) {
+      if (subData && subData.id) {
         finalSubmission = { ...subData };
         finalStudent = { ...(subData.student || {}) };
         if (subData.evaluations?.length) finalEvaluations = [...subData.evaluations];
       }
     }
+
+    // 1. If submission not found or failed to load
+    if (!finalSubmission || !finalSubmission.id) {
+      internalNotFound.value = true;
+      submission.value = null;
+      student.value = null;
+      evaluations.value = [];
+      return;
+    }
+
+    // 2. Validate that student's status matches the required status for this page
+    if (!checkStatusAllowed(finalSubmission)) {
+      internalNotFound.value = true;
+      submission.value = null;
+      student.value = null;
+      evaluations.value = [];
+      return;
+    }
+
+    internalNotFound.value = false;
 
     if (evalRes.status === "fulfilled" && evalRes.value?.data?.success) {
       const evalData = evalRes.value.data.data;
@@ -753,6 +932,10 @@ const fetchData = async () => {
     });
   } catch (err) {
     console.error("Failed to load student detail:", err);
+    internalNotFound.value = true;
+    submission.value = null;
+    student.value = null;
+    evaluations.value = [];
   } finally {
     loading.value = false;
   }
@@ -1225,6 +1408,21 @@ onUnmounted(() => {
   z-index: 20;
 }
 
+.empty-icon {
+  width: 100px;
+  height: 100px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(var(--bs-primary-rgb), 0.08);
+  color: var(--bs-primary);
+
+  border-radius: 50%;
+  font-size: 25px;
+}
+
 .blacklist-btn,
 .reject-btn {
   color: #e53e3e;
@@ -1274,7 +1472,6 @@ onUnmounted(() => {
 .profile-summary-card {
   border-radius: 20px;
   background-color: #eff6ff;
-  box-shadow: 0 6px 24px rgba(38, 98, 217, 0.08);
   position: relative;
 }
 

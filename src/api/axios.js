@@ -97,6 +97,14 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
+    // Handle 403 Forbidden: Privilege violation / unauthorized module access
+    if (error.response?.status === 403) {
+      if (typeof window !== "undefined" && window.location.pathname !== "/403") {
+        window.location.href = "/403";
+      }
+      return Promise.reject(error);
+    }
+
     // Do not intercept if no response or not 401
     if (error.response?.status !== 401) {
       return Promise.reject(error);

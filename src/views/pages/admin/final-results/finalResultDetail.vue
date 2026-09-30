@@ -1,5 +1,8 @@
 <template>
-  <DetailStudent @loaded="onDataLoaded">
+  <DetailStudent
+    :allowed-statuses="['PASS', 'PASSED', 'RESERVED', 'RESERVE', 'FAIL', 'FAILED', 'FAILED_EVALUATION']"
+    @loaded="onDataLoaded"
+  >
     <!-- Badge -->
     <template #badge="{ submission }">
       <span
@@ -50,6 +53,16 @@
         >
           <i class="bi bi-person-x-fill me-2"></i>
           បោះបង់
+        </button>
+        <button
+          v-if="isReserved"
+          type="button"
+          class="btn btn-outline-primary px-4"
+          @click="openActionModal('SHORTLIST')"
+          :disabled="isUpdating"
+        >
+          <i class="bi bi-person-check me-2"></i>
+          បញ្ជីសម្រាំង
         </button>
         <button
           v-if="!isReserved"
@@ -201,6 +214,7 @@ const actionModalTitle = computed(() => {
   if (actionType.value === "RESERVED") return "បញ្ជាក់បម្រុង (Reserve)";
   if (actionType.value === "FAIL") return "បញ្ជាក់ការធ្លាក់ (Fail)";
   if (actionType.value === "PASS" || actionType.value === "PASSED") return "បញ្ជាក់ការជាប់ (Pass)";
+  if (actionType.value === "SHORTLIST" || actionType.value === "SHORTLISTED") return "បញ្ជាក់ការផ្លាស់ប្តូរទៅបញ្ជីសម្រាំង (Shortlist)";
   return "បញ្ជាក់";
 });
 
@@ -220,6 +234,9 @@ const actionModalPrompt = computed(() => {
   if (actionType.value === "PASS" || actionType.value === "PASSED") {
     return "តើអ្នកពិតជាចង់ផ្លាស់ប្តូរស្ថានភាពបេក្ខជននេះទៅជា «ជាប់ពេញសិទ្ធ» មែនទេ?";
   }
+  if (actionType.value === "SHORTLIST" || actionType.value === "SHORTLISTED") {
+    return "តើអ្នកពិតជាចង់ផ្លាស់ប្តូរបេក្ខជនបម្រុងនេះទៅកាន់ «បញ្ជីសម្រាំង (SHORTLIST)» វិញមែនទេ?";
+  }
   return "តើអ្នកពិតជាចង់ផ្លាស់ប្តូរស្ថានភាពបេក្ខជននេះមែនទេ?";
 });
 
@@ -236,14 +253,23 @@ const promoteStatus = async (status, payload = {}) => {
   if (!id) return;
   isUpdating.value = true;
   try {
-    const response = await submissionService.promoteStatus(id, { status, ...payload });
-    if (response.data?.success || response.status === 200) {
+    let response;
+    try {
+      response = await submissionService.promoteStatus(id, { status, ...payload });
+    } catch (err) {
+      if (status === "SHORTLIST" && (err?.response?.status === 400 || err?.response?.status === 422)) {
+        response = await submissionService.promoteStatus(id, { status: "SHORTLISTED", ...payload });
+      } else {
+        throw err;
+      }
+    }
+    if (response?.data?.success || response?.status === 200) {
       toast.success("ស្ថានភាពត្រូវបានកែប្រែដោយជោគជ័យ");
       router.back();
     }
   } catch (error) {
     console.error("Error updating status:", error);
-    toast.error(error?.response?.data?.message);
+    toast.error(error?.response?.data?.message || "មានបញ្ហាក្នុងការកែប្រែស្ថានភាព");
   } finally {
     isUpdating.value = false;
   }
