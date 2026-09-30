@@ -344,14 +344,14 @@ const loadStudentAvatar = async () => {
   if (photoPath) {
     try {
       const url = await getSubmissionFileUrl(photoPath);
-      if (!url || url === DEFAULT_AVATAR) {
-        studentAvatar.value = defaultAvatar;
-      } else {
+      if (url && url !== DEFAULT_AVATAR) {
         studentAvatar.value = url;
+      } else {
+        studentAvatar.value = photoFile?.fileUrl || photoPath;
       }
     } catch (err) {
       console.warn("Failed to load student photo in evaluation:", err);
-      studentAvatar.value = defaultAvatar;
+      studentAvatar.value = photoFile?.fileUrl || photoPath;
     }
   } else {
     studentAvatar.value = defaultAvatar;

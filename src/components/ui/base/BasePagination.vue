@@ -9,7 +9,8 @@
       <strong>{{ endItem }}</strong>
       នៃ
       <strong>{{ total }}</strong>
-      (ទិន្នន័យសរុប {{ totalStudent }})
+
+      <strong v-if="!isStudent"> (ទិន្នន័យសរុប {{ totalStudent }})</strong>
     </div>
 
     <!-- Pagination -->
@@ -65,6 +66,10 @@ const props = defineProps({
   totalStudent: {
     type: Number,
     default: 0,
+  },
+  isStudent: {
+    type: Boolean,
+    default: false,
   },
 });
 

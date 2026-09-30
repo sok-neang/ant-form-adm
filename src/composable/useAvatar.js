@@ -19,7 +19,12 @@ export async function getSubmissionFileUrl(fileUrl) {
   ) {
     return fileUrl;
   }
-  const cacheKey = fileUrl;
+  const cacheKey = fileUrl.includes("/uploads/")
+    ? fileUrl.substring(fileUrl.indexOf("/uploads/"))
+    : fileUrl.includes("uploads/")
+    ? `/${fileUrl.substring(fileUrl.indexOf("uploads/"))}`
+    : fileUrl;
+
   if (submissionBlobCache.has(cacheKey)) {
     return submissionBlobCache.get(cacheKey);
   }
@@ -32,6 +37,10 @@ export async function getSubmissionFileUrl(fileUrl) {
       const blob =
         await avatarService.getSubmissionFileBlob(fileUrl);
 
+      if (!blob || blob.size === 0 || blob.type === "application/json" || blob.type?.includes("html")) {
+        throw new Error("Invalid blob received");
+      }
+
       const objectUrl = URL.createObjectURL(blob);
 
       submissionBlobCache.set(cacheKey, objectUrl);
@@ -43,7 +52,8 @@ export async function getSubmissionFileUrl(fileUrl) {
         err?.response?.status || err?.message
       );
 
-      return DEFAULT_AVATAR;
+      // Return the fileUrl itself so consumers can load it directly via <img> or browser
+      return fileUrl;
     } finally {
       inFlightSubmissionRequests.delete(cacheKey);
     }
@@ -76,7 +86,10 @@ export async function getAvatarUrl(fileUrl) {
   if (isHttpUrl && !isBackendAvatar) {
     return fileUrl;
   }
-  const cacheKey = fileUrl;
+  const cacheKey = fileUrl.includes("/uploads/")
+    ? fileUrl.substring(fileUrl.indexOf("/uploads/"))
+    : fileUrl;
+
   if (avatarBlobCache.has(cacheKey)) {
     return avatarBlobCache.get(cacheKey);
   }
@@ -88,6 +101,10 @@ export async function getAvatarUrl(fileUrl) {
     try {
       const blob =
         await avatarService.getAvatarBlob(fileUrl);
+
+      if (!blob || blob.size === 0 || blob.type === "application/json" || blob.type?.includes("html")) {
+        throw new Error("Invalid blob received");
+      }
 
       const objectUrl = URL.createObjectURL(blob);
 
@@ -118,10 +135,18 @@ export function invalidateAvatarCache(fileUrl) {
       }
     }
     avatarBlobCache.clear();
+    for (const [, objectUrl] of submissionBlobCache.entries()) {
+      if (objectUrl?.startsWith("blob:")) {
+        URL.revokeObjectURL(objectUrl);
+      }
+    }
+    submissionBlobCache.clear();
     return;
   }
 
-  const cacheKey = fileUrl;
+  const cacheKey = fileUrl.includes("/uploads/")
+    ? fileUrl.substring(fileUrl.indexOf("/uploads/"))
+    : fileUrl;
 
   if (avatarBlobCache.has(cacheKey)) {
     const objectUrl = avatarBlobCache.get(cacheKey);
@@ -131,6 +156,16 @@ export function invalidateAvatarCache(fileUrl) {
     }
 
     avatarBlobCache.delete(cacheKey);
+  }
+
+  if (submissionBlobCache.has(cacheKey)) {
+    const objectUrl = submissionBlobCache.get(cacheKey);
+
+    if (objectUrl?.startsWith("blob:")) {
+      URL.revokeObjectURL(objectUrl);
+    }
+
+    submissionBlobCache.delete(cacheKey);
   }
 }
 export const useAvatar = (initialPath = null) => {

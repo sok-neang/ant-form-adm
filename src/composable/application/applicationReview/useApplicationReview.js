@@ -25,11 +25,6 @@ export function useApplicationReview() {
       if (appData && appData.files && Array.isArray(appData.files)) {
         appData.files = appData.files.map((file) => {
           let fileUrl = file.fileUrl;
-          if (!fileUrl && file.filePath) {
-            fileUrl = file.filePath.startsWith("http")
-              ? file.filePath
-              : `https://ant-form-backend.g2.ant.com.kh/${file.filePath.replace(/^\/+/, "")}`;
-          }
           return {
             ...file,
             fileUrl: fileUrl || file.filePath || "",

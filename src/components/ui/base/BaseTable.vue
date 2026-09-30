@@ -125,8 +125,8 @@
       v-model:page="currentPage"
       :pagination="pagination"
       :total-student="totalStudent"
+      :is-student="isStudent"
     />
-
     </div>
 
   </div>
@@ -176,6 +176,10 @@ const props = defineProps({
   totalStudent: {
     type: Number,
     default: 0,
+  },
+  isStudent: {
+    type: Boolean,
+    default: true,
   },
 });
 

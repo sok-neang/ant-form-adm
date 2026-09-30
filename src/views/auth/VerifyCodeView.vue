@@ -161,7 +161,17 @@ const handleVerifyOTP = async () => {
     toast.error("ទិន្នន័យផ្ទៀងផ្ទាត់មិនត្រឹមត្រូវ");
   } catch (error) {
     const backendData = error.response?.data;
-    const message = backendData?.message || "លេខកូដផ្ទៀងផ្ទាត់មិនត្រឹមត្រូវ";
+    let message = backendData?.message || "លេខកូដផ្ទៀងផ្ទាត់មិនត្រឹមត្រូវ";
+    if(message == "Invalid OTP. Please try again."){
+      message = "លេខកូដផ្ទៀងផ្ទាត់មិនត្រឹមត្រូវ";
+      authStore.clearTwoFactor();
+      otp.value = [
+          "","","","","","",
+        ];
+      otpRefs.value[0]?.focus();
+      toast.error(message);
+      return
+    }
     toast.error(message);
 
     const isInterimTokenExpired =

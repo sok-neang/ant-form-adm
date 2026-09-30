@@ -462,6 +462,15 @@
               </button>
               <button
                 type="button"
+                class="btn btn-sm btn-outline-success d-inline-flex align-items-center gap-1"
+                @click="downloadCurrentPreviewFile"
+                title="ទាញយក"
+              >
+                <i class="bi bi-download"></i>
+                <span class="d-none d-sm-inline">ទាញយក</span>
+              </button>
+              <button
+                type="button"
                 class="btn-close"
                 @click="closePreview"
                 aria-label="Close"
@@ -477,17 +486,44 @@
               </div>
               <span class="text-white fw-medium">កំពុងដំណើរការផ្ទុកឯកសារ PDF...</span>
             </div>
-            <div v-else-if="previewPdfSource" class="pdf-wrapper mx-auto">
+            <div v-else-if="previewPdfSource && !previewPdfFailed" class="pdf-wrapper mx-auto">
               <VuePdfEmbed
                 :source="previewPdfSource"
                 annotation-layer
                 text-layer
                 class="pdf-viewer-embed shadow rounded-2"
+                @loading-failed="onPdfEmbedFailed"
               />
             </div>
-            <div v-else class="text-center py-5 text-white">
-              <i class="bi bi-exclamation-triangle fs-1 text-warning d-block mb-2"></i>
-              <span>មិនអាចបង្ហាញឯកសារបានទេ។</span>
+            <div v-else class="text-center py-5">
+              <div class="bg-white rounded-4 shadow-sm p-4 mx-auto text-center" style="max-width: 480px;">
+                <div class="mb-3 text-warning">
+                  <i class="bi bi-exclamation-triangle-fill fs-1"></i>
+                </div>
+                <h6 class="fw-bold text-dark mb-2">មិនអាចបើកមើលឯកសារ PDF ក្នុងផ្ទាំងនេះបានទេ</h6>
+                <p class="text-muted small mb-4">
+                  កម្មវិធីរុករកមិនអាចបង្ហាញឯកសារនេះដោយផ្ទាល់បានទេ។ អ្នកអាចបើកមើលក្នុងផ្ទាំងថ្មី ឬទាញយកឯកសារនេះបាន។
+                </p>
+                <div class="d-flex align-items-center justify-content-center gap-2 flex-wrap">
+                  <button
+                    v-if="previewFileUrl"
+                    type="button"
+                    class="btn btn-success px-3 d-inline-flex align-items-center gap-2 shadow-sm"
+                    @click="openInNewTab(previewFileUrl)"
+                  >
+                    <i class="bi bi-box-arrow-up-right"></i>
+                    <span>បើកក្នុងផ្ទាំងថ្មី</span>
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-outline-secondary px-3 d-inline-flex align-items-center gap-2"
+                    @click="downloadCurrentPreviewFile"
+                  >
+                    <i class="bi bi-download"></i>
+                    <span>ទាញយកឯកសារ</span>
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -506,10 +542,10 @@
             </div>
             <div class="d-flex align-items-center gap-2 flex-shrink-0">
               <button
-                v-if="previewFileUrl"
+                v-if="previewImageUrl || previewFileUrl"
                 type="button"
                 class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1"
-                @click="openInNewTab(previewFileUrl)"
+                @click="openInNewTab(previewImageUrl || previewFileUrl)"
                 title="បើកក្នុងផ្ទាំងថ្មី"
               >
                 <i class="bi bi-box-arrow-up-right"></i>
@@ -535,9 +571,9 @@
             </div>
 
             <!-- Image Content -->
-            <div v-else-if="previewImageUrl" class="d-flex align-items-center justify-content-center w-100 h-100">
+            <div v-else-if="previewImageUrl && !previewImageFailed" class="d-flex align-items-center justify-content-center w-100 h-100">
               <img
-                :src="previewImageUrl || defaultAvatar"
+                :src="previewImageUrl"
                 :alt="previewFileTitle || 'Full Size Photo'"
                 class="img-fluid rounded-3 preview-img shadow-sm"
                 @error="onPreviewImageError"
@@ -685,14 +721,53 @@ const isNotFoundComputed = computed(() => {
 const studentAvatar = ref(defaultAvatar);
 const previewImageUrl = ref(null);
 const previewPdfSource = ref(null);
+const previewPdfFailed = ref(false);
+const currentPreviewFile = ref(null);
 const previewFileTitle = ref("");
 const previewFileUrl = ref("");
+const previewImageFailed = ref(false);
 const isPdfLoading = ref(false);
 const isloading = ref(false);
 const showPreviewModal = ref(false);
 const previewType = ref(""); // 'image' | 'pdf'
 const loadingFileId = ref(null);
 const downloadingFileId = ref(null);
+const imageFallbackQueue = ref([]);
+const BACKEND_HOST = import.meta.env.FILE_PATH;
+
+const getImageCandidates = (file) => {
+  if (!file) return [];
+  const candidates = [];
+  const rawUrl = String(file.fileUrl || "").trim();
+  const rawPath = String(file.filePath || "").trim();
+
+  // 1. Direct absolute URL if backend gave one
+  if (rawUrl.startsWith("http://") || rawUrl.startsWith("https://")) {
+    candidates.push(rawUrl);
+  }
+
+  // 2. Relative proxy URL (/uploads/...)
+  const anyPath = rawUrl || rawPath;
+  if (anyPath.includes("uploads/")) {
+    const idx = anyPath.indexOf("uploads/");
+    candidates.push(`/${anyPath.substring(idx)}`);
+  } else if (rawPath) {
+    const clean = rawPath.replace(/^\/+/, "");
+    candidates.push(`/uploads/${clean}`);
+  }
+
+  // 3. Absolute URL pointing to backend
+  const cleanPath = (rawPath || rawUrl).replace(/^\/+/, "");
+  if (cleanPath.includes("uploads/")) {
+    const idx = cleanPath.indexOf("uploads/");
+    const full = `${BACKEND_HOST}/${cleanPath.substring(idx)}`;
+    if (!candidates.includes(full)) {
+      candidates.push(full);
+    }
+  }
+
+  return candidates;
+};
 
 // Prevent background scrolling when preview modal is open
 watch(showPreviewModal, (value) => {
@@ -899,12 +974,14 @@ const fetchData = async () => {
     student.value = finalStudent;
     evaluations.value = finalEvaluations;
 
-    // Load student photo with Bearer auth
+    // Load student photo
     const photoFile = (finalSubmission.files || []).find(
       (f) => String(f.fileType).toUpperCase() === "PHOTO"
     );
+    const photoCandidates = photoFile ? getImageCandidates(photoFile) : [];
     const photoPath =
       photoFile?.fileUrl ||
+      (photoCandidates.length > 0 ? photoCandidates[0] : null) ||
       photoFile?.filePath ||
       finalStudent?.avatarPath ||
       finalStudent?.photoUrl;
@@ -912,14 +989,14 @@ const fetchData = async () => {
     if (photoPath) {
       try {
         const url = await getSubmissionFileUrl(photoPath);
-        if (!url || url === DEFAULT_AVATAR) {
-          studentAvatar.value = defaultAvatar;
-        } else {
+        if (url && url !== DEFAULT_AVATAR) {
           studentAvatar.value = url;
+        } else {
+          studentAvatar.value = photoCandidates[0] || photoPath;
         }
       } catch (err) {
         console.warn("Failed to load student photo:", err);
-        studentAvatar.value = defaultAvatar;
+        studentAvatar.value = photoCandidates[0] || photoPath;
       }
     } else {
       studentAvatar.value = defaultAvatar;
@@ -968,16 +1045,30 @@ const onAvatarError = (e) => {
 };
 
 const onPreviewImageError = (e) => {
-  if (e?.target) {
-    e.target.src = defaultAvatar;
+  if (imageFallbackQueue.value && imageFallbackQueue.value.length > 0) {
+    const nextUrl = imageFallbackQueue.value.shift();
+    if (nextUrl && nextUrl !== previewImageUrl.value) {
+      console.warn("Image preview failed, trying fallback:", nextUrl);
+      previewImageUrl.value = nextUrl;
+      return;
+    }
   }
+  previewImageFailed.value = true;
 };
 
 const openAvatarPreview = () => {
+  const photoFile = (submission.value?.files || []).find(
+    (f) => String(f.fileType).toUpperCase() === "PHOTO"
+  );
+  if (photoFile) {
+    viewFile(photoFile);
+    return;
+  }
   const current = studentAvatar.value;
   previewFileTitle.value = "រូបថតសិស្ស (Student Photo)";
   previewFileUrl.value = current;
   previewType.value = "image";
+  previewImageFailed.value = false;
   showPreviewModal.value = true;
   if (!current || current === DEFAULT_AVATAR || current === defaultAvatar) {
     previewImageUrl.value = defaultAvatar;
@@ -986,25 +1077,79 @@ const openAvatarPreview = () => {
   }
 };
 
+// Clean / decode filenames corrupted by Latin-1 / UTF-8 encoding issues
+const cleanFilename = (filename, defaultTitle = "ឯកសារភ្ជាប់") => {
+  if (!filename) return defaultTitle;
+  const s = String(filename).trim();
+
+  // Try decoding Latin-1 to UTF-8 if it contains Latin-1 accented or C1 control bytes
+  if (/[áàâãäåæçèéêëìíîïðñòóôõöøùúûüýþÿ\x7f-\x9f]/.test(s)) {
+    try {
+      const bytes = new Uint8Array([...s].map((c) => c.charCodeAt(0) & 0xff));
+      const decoded = new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+      if (decoded && !/[\x00-\x1f\x7f-\x9f\ufffd]/.test(decoded)) {
+        return decoded;
+      }
+    } catch (e) {
+      // Latin-1 byte decode failed
+    }
+  }
+
+  // Detect corrupted mojibake filenames like "á ||á ||... (2).pdf"
+  const isGarbled =
+    /[\x00-\x1f\x7f-\x9f]/.test(s) ||
+    /á\s*\|/.test(s) ||
+    /(\u00e1[\s\S]{0,3}){2,}/.test(s) ||
+    (s.includes("á") && s.includes("||"));
+
+  if (isGarbled) {
+    const extMatch = s.match(/\.([a-zA-Z0-9]+)(?:\?.*)?$/);
+    const ext = extMatch ? `.${extMatch[1]}` : (s.toLowerCase().includes(".pdf") ? ".pdf" : "");
+    const numMatch = s.match(/\((\d+)\)/);
+    const num = numMatch ? ` (${numMatch[1]})` : "";
+    const baseTitle = defaultTitle.replace(/\.[a-zA-Z0-9]+$/, "");
+    return `${baseTitle}${num}${ext}`;
+  }
+
+  return s;
+};
+
+const onPdfEmbedFailed = (err) => {
+  console.warn("VuePdfEmbed loading failed:", err);
+  previewPdfFailed.value = true;
+};
+
+const downloadCurrentPreviewFile = () => {
+  if (currentPreviewFile.value) {
+    downloadFile(currentPreviewFile.value);
+  } else if (previewFileUrl.value) {
+    openInNewTab(previewFileUrl.value);
+  }
+};
+
 const closePreview = () => {
   previewImageUrl.value = null;
   previewPdfSource.value = null;
+  previewPdfFailed.value = false;
+  currentPreviewFile.value = null;
   previewFileTitle.value = "";
   previewFileUrl.value = "";
+  previewImageFailed.value = false;
   isPdfLoading.value = false;
   isloading.value = false;
   showPreviewModal.value = false;
   previewType.value = "";
+  imageFallbackQueue.value = [];
 };
 
-const openInNewTab = async (url) => {
+const openInNewTab = (url) => {
   if (!url) return;
-  try {
-    const objectUrl = await getSubmissionFileUrl(url);
-    window.open(objectUrl || url, "_blank");
-  } catch (err) {
-    window.open(url, "_blank");
-  }
+  const targetUrl = url.startsWith("/uploads/")
+    ? `${BACKEND_HOST}${url}`
+    : url.startsWith("uploads/")
+    ? `${BACKEND_HOST}/${url}`
+    : url;
+  window.open(targetUrl, "_blank");
 };
 
 const isFilePdf = (file) => {
@@ -1082,23 +1227,42 @@ const formatFileSize = (bytes) => {
 const viewFile = async (file) => {
   if (!file) return;
 
-  const fileUrl = file.filePath || file.fileUrl;
+  currentPreviewFile.value = file;
+  previewPdfFailed.value = false;
+
+  const fileUrl = file.fileUrl || file.filePath;
   let isPdf = isFilePdf(file);
   let isImage = isFileImage(file);
 
   if (!fileUrl) {
     if (isImage) {
-      previewFileTitle.value = getFileTitle(file.fileType);
+      previewFileTitle.value = cleanFilename(file.originalFilename, getFileTitle(file.fileType));
       previewImageUrl.value = defaultAvatar;
       previewType.value = "image";
+      previewImageFailed.value = false;
       isloading.value = false;
       showPreviewModal.value = true;
     }
     return;
   }
 
+  const toProxyUrl = (pathOrUrl) => {
+    if (!pathOrUrl) return "";
+    const s = String(pathOrUrl).trim();
+    if (s.includes("uploads/")) {
+      const idx = s.indexOf("uploads/");
+      return `/${s.substring(idx)}`;
+    }
+    if (s.startsWith("http://") || s.startsWith("https://") || s.startsWith("data:") || s.startsWith("blob:")) {
+      return s;
+    }
+    return `/${s.replace(/^\/+/, "")}`;
+  };
+
+  const directFallback = toProxyUrl(file.filePath || file.fileUrl);
   loadingFileId.value = file.id;
-  previewFileUrl.value = fileUrl;
+  previewFileUrl.value = directFallback || file.fileUrl || fileUrl;
+  previewImageFailed.value = false;
 
   try {
     // If not definitively known from extension/mime, inspect blob MIME type
@@ -1115,38 +1279,79 @@ const viewFile = async (file) => {
       }
     }
 
-    previewFileTitle.value =
-      file.originalFilename ||
-      getFileTitle(file.fileType) ||
-      (isPdf ? "ឯកសារ PDF" : isImage ? "រូបភាព (Image)" : "ឯកសារភ្ជាប់");
+    const defaultTitle = isPdf
+      ? "ព្រឹត្តិបត្រពិន្ទុ ឬបណ្ណសម្គាល់ខ្លួន.pdf"
+      : isImage
+      ? "រូបថត ៤x៦.jpg"
+      : "ឯកសារភ្ជាប់";
+
+    previewFileTitle.value = cleanFilename(
+      file.originalFilename,
+      getFileTitle(file.fileType) || defaultTitle
+    );
 
     if (isPdf) {
       previewType.value = "pdf";
       previewPdfSource.value = null;
+      previewPdfFailed.value = false;
       isPdfLoading.value = true;
       showPreviewModal.value = true;
 
-      const blob = await avatarService.getSubmissionFileBlob(fileUrl);
-      const arrayBuffer = await blob.arrayBuffer();
-      previewPdfSource.value = new Uint8Array(arrayBuffer);
+      try {
+        const blob = await avatarService.getSubmissionFileBlob(fileUrl);
+        const arrayBuffer = await blob.arrayBuffer();
+        previewPdfSource.value = new Uint8Array(arrayBuffer);
+      } catch (blobErr) {
+        console.warn("Failed to get PDF blob, attempting direct URL fallback:", blobErr);
+        const fallbackUrl = directFallback.startsWith("http")
+          ? directFallback
+          : `${BACKEND_HOST}${directFallback}`;
+        previewPdfSource.value = fallbackUrl;
+      }
     } else if (isImage) {
       previewType.value = "image";
       previewImageUrl.value = null;
+      previewImageFailed.value = false;
       isloading.value = true;
       showPreviewModal.value = true;
 
-      const url = await getSubmissionFileUrl(fileUrl);
-      previewImageUrl.value = (!url || url === DEFAULT_AVATAR) ? (fileUrl || defaultAvatar) : url;
+      const candidates = getImageCandidates(file);
+      imageFallbackQueue.value = [...candidates];
+
+      try {
+        const url = await getSubmissionFileUrl(fileUrl);
+        if (url && url !== DEFAULT_AVATAR && !url.startsWith("http")) {
+          // Object blob URL succeeded
+          previewImageUrl.value = url;
+        } else if (url && url.startsWith("http")) {
+          previewImageUrl.value = url;
+        } else {
+          previewImageUrl.value = imageFallbackQueue.value.shift() || directFallback;
+        }
+      } catch (e) {
+        previewImageUrl.value = imageFallbackQueue.value.shift() || directFallback;
+      }
+
+      if (!previewImageUrl.value) {
+        previewImageFailed.value = true;
+      }
     } else {
       const url = await getSubmissionFileUrl(fileUrl);
-      window.open(url || file.fileUrl || fileUrl, "_blank");
+      window.open(url || file.fileUrl || directFallback || fileUrl, "_blank");
     }
   } catch (err) {
     console.error("Failed to preview file:", err);
     if (isPdf) {
-      window.open(file.fileUrl || fileUrl, "_blank");
+      previewPdfFailed.value = true;
     } else if (isImage) {
-      previewImageUrl.value = file.fileUrl || fileUrl || defaultAvatar;
+      if (imageFallbackQueue.value && imageFallbackQueue.value.length > 0) {
+        previewImageUrl.value = imageFallbackQueue.value.shift();
+      } else {
+        previewImageUrl.value = directFallback || file.fileUrl || null;
+      }
+      if (!previewImageUrl.value) {
+        previewImageFailed.value = true;
+      }
     }
   } finally {
     loadingFileId.value = null;
@@ -1170,7 +1375,10 @@ const downloadFile = async (file) => {
     document.body.removeChild(a);
     setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
   } catch (err) {
-    console.error("Failed to download file:", err);
+    console.warn("Blob download failed, trying direct link:", err);
+    const candidates = getImageCandidates(file);
+    const downloadUrl = file.fileUrl || (candidates.length > 0 ? candidates[0] : path);
+    window.open(downloadUrl, "_blank");
   } finally {
     downloadingFileId.value = null;
   }

@@ -24,9 +24,9 @@
       :columns="columns"
       :rows="students"
       :pagination="pagination"
-      :total-student="total_student"
       :loading="loading"
       :show-actions="true"
+      :is-student="true"
       @page-change="handlePageChange"
     >
       <template #search-filter>
@@ -194,10 +194,10 @@
 <script setup>
 import { ref, watch, onMounted, computed } from "vue";
 import { useRouter } from "vue-router";
+import { useEvaluationStats } from "@/composable/evaluation/useEvaluationStats";
 import BaseTable from "@/components/ui/base/BaseTable.vue";
 import BaseInput from "@/components/ui/base/BaseInput.vue";
 import BaseSelect from "@/components/ui/base/BaseSelect.vue";
-import BaseButton from "@/components/ui/base/BaseButton.vue";
 import BaseSkeleton from "@/components/ui/base/BaseSkeleton.vue";
 import { useStatistic } from "@/composable/dashboard/useStatistic";
 import {
@@ -212,11 +212,6 @@ import { useTableFilterSync } from "@/composable/useTableFilterSync";
 
 const router = useRouter();
 const statistic = useStatistic();
-const total_student = ref(0);
-onMounted(async() => {
-  await statistic.getStatsUser();
-  total_student.value = statistic.statsData.value?.shortlist?.passed?.total || 0;
-})
 
 // Filters
 const selectedScoreLevel = ref("all");

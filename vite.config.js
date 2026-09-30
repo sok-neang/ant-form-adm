@@ -4,7 +4,6 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueDevTools from 'vite-plugin-vue-devtools'
 
-// https://vite.dev/config/
 export default defineConfig({
   plugins: [
     vue(),
@@ -18,12 +17,12 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://ant-form-backend.staging.rms.publicvm.com',
+        target: 'https://ant-form-backend.production.rms.publicvm.com',
         changeOrigin: true,
         secure: false,
       },
       '/uploads': {
-        target: 'https://ant-form-backend.staging.rms.publicvm.com',
+        target: 'https://ant-form-backend.production.rms.publicvm.com',
         changeOrigin: true,
         secure: false,
       },
