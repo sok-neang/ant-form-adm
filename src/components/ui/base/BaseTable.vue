@@ -179,7 +179,7 @@ const props = defineProps({
   },
   isStudent: {
     type: Boolean,
-    default: true,
+    default: false,
   },
 });
 

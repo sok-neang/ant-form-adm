@@ -5,6 +5,20 @@ import defaultAvatar from "@/assets/images/img/default_avatar.webp";
 
 export const DEFAULT_AVATAR = defaultAvatar;
 
+export function isDefaultAvatar(fileUrl) {
+  if (!fileUrl) return true;
+  if (typeof fileUrl !== "string") return false;
+  const lower = fileUrl.trim().toLowerCase();
+  return (
+    !lower ||
+    lower === "null" ||
+    lower === "undefined" ||
+    lower === "none" ||
+    lower.includes("default-avatar") ||
+    lower.includes("default_avatar")
+  );
+}
+
 const avatarBlobCache = new Map();
 const inFlightRequests = new Map();
 const submissionBlobCache = new Map();
@@ -64,7 +78,7 @@ export async function getSubmissionFileUrl(fileUrl) {
   return fetchPromise;
 }
 export async function getAvatarUrl(fileUrl) {
-  if (!fileUrl) {
+  if (!fileUrl || isDefaultAvatar(fileUrl)) {
     return DEFAULT_AVATAR;
   }
 
@@ -174,7 +188,7 @@ export const useAvatar = (initialPath = null) => {
   const error = ref(null);
 
   const loadAvatar = async (fileUrl) => {
-    if (!fileUrl) {
+    if (!fileUrl || isDefaultAvatar(fileUrl)) {
       avatarUrl.value = DEFAULT_AVATAR;
       return DEFAULT_AVATAR;
     }

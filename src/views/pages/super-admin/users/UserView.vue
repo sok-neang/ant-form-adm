@@ -20,7 +20,7 @@
       </BaseCard>
     </div>
 
-    <BaseTable :columns="columns" :rows="users" :pagination="pagination" :loading="loading" :show-actions="true"
+    <BaseTable :columns="columns" :rows="users" :pagination="pagination" :loading="loading" :is-student="true" :show-actions="true"
       @page-change="getUsers">
       <template #search-filter>
         <div class="position-relative search-box">
