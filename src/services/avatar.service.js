@@ -24,6 +24,8 @@ function buildFullUrl(fileUrl, defaultFolder = "avatars") {
     lower === "null" ||
     lower === "undefined" ||
     lower === "none" ||
+    lower.includes("default-avatar") ||
+    lower.includes("default_avatar") ||
     lower === "uploads" ||
     lower === "uploads/" ||
     lower === "submissions" ||
@@ -57,28 +59,20 @@ const avatarService = {
    * @returns {Promise<Blob>}
    */
   async getAvatarBlob(fileUrl) {
+    if (!fileUrl || typeof fileUrl !== "string") {
+      throw new Error("Avatar file URL is required");
+    }
+    const lower = fileUrl.trim().toLowerCase();
+    if (lower.includes("default-avatar") || lower.includes("default_avatar")) {
+      throw new Error("Default avatar does not require blob fetching");
+    }
+
     const proxyUrl = buildFullUrl(fileUrl, "avatars");
     if (!proxyUrl && !fileUrl) {
       throw new Error("Avatar file URL is required");
     }
 
-    // Try 1: Local proxy via fetch without credentials (avoids CORS preflight)
-    if (proxyUrl) {
-      try {
-        const res = await fetch(proxyUrl, { headers: { Accept: "*/*" } });
-        if (res.ok) {
-          const type = res.headers.get("content-type") || "";
-          if (!type.includes("html") && !type.includes("json")) {
-            const blob = await res.blob();
-            if (blob && blob.size > 0) return blob;
-          }
-        }
-      } catch (e) {
-        // Fall through to next attempt
-      }
-    }
-
-    // Try 2: Axios with token
+    // Try 1: Axios with token (avoids 401 on protected /uploads/avatars endpoint)
     if (proxyUrl) {
       try {
         const response = await api.get(proxyUrl, {
@@ -96,15 +90,21 @@ const avatarService = {
       }
     }
 
-    // Try 3: Direct backend URL
+    // Try 2: Direct backend URL or authenticated fetch
     const raw = String(fileUrl || proxyUrl || "").trim();
     const directUrl =
       raw.startsWith("http://") || raw.startsWith("https://")
         ? raw
         : `${BACKEND_HOST}${proxyUrl || `/${raw.replace(/^\/+/, "")}`}`;
 
+    const token = localStorage.getItem("accessToken");
+    const headers = { Accept: "*/*" };
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+
     try {
-      const res = await fetch(directUrl, { headers: { Accept: "*/*" } });
+      const res = await fetch(directUrl, { headers });
       if (res.ok) {
         const type = res.headers.get("content-type") || "";
         if (!type.includes("html") && !type.includes("json")) {
@@ -131,23 +131,7 @@ const avatarService = {
       throw new Error("Submission file URL is required");
     }
 
-    // Try 1: Local proxy via fetch without credentials (avoids CORS preflight)
-    if (proxyUrl) {
-      try {
-        const res = await fetch(proxyUrl, { headers: { Accept: "*/*" } });
-        if (res.ok) {
-          const type = res.headers.get("content-type") || "";
-          if (!type.includes("html") && !type.includes("json")) {
-            const blob = await res.blob();
-            if (blob && blob.size > 0) return blob;
-          }
-        }
-      } catch (e) {
-        // Fall through to next attempt
-      }
-    }
-
-    // Try 2: Axios with token
+    // Try 1: Axios with token (authenticated)
     if (proxyUrl) {
       try {
         const response = await api.get(proxyUrl, {
@@ -165,6 +149,28 @@ const avatarService = {
       }
     }
 
+    // Try 2: Proxy or direct fetch with token
+    const token = localStorage.getItem("accessToken");
+    const headers = { Accept: "*/*" };
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+
+    if (proxyUrl) {
+      try {
+        const res = await fetch(proxyUrl, { headers });
+        if (res.ok) {
+          const type = res.headers.get("content-type") || "";
+          if (!type.includes("html") && !type.includes("json")) {
+            const blob = await res.blob();
+            if (blob && blob.size > 0) return blob;
+          }
+        }
+      } catch (e) {
+        // Fall through to next attempt
+      }
+    }
+
     // Try 3: Direct backend URL
     const raw = String(fileUrl || proxyUrl || "").trim();
     const directUrl =
@@ -173,7 +179,7 @@ const avatarService = {
         : `${BACKEND_HOST}${proxyUrl || `/${raw.replace(/^\/+/, "")}`}`;
 
     try {
-      const res = await fetch(directUrl, { headers: { Accept: "*/*" } });
+      const res = await fetch(directUrl, { headers });
       if (res.ok) {
         const type = res.headers.get("content-type") || "";
         if (!type.includes("html") && !type.includes("json")) {

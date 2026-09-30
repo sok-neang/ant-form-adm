@@ -1,35 +1,35 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/useAuthStore';
-import LoginView from '@/views/auth/LoginView.vue';
-import ResetPassword from '@/views/auth/ResetPasswordView.vue';
-import TwoFAView from '@/views/auth/TwoFAView.vue';
-import VerifyCodeView from '@/views/auth/VerifyCodeView.vue';
+const LoginView = () => import('@/views/auth/LoginView.vue');
+const ResetPassword = () => import('@/views/auth/ResetPasswordView.vue');
+const TwoFAView = () => import('@/views/auth/TwoFAView.vue');
+const VerifyCodeView = () => import('@/views/auth/VerifyCodeView.vue');
 // Dashboard
-import DefaultLayout from '@/layouts/DefaultLayout.vue';
-import DashboardView from "@/views/pages/dashboard/DashboardView.vue";
-import UserView from '@/views/pages/super-admin/users/UserView.vue';
-import ActivityLogView from '@/views/pages/super-admin/activity-logs/ActivityLogView.vue';
+const DefaultLayout = () => import('@/layouts/DefaultLayout.vue');
+const DashboardView = () => import('@/views/pages/dashboard/DashboardView.vue');
+const UserView = () => import('@/views/pages/super-admin/users/UserView.vue');
+const ActivityLogView = () => import('@/views/pages/super-admin/activity-logs/ActivityLogView.vue');
 
-import AllApplicationView from '@/views/pages/admin/application-review/AllApplicationView.vue';
-import PassedApplicationView from '@/views/pages/admin/application-review/PassedApplicationView.vue';
-import FailedApplicationView from '@/views/pages/admin/application-review/FailedApplicationView.vue';
-import ContactedApplicationView from '@/views/pages/admin/application-review/ContactedApplicationView.vue';
-import ApplicationReview from '@/views/pages/admin/application-review/ApplicationReview.vue';
-import ShortlistView from '@/views/pages/admin/shortlisted/shortlistView.vue';
-import PassedShortlistView from '@/views/pages/admin/shortlisted/PassedShortlistView.vue';
-import FailedShortlistView from '@/views/pages/admin/shortlisted/FailedShortlistView.vue';
-import ShortlistDetail from '@/views/pages/admin/shortlisted/shortlistDetail.vue';
-import Blacklist from '@/views/pages/admin/blacklisted/Blacklist.vue';
-import FinalResultView from '@/views/pages/admin/final-results/FinalResultView.vue';
-import FinalResultDetail from '@/views/pages/admin/final-results/finalResultDetail.vue';
-import BlacklistDetail from '@/views/pages/admin/blacklisted/blacklistDetail.vue';
-import Dropout from '@/views/pages/admin/drop-out/Dropout.vue';
-import DropoutDetail from '@/views/pages/admin/drop-out/dropoutDetail.vue';
+const AllApplicationView = () => import('@/views/pages/admin/application-review/AllApplicationView.vue');
+const PassedApplicationView = () => import('@/views/pages/admin/application-review/PassedApplicationView.vue');
+const FailedApplicationView = () => import('@/views/pages/admin/application-review/FailedApplicationView.vue');
+const ContactedApplicationView = () => import('@/views/pages/admin/application-review/ContactedApplicationView.vue');
+const ApplicationReview = () => import('@/views/pages/admin/application-review/ApplicationReview.vue');
+const ShortlistView = () => import('@/views/pages/admin/shortlisted/shortlistView.vue');
+const PassedShortlistView = () => import('@/views/pages/admin/shortlisted/PassedShortlistView.vue');
+const FailedShortlistView = () => import('@/views/pages/admin/shortlisted/FailedShortlistView.vue');
+const ShortlistDetail = () => import('@/views/pages/admin/shortlisted/shortlistDetail.vue');
+const Blacklist = () => import('@/views/pages/admin/blacklisted/Blacklist.vue');
+const FinalResultView = () => import('@/views/pages/admin/final-results/FinalResultView.vue');
+const FinalResultDetail = () => import('@/views/pages/admin/final-results/finalResultDetail.vue');
+const BlacklistDetail = () => import('@/views/pages/admin/blacklisted/blacklistDetail.vue');
+const Dropout = () => import('@/views/pages/admin/drop-out/Dropout.vue');
+const DropoutDetail = () => import('@/views/pages/admin/drop-out/dropoutDetail.vue');
 
-import StudentView from '@/views/pages/Teacher/studentList/StudentView.vue';
-import ProfileView from '@/views/pages/profile/ProfileView.vue';
-import ForbiddenView from '@/views/pages/error/ForbiddenView.vue';
-import NotFoundView from '@/views/pages/error/NotFoundView.vue';
+const StudentView = () => import('@/views/pages/Teacher/studentList/StudentView.vue');
+const ProfileView = () => import('@/views/pages/profile/ProfileView.vue');
+const ForbiddenView = () => import('@/views/pages/error/ForbiddenView.vue');
+const NotFoundView = () => import('@/views/pages/error/NotFoundView.vue');
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),

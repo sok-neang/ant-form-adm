@@ -15,6 +15,7 @@ import {
   getAvatarUrl,
   invalidateAvatarCache,
   DEFAULT_AVATAR,
+  isDefaultAvatar,
 } from "@/composable/useAvatar";
 
 export function isValidJwt(token) {
@@ -76,20 +77,21 @@ export const useAuthStore = defineStore("auth", () => {
 
   const getUserAvatarPath = () => {
     if (!user.value) return null;
-    return (
+    const raw =
       user.value.avatarPath ||
       user.value.avatarUrl ||
       user.value.avatar ||
       user.value.photoUrl ||
       user.value.filePath ||
       user.value.fileUrl ||
-      null
-    );
+      null;
+    if (!raw || isDefaultAvatar(raw)) return null;
+    return raw;
   };
 
   const loadUserAvatar = async () => {
     const avatar = getUserAvatarPath();
-    if (avatar) {
+    if (avatar && !isDefaultAvatar(avatar)) {
       userAvatarUrl.value = await getAvatarUrl(avatar);
     } else {
       userAvatarUrl.value = DEFAULT_AVATAR;

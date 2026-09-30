@@ -88,7 +88,7 @@ const dropdownRef = ref(null);
 
 // Avatar URL resolver
 const getAvatarUrl = (path) => {
-    if (!path) return default_avatar;
+    if (!path || path.includes('default-avatar') || path.includes('default_avatar')) return default_avatar;
     if (path.startsWith('http')) return path;
     const baseUrl = import.meta.env.VITE_API_BASE_URL || '';
     return `${baseUrl.replace(/\/$/, '')}/${path.replace(/^\//, '')}`;

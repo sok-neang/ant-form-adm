@@ -13,7 +13,7 @@
 <script setup>
 import { ref, watch, computed } from "vue";
 import defaultAvatar from "@/assets/images/img/default_avatar.webp";
-import { getAvatarUrl, DEFAULT_AVATAR } from "@/composable/useAvatar";
+import { getAvatarUrl, DEFAULT_AVATAR, isDefaultAvatar } from "@/composable/useAvatar";
 
 const props = defineProps({
   src: {

@@ -164,7 +164,7 @@ const handleVerifyOTP = async () => {
     let message = backendData?.message || "លេខកូដផ្ទៀងផ្ទាត់មិនត្រឹមត្រូវ";
     if(message == "Invalid OTP. Please try again."){
       message = "លេខកូដផ្ទៀងផ្ទាត់មិនត្រឹមត្រូវ";
-      authStore.clearTwoFactor();
+      //authStore.clearTwoFactor();
       otp.value = [
           "","","","","","",
         ];
