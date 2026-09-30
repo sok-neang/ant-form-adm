@@ -338,28 +338,48 @@ const router = createRouter({
       path: "/:pathMatch(.*)*",
       redirect: () => {
         const authStore = useAuthStore();
-        return authStore.isAuthenticated ? "/" : "/auth/login";
+        return authStore.isAuthenticated && authStore.user ? "/" : "/auth/login";
       },
     },
   ]
 })
-router.beforeEach((to) => {
+router.beforeEach(async (to) => {
   const authStore = useAuthStore();
-
-  const isAuthenticated = authStore.isAuthenticated;
 
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
   const requiresGuest = to.matched.some(record => record.meta.requiresGuest);
   const requiresInterimToken = to.matched.some((record) => record.meta.requiresInterimToken);
-  
-  // 1. User IS logged in → cannot access auth pages (login, 2fa, verify-code, etc.)
-  if (requiresGuest && isAuthenticated) {
-    return { name: "dashboard" };
+
+  // 1. If route requires authentication
+  if (requiresAuth) {
+    if (!authStore.isAuthenticated) {
+      await authStore.logout();
+      return { name: "login" };
+    }
+
+    // Verify token validity with backend if user profile is not yet loaded
+    if (!authStore.user) {
+      try {
+        await authStore.getProfile();
+      } catch (error) {
+        await authStore.logout();
+        return { name: "login" };
+      }
+    }
   }
 
-  // 2. User is NOT logged in → cannot access protected pages
-  if (requiresAuth && !isAuthenticated) {
-    return { name: "login" };
+  // 2. User IS logged in → cannot access auth pages (login, 2fa, verify-code, etc.)
+  if (requiresGuest && authStore.isAuthenticated) {
+    if (!authStore.user) {
+      try {
+        await authStore.getProfile();
+        return { name: "dashboard" };
+      } catch {
+        await authStore.logout();
+        return true;
+      }
+    }
+    return { name: "dashboard" };
   }
 
   // 3. Prevent accessing 2FA/Reset steps without a login interimToken

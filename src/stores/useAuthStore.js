@@ -17,6 +17,30 @@ import {
   DEFAULT_AVATAR,
 } from "@/composable/useAvatar";
 
+export function isValidJwt(token) {
+  if (!token || typeof token !== "string") return false;
+  const parts = token.split(".");
+  if (parts.length !== 3) return false;
+
+  try {
+    const base64Url = parts[1];
+    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split("")
+        .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+        .join("")
+    );
+    const payload = JSON.parse(jsonPayload);
+    if (payload.exp && payload.exp * 1000 < Date.now()) {
+      return false;
+    }
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export const useAuthStore = defineStore("auth", () => {
   const storedTwoFactorData = getTwoFactorData();
   const interimToken = ref(storedTwoFactorData.interimToken || null);
@@ -25,7 +49,19 @@ export const useAuthStore = defineStore("auth", () => {
   const totpSecret = ref(storedTwoFactorData.totpSecret || null);
 
   const initialAuth = getAuthData();
-  const accessToken = ref(initialAuth.accessToken || localStorage.getItem("accessToken") || sessionStorage.getItem("accessToken") || "" );
+  const initialToken =
+    initialAuth.accessToken ||
+    localStorage.getItem("accessToken") ||
+    sessionStorage.getItem("accessToken") ||
+    "";
+  
+  if (initialToken && !isValidJwt(initialToken)) {
+    clearAuthData();
+    localStorage.removeItem("accessToken");
+    sessionStorage.removeItem("accessToken");
+  }
+
+  const accessToken = ref(isValidJwt(initialToken) ? initialToken : "");
   const user = ref(initialAuth.user || null);
   const userAvatarUrl = ref(DEFAULT_AVATAR);
   const loading = ref(false);
@@ -34,7 +70,9 @@ export const useAuthStore = defineStore("auth", () => {
   const isDeleteAvatarLoading = ref(false);
   const isLogoutLoading = ref(false);
 
-  const isAuthenticated = computed(() => {return !!accessToken.value;});
+  const isAuthenticated = computed(() => {
+    return !!accessToken.value && isValidJwt(accessToken.value);
+  });
 
   const getUserAvatarPath = () => {
     if (!user.value) return null;
@@ -249,9 +287,9 @@ export const useAuthStore = defineStore("auth", () => {
       const response =
         await authService.logout();
 
-      const result = response.data;
-
-      return result;
+      return response.data;
+    } catch (err) {
+      console.warn("Logout request failed or token was already invalid:", err?.message);
     } finally {
       // Clear frontend authentication state
       accessToken.value = "";

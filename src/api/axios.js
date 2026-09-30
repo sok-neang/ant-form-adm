@@ -137,6 +137,8 @@ api.interceptors.response.use(
       // Refresh token is expired or invalid
       localStorage.removeItem("accessToken");
       localStorage.removeItem("user");
+      sessionStorage.removeItem("accessToken");
+      sessionStorage.removeItem("user");
 
       window.location.href = "/auth/login";
 
