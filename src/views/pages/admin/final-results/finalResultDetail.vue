@@ -56,7 +56,6 @@
           បោះបង់
         </button>
         <button
-          v-if="isReserved"
           type="button"
           class="btn btn-outline-primary px-4"
           @click="openActionModal('SHORTLIST')"
@@ -236,7 +235,7 @@ const actionModalPrompt = computed(() => {
     return "តើអ្នកពិតជាចង់ផ្លាស់ប្តូរស្ថានភាពបេក្ខជននេះទៅជា «ជាប់ពេញសិទ្ធ» មែនទេ?";
   }
   if (actionType.value === "SHORTLIST" || actionType.value === "SHORTLISTED") {
-    return "តើអ្នកពិតជាចង់ផ្លាស់ប្តូរបេក្ខជនបម្រុងនេះទៅកាន់ «បញ្ជីសម្រាំង (SHORTLIST)» វិញមែនទេ?";
+    return "តើអ្នកពិតជាចង់ផ្លាស់ប្តូរបេក្ខជននេះទៅកាន់ «បញ្ជីសម្រាំង (SHORTLIST)» វិញមែនទេ?";
   }
   return "តើអ្នកពិតជាចង់ផ្លាស់ប្តូរស្ថានភាពបេក្ខជននេះមែនទេ?";
 });

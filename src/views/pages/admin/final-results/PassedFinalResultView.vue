@@ -165,6 +165,74 @@
       initial-status="final"
       :total-count="totalSubmissions || 0"
     />
+
+    <!-- Move to Shortlist Confirmation Modal -->
+    <BaseModal
+      :show="showMoveModal"
+      size="md"
+      :showClose="!isSubmittingMove"
+      @close="closeMoveModal"
+    >
+      <template #header>
+        <div class="d-flex align-items-center gap-3">
+          <div
+            class="bg-primary-subtle text-primary rounded-3 d-flex align-items-center justify-content-center"
+            style="width: 44px; height: 44px;"
+          >
+            <i class="bi bi-person-check fs-5"></i>
+          </div>
+          <div>
+            <h5 class="fw-bold text-dark mb-0">ប្ដូរទៅបញ្ជីសម្រាំង</h5>
+            <span class="text-muted small">Move to Shortlist</span>
+          </div>
+        </div>
+      </template>
+
+      <div class="py-2">
+        <p class="text-secondary mb-3 fs-6 lh-base">
+          តើអ្នកពិតជាចង់ផ្លាស់ប្តូរបេក្ខជន <strong class="text-dark">{{ selectedStudent?.name }}</strong> ទៅកាន់ «បញ្ជីសម្រាំង (SHORTLIST)» វិញមែនទេ?
+        </p>
+        <div v-if="selectedStudent" class="p-3 bg-light rounded-3 border">
+          <div class="d-flex justify-content-between mb-2 small">
+            <span class="text-muted">ជំនាញ ៖</span>
+            <span class="fw-medium text-dark">{{ selectedStudent?.skill || '—' }}</span>
+          </div>
+          <div class="d-flex justify-content-between mb-2 small">
+            <span class="text-muted">វេនសិក្សា ៖</span>
+            <span class="fw-medium text-dark">{{ selectedStudent?.study_shift || '—' }}</span>
+          </div>
+          <div class="d-flex justify-content-between small">
+            <span class="text-muted">ពិន្ទុមធ្យម ៖</span>
+            <span class="fw-bold text-primary">{{ selectedStudent?.total_score ?? '—' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <template #footer>
+        <div class="d-flex justify-content-end gap-2 w-100">
+          <BaseButton
+            type="button"
+            variant="outline"
+            :disabled="isSubmittingMove"
+            @click="closeMoveModal"
+          >
+            បោះបង់
+          </BaseButton>
+          <BaseButton
+            type="button"
+            custom-class="btn-primary text-white px-4"
+            :disabled="isSubmittingMove"
+            :loading="isSubmittingMove"
+            @click="confirmMoveToShortlist"
+          >
+            <template #icon>
+              <i class="bi bi-check2"></i>
+            </template>
+            យល់ព្រម
+          </BaseButton>
+        </div>
+      </template>
+    </BaseModal>
   </div>
 </template>
 <script setup>
@@ -174,14 +242,65 @@ import BaseTable from "@/components/ui/base/BaseTable.vue";
 import BaseInput from "@/components/ui/base/BaseInput.vue";
 import BaseSelect from "@/components/ui/base/BaseSelect.vue";
 import BaseButton from "@/components/ui/base/BaseButton.vue";
+import BaseModal from "@/components/ui/base/BaseModal.vue";
 import ExportModal from "@/components/ui/ExportModal.vue";
+import submissionService from "@/services/submission.service";
+import { useAppToast } from "@/composable/useAppToast";
 import {shiftOptions, specializationOptions, scoreLevelOptions} from "@/constants/options"
 import { usePassedFinalResult } from "@/composable/application/final result/useFinalResult";
 import { useStatistic } from "@/composable/dashboard/useStatistic";
 import { useTableFilterSync } from "@/composable/useTableFilterSync";
 const router = useRouter();
+const toast = useAppToast();
 const statistic = useStatistic();
 const total_student = ref(0);
+const showMoveModal = ref(false);
+const selectedStudent = ref(null);
+const isSubmittingMove = ref(false);
+
+const openMoveToShortlistModal = (row) => {
+  selectedStudent.value = row;
+  showMoveModal.value = true;
+};
+
+const closeMoveModal = () => {
+  if (isSubmittingMove.value) return;
+  showMoveModal.value = false;
+  selectedStudent.value = null;
+};
+
+const confirmMoveToShortlist = async () => {
+  if (!selectedStudent.value?.id) return;
+  isSubmittingMove.value = true;
+  try {
+    let response;
+    try {
+      response = await submissionService.promoteStatus(selectedStudent.value.id, { status: "SHORTLIST" });
+    } catch (err) {
+      if (err?.response?.status === 400 || err?.response?.status === 422) {
+        response = await submissionService.promoteStatus(selectedStudent.value.id, { status: "SHORTLISTED" });
+      } else {
+        throw err;
+      }
+    }
+
+    if (response?.data?.success || response?.status === 200) {
+      toast.success("បានផ្លាស់ប្តូរបេក្ខជនទៅកាន់បញ្ជីសម្រាំងដោយជោគជ័យ");
+      showMoveModal.value = false;
+      selectedStudent.value = null;
+      await loadSubmissions(pagination.value?.current_page || 1);
+      await statistic.getStatsUser();
+      total_student.value =
+        (statistic.statsData.value?.evaluation?.passed?.total || 0) +
+        (statistic.statsData.value?.reserved?.total || 0);
+    }
+  } catch (error) {
+    console.error("Error moving student to shortlist:", error);
+    toast.error(error?.response?.data?.message || "មានបញ្ហាក្នុងការផ្លាស់ប្តូរទៅបញ្ជីសម្រាំង");
+  } finally {
+    isSubmittingMove.value = false;
+  }
+};
 onMounted(async() => {
   await statistic.getStatsUser();
   total_student.value = (statistic.statsData.value.evaluation.passed.total + statistic.statsData.value.reserved.total);

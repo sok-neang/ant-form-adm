@@ -161,17 +161,6 @@
           >
             <i class="bi bi-eye"></i>
           </button>
-
-          <!-- MOVE TO SHORTLIST (FOR RESERVED STUDENTS) -->
-          <button
-            v-if="isReservedRow(row)"
-            type="button"
-            class="btn btn-action-outline action-btn"
-            title="ប្ដូរទៅបញ្ជីសម្រាំង (Move to Shortlist)"
-            @click="openMoveToShortlistModal(row)"
-          >
-            <i class="bi bi-person-check text-primary"></i>
-          </button>
     </div>
     </template>
     </BaseTable>
@@ -210,7 +199,7 @@
 
       <div class="py-2">
         <p class="text-secondary mb-3 fs-6 lh-base">
-          តើអ្នកពិតជាចង់ផ្លាស់ប្តូរបេក្ខជនបម្រុង <strong class="text-dark">{{ selectedStudent?.name }}</strong> ទៅកាន់ «បញ្ជីសម្រាំង (SHORTLIST)» វិញមែនទេ?
+          តើអ្នកពិតជាចង់ផ្លាស់ប្តូរបេក្ខជន <strong class="text-dark">{{ selectedStudent?.name }}</strong> ទៅកាន់ «បញ្ជីសម្រាំង (SHORTLIST)» វិញមែនទេ?
         </p>
         <div v-if="selectedStudent" class="p-3 bg-light rounded-3 border">
           <div class="d-flex justify-content-between mb-2 small">
