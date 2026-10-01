@@ -49,7 +49,7 @@ function buildFullUrl(fileUrl, defaultFolder = "avatars") {
   return `/uploads/${defaultFolder}/${clean}`;
 }
 
-const BACKEND_HOST = import.meta.env.FILE_PATH 
+const BACKEND_HOST = import.meta.env.VITE_FILE_PATH || import.meta.env.FILE_PATH || "https://web-api-registration.ant.com.kh";
 
 const avatarService = {
   /**

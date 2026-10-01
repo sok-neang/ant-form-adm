@@ -462,7 +462,7 @@
               </button>
               <button
                 type="button"
-                class="btn btn-sm btn-outline-success d-inline-flex align-items-center gap-1"
+                class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1"
                 @click="downloadCurrentPreviewFile"
                 title="ទាញយក"
               >
@@ -725,7 +725,7 @@ const previewType = ref(""); // 'image' | 'pdf'
 const loadingFileId = ref(null);
 const downloadingFileId = ref(null);
 const imageFallbackQueue = ref([]);
-const BACKEND_HOST = import.meta.env.FILE_PATH;
+const BACKEND_HOST = import.meta.env.VITE_FILE_PATH || import.meta.env.FILE_PATH || "https://web-api-registration.ant.com.kh";
 
 const getImageCandidates = (file) => {
   if (!file) return [];
@@ -1137,13 +1137,41 @@ const closePreview = () => {
 };
 
 const openInNewTab = (url) => {
-  if (!url) return;
-  const targetUrl = url.startsWith("/uploads/")
-    ? `${BACKEND_HOST}${url}`
-    : url.startsWith("uploads/")
-    ? `${BACKEND_HOST}/${url}`
-    : url;
-  window.open(targetUrl, "_blank");
+  let target = url;
+  if ((!target || target.startsWith("blob:")) && previewFileUrl.value && !previewFileUrl.value.startsWith("blob:")) {
+    target = previewFileUrl.value;
+  }
+  if (!target && currentPreviewFile.value) {
+    target = getFileUrl(currentPreviewFile.value);
+  }
+  if (!target) return;
+
+  const title = previewFileTitle.value || "ឯកសារភ្ជាប់";
+  const cleanTarget = String(target).trim();
+
+  // If it's a backend upload or PDF file, open via authenticated DocumentViewer
+  if (
+    cleanTarget.includes("uploads/") ||
+    cleanTarget.includes("/uploads") ||
+    isFilePdf(currentPreviewFile.value) ||
+    previewType.value === "pdf"
+  ) {
+    const routeData = router.resolve({
+      name: "document-viewer",
+      query: { file: cleanTarget, title: title },
+    });
+    window.open(routeData.href, "_blank");
+    return;
+  }
+
+  if (cleanTarget.startsWith("http://") || cleanTarget.startsWith("https://") || cleanTarget.startsWith("blob:") || cleanTarget.startsWith("data:")) {
+    window.open(cleanTarget, "_blank");
+    return;
+  }
+
+  const clean = cleanTarget.replace(/^\/+/, "");
+  const base = BACKEND_HOST ? BACKEND_HOST.replace(/\/+$/, "") : "https://web-api-registration.ant.com.kh";
+  window.open(`${base}/${clean}`, "_blank");
 };
 
 const isFilePdf = (file) => {

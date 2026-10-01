@@ -30,6 +30,7 @@ const StudentView = () => import('@/views/pages/Teacher/studentList/StudentView.
 const ProfileView = () => import('@/views/pages/profile/ProfileView.vue');
 const ForbiddenView = () => import('@/views/pages/error/ForbiddenView.vue');
 const NotFoundView = () => import('@/views/pages/error/NotFoundView.vue');
+const DocumentViewer = () => import('@/views/pages/admin/DocumentViewer.vue');
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -75,6 +76,15 @@ const router = createRouter({
         title: "កំណត់ពាក្យសម្ងាត់ឡើងវិញ",
         requiresGuest: true,
         requiresInterimToken: true,
+      },
+    },
+    {
+      path: "/document-viewer",
+      name: "document-viewer",
+      component: DocumentViewer,
+      meta: {
+        title: "មើលឯកសារ",
+        requiresAuth: true,
       },
     },
 
