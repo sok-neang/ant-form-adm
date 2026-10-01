@@ -59,13 +59,14 @@
 
 <script setup>
 import { ref, computed, onMounted } from "vue";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 
 import BaseButton from "@/components/ui/base/BaseButton.vue";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useAppToast } from "@/composable/useAppToast";
 
 const router = useRouter();
+const route = useRoute();
 const authStore = useAuthStore();
 const toast = useAppToast();
 const otpRefs = ref([]);
@@ -145,7 +146,7 @@ const handleVerifyOTP = async () => {
     // First Login
     if (response.data?.step === "change_default_password"){
       toast.success("ការផ្ទៀងផ្ទាត់ជោគជ័យ");
-      router.push("/auth/reset-password");
+      router.push({ path: "/auth/reset-password", query: route.query });
       return;
     }
 
@@ -154,7 +155,12 @@ const handleVerifyOTP = async () => {
       toast.success("ចូលប្រើប្រាស់បានជោគជ័យ");
       authStore.clearTwoFactor();
 
-      router.push("/");
+      const redirect = route.query.redirect;
+      if (redirect && typeof redirect === "string" && !redirect.startsWith("/auth")) {
+        router.push(redirect);
+      } else {
+        router.push("/");
+      }
       return;
     }
     // Unexpected response

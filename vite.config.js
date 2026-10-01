@@ -22,7 +22,7 @@ export default defineConfig({
         secure: false,
       },
       '/uploads': {
-        target: 'https://web-api-registration.ant.com.kh',
+        target: 'https://web-api-registration.ant.com.kh',  
         changeOrigin: true,
         secure: false,
       },

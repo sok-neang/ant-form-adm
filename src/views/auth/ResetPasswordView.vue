@@ -125,7 +125,7 @@
 
 <script setup>
 import { reactive, ref } from "vue";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 
 import AuthLayout from "@/layouts/AuthLayout.vue";
 import BaseInput from "@/components/ui/base/BaseInput.vue";
@@ -137,6 +137,7 @@ import { useValidation } from "@/composable/useValidation";
 import { resetPasswordSchema } from "@/schemas/authSchema";
 
 const router = useRouter();
+const route = useRoute();
 const authStore = useAuthStore();
 const toast = useAppToast();
 
@@ -185,7 +186,13 @@ const handleResetPassword = async () => {
         "ពាក្យសម្ងាត់ត្រូវបានផ្លាស់ប្តូរដោយជោគជ័យ"
       );
       authStore.clearTwoFactor();
-      router.push("/");
+
+      const redirect = route.query.redirect;
+      if (redirect && typeof redirect === "string" && !redirect.startsWith("/auth")) {
+        router.push(redirect);
+      } else {
+        router.push("/");
+      }
     }
   } catch (error) {  
     const backendData = error.response?.data;

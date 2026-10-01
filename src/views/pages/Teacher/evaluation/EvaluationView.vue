@@ -259,6 +259,8 @@
             </div>
           </div>
         </div>
+      </div>
+    </div>
     <!-- DATA NOT FOUND STATE -->
     <div v-else class="container-fluid py-5 text-center d-flex flex-column align-items-center justify-content-center" style="min-height: 520px;">
       <div class="p-4 p-md-5 text-center">

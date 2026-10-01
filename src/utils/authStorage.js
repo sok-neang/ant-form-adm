@@ -6,8 +6,8 @@ const STORAGE_KEYS = {
   totpSecret: "totpSecret",
 
   // Final authentication
+  // Note: Refresh tokens are securely managed via HttpOnly cookies (withCredentials: true)
   accessToken: "accessToken",
-  refreshToken: "refreshToken",
   user: "user",
 };
 
@@ -75,8 +75,6 @@ export const clearTwoFactorData = () => {
 
 export const saveAuthData = ({
   accessToken,
-  refreshToken,
-  user,
 }) => {
   if (accessToken) {
     localStorage.setItem(
@@ -84,43 +82,21 @@ export const saveAuthData = ({
       accessToken
     );
   }
-
-  if (refreshToken) {
-    localStorage.setItem(
-      STORAGE_KEYS.refreshToken,
-      refreshToken
-    );
-  }
-
-  // if (user) {
-  //   localStorage.setItem(
-  //     STORAGE_KEYS.user,
-  //     JSON.stringify(user)
-  //   );
-  // }
 };
 
 export const getAuthData = () => {
-  // const user = localStorage.getItem(STORAGE_KEYS.user) || sessionStorage.getItem(STORAGE_KEYS.user);
-
   return {
     accessToken:
       localStorage.getItem(STORAGE_KEYS.accessToken) ||
-      sessionStorage.getItem(STORAGE_KEYS.accessToken),
-
-    refreshToken:
-      localStorage.getItem(STORAGE_KEYS.refreshToken) ||
-      sessionStorage.getItem(STORAGE_KEYS.refreshToken),
-
-    // user: user ? JSON.parse(user) : null,
+      sessionStorage.getItem(STORAGE_KEYS.accessToken) ||
+      "",
   };
 };
 
 export const clearAuthData = () => {
   [
     STORAGE_KEYS.accessToken,
-    STORAGE_KEYS.refreshToken,
-    // STORAGE_KEYS.user,
+    STORAGE_KEYS.user,
   ].forEach((key) => {
     localStorage.removeItem(key);
     sessionStorage.removeItem(key);

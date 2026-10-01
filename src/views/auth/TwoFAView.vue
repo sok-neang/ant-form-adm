@@ -55,13 +55,14 @@
 </template>
 <script setup>
 import { ref } from "vue";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 
 import BaseButton from "@/components/ui/base/BaseButton.vue";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useAppToast } from "@/composable/useAppToast";
 
 const router = useRouter();
+const route = useRoute();
 const authStore = useAuthStore();
 const toast = useAppToast();
 const copied = ref(false);
@@ -87,6 +88,6 @@ const goToVerifyCode = () => {
     toast.error("Session ផ្ទៀងផ្ទាត់មិនត្រឹមត្រូវ");
     return;
   }
-  router.push("/auth/verify-code");
+  router.push({ path: "/auth/verify-code", query: route.query });
 };
 </script>

@@ -101,7 +101,7 @@ import AuthLayout from "@/layouts/AuthLayout.vue";
 import BaseInput from "@/components/ui/base/BaseInput.vue";
 import BaseButton from "@/components/ui/base/BaseButton.vue";
 
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import { ref, reactive } from "vue";
 import { useValidation } from "@/composable/useValidation";
 import { loginSchema } from "@/schemas/authSchema";
@@ -110,6 +110,7 @@ import { useAppToast } from "@/composable/useAppToast";
 
 const authStore = useAuthStore();
 const router = useRouter();
+const route = useRoute();
 const toast = useAppToast();
 const showPassword = ref(false);
 
@@ -131,11 +132,11 @@ const handleLogin = async () => {
       const setupTotp = response.data.setupTotp;
       // First login
       if (setupTotp) {
-        router.push("/auth/2fa");
+        router.push({ path: "/auth/2fa", query: route.query });
         return;
       }
       // Existing user
-      router.push("/auth/verify-code");
+      router.push({ path: "/auth/verify-code", query: route.query });
       return;
     }
   } catch (error) {

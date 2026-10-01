@@ -11,6 +11,7 @@ import {
   getAuthData,
   clearAuthData,
 } from "@/utils/authStorage";
+import { refreshAccessToken } from "@/api/axios";
 import {
   getAvatarUrl,
   invalidateAvatarCache,
@@ -55,15 +56,12 @@ export const useAuthStore = defineStore("auth", () => {
     localStorage.getItem("accessToken") ||
     sessionStorage.getItem("accessToken") ||
     "";
-  
-  if (initialToken && !isValidJwt(initialToken)) {
-    clearAuthData();
-    localStorage.removeItem("accessToken");
-    sessionStorage.removeItem("accessToken");
-  }
 
+  // Only initialize as valid if not expired.
+  // Note: We do NOT wipe storage here so the router can attempt
+  // a silent refresh using the HttpOnly refresh token cookie.
   const accessToken = ref(isValidJwt(initialToken) ? initialToken : "");
-  const user = ref(initialAuth.user || null);
+  const user = ref(null);
   const userAvatarUrl = ref(DEFAULT_AVATAR);
   const loading = ref(false);
   const isUpdateProfileLoading = ref(false);
@@ -105,6 +103,15 @@ export const useAuthStore = defineStore("auth", () => {
     },
     { immediate: true }
   );
+
+  // Sync token when refreshed in the background by axios interceptor
+  if (typeof window !== "undefined") {
+    window.addEventListener("auth:token-refreshed", (event) => {
+      if (event.detail && typeof event.detail === "string") {
+        accessToken.value = event.detail;
+      }
+    });
+  }
 
   const login = async (credentials) => {
     loading.value = true;
@@ -343,6 +350,22 @@ export const useAuthStore = defineStore("auth", () => {
     clearTwoFactorData();
   };
 
+  // Attempt silent refresh using HttpOnly cookie
+  const trySilentRefresh = async () => {
+    try {
+      const newToken = await refreshAccessToken();
+      accessToken.value = newToken;
+      return newToken;
+    } catch (error) {
+      accessToken.value = "";
+      user.value = null;
+      clearAuthData();
+      localStorage.removeItem("accessToken");
+      sessionStorage.removeItem("accessToken");
+      throw error;
+    }
+  };
+
   return {
     // Auth
     user,
@@ -376,5 +399,6 @@ export const useAuthStore = defineStore("auth", () => {
 
     setTwoFactorData,
     clearTwoFactor,
+    trySilentRefresh,
   };
 });

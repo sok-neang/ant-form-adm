@@ -58,7 +58,6 @@ api.interceptors.request.use(
 // ==========================================
 // Refresh Access Token
 // ==========================================
-let isRefreshing = false;
 let refreshPromise = null;
 
 const refreshAccessToken = async () => {
@@ -77,6 +76,15 @@ const refreshAccessToken = async () => {
           "accessToken",
           newAccessToken
         );
+
+        // Notify other listeners (e.g. Pinia authStore) that token was refreshed
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(
+            new CustomEvent("auth:token-refreshed", {
+              detail: newAccessToken,
+            })
+          );
+        }
 
         return newAccessToken;
       })
@@ -110,11 +118,14 @@ api.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    // Do not attempt refresh on auth endpoints (e.g. login, 2fa, refresh)
+    // Do not attempt refresh on auth endpoints (e.g. login, 2fa, refresh, logout)
     // to allow LoginView to properly display credential validation errors
-    const isAuthEndpoint = originalRequest.url?.includes("/auth/login") ||
+    // and prevent refreshing tokens when logging out
+    const isAuthEndpoint =
+      originalRequest.url?.includes("/auth/login") ||
       originalRequest.url?.includes("/auth/2fa") ||
-      originalRequest.url?.includes("/auth/refresh");
+      originalRequest.url?.includes("/auth/refresh") ||
+      originalRequest.url?.includes("/auth/logout");
 
     if (isAuthEndpoint) {
       return Promise.reject(error);
@@ -148,11 +159,19 @@ api.interceptors.response.use(
       sessionStorage.removeItem("accessToken");
       sessionStorage.removeItem("user");
 
-      window.location.href = "/auth/login";
+      if (typeof window !== "undefined") {
+        const currentPath = window.location.pathname + window.location.search;
+        const redirectQuery =
+          currentPath && !currentPath.startsWith("/auth")
+            ? `?redirect=${encodeURIComponent(currentPath)}`
+            : "";
+        window.location.href = `/auth/login${redirectQuery}`;
+      }
 
       return Promise.reject(refreshError);
     }
   }
 );
 
+export { refreshClient, refreshAccessToken };
 export default api;

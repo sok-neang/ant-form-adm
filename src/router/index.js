@@ -396,68 +396,35 @@ const router = createRouter({
 router.beforeEach(async (to) => {
   const authStore = useAuthStore();
 
-  const isAuthenticated = authStore.isAuthenticated;
-  const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
-  const requiresGuest = to.matched.some(record => record.meta.requiresGuest);
+  const requiresAuth = to.matched.some((record) => record.meta.requiresAuth);
+  const requiresGuest = to.matched.some((record) => record.meta.requiresGuest);
   const requiresInterimToken = to.matched.some((record) => record.meta.requiresInterimToken);
 
-  // 1. User IS logged in → cannot access auth pages (login, 2fa, verify-code, etc.)
-  if (requiresGuest && isAuthenticated) {
-    return { name: "dashboard" };
-  }
   // 1. If route requires authentication
   if (requiresAuth) {
+    // If not authenticated, attempt silent refresh via HttpOnly cookie first
     if (!authStore.isAuthenticated) {
-      await authStore.logout();
-      return { name: "login" };
-    }
-
-    // Verify token validity with backend if user profile is not yet loaded
-    if (!authStore.user) {
       try {
-        await authStore.getProfile();
-      } catch (error) {
+        await authStore.trySilentRefresh();
+      } catch (refreshErr) {
         await authStore.logout();
-        return { name: "login" };
+        return { name: "login", query: { redirect: to.fullPath } };
       }
     }
-  }
 
-  // 2. User IS logged in → cannot access auth pages (login, 2fa, verify-code, etc.)
-  if (requiresGuest && authStore.isAuthenticated) {
-    if (!authStore.user) {
-      try {
-        await authStore.getProfile();
-        return { name: "dashboard" };
-      } catch {
-        await authStore.logout();
-        return true;
-      }
-    }
-    return { name: "dashboard" };
-  }
-
-  // 3. Prevent accessing 2FA/Reset steps without a login interimToken
-  if (requiresInterimToken && !authStore.interimToken) {
-    return { name: "login" };
-  }
-
-  // 4. Role-based Access Control (RBAC)
-  if (requiresAuth && isAuthenticated) {
-    // If user profile is not yet in store (e.g. initial load or browser refresh), fetch it
+    // Verify token validity with backend and populate user profile if missing
     if (!authStore.user) {
       try {
         await authStore.getProfile();
       } catch (error) {
         console.error("Failed to load user profile in router guard:", error);
         await authStore.logout();
-        return { name: "login" };
+        return { name: "login", query: { redirect: to.fullPath } };
       }
     }
 
+    // Role-based Access Control (RBAC)
     const userRole = authStore.user?.role;
-
-    // Check roles across all matched route records
     const roleRestrictedRecords = to.matched.filter(
       (record) => record.meta && Array.isArray(record.meta.roles)
     );
@@ -471,6 +438,29 @@ router.beforeEach(async (to) => {
         return { name: "forbidden" };
       }
     }
+  }
+
+  // 2. User IS logged in → cannot access guest pages (login, 2fa, verify-code, etc.)
+  if (requiresGuest && authStore.isAuthenticated) {
+    if (!authStore.user) {
+      try {
+        await authStore.getProfile();
+      } catch {
+        await authStore.logout();
+        return true;
+      }
+    }
+
+    const redirectPath = to.query.redirect;
+    if (redirectPath && typeof redirectPath === "string" && !redirectPath.startsWith("/auth")) {
+      return redirectPath;
+    }
+    return { name: "dashboard" };
+  }
+
+  // 3. Prevent accessing 2FA/Reset steps without a login interimToken
+  if (requiresInterimToken && !authStore.interimToken) {
+    return { name: "login" };
   }
 
   return true;
