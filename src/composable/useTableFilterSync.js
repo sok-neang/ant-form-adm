@@ -1,5 +1,70 @@
 import { ref, watch, onMounted, isRef } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import { useRoute, useRouter, onBeforeRouteLeave } from "vue-router";
+
+// Predefined detail routes matching each table storage key
+const DETAIL_ROUTES_MAP = {
+  all_application: ["/application-review", "application-review"],
+  passed_application: ["/application-review", "application-review"],
+  failed_application: ["/application-review", "application-review"],
+  contacted_application: ["/application-review", "application-review"],
+  shortlist_all: ["/shortlist-detail", "shortlist-detail"],
+  shortlist_passed: ["/shortlist-detail", "shortlist-detail"],
+  shortlist_failed: ["/shortlist-detail", "shortlist-detail"],
+  final_results_all: ["/final-result-detail", "final-result-detail"],
+  final_results_passed: ["/final-result-detail", "final-result-detail"],
+  final_results_reserved: ["/final-result-detail", "final-result-detail"],
+  blacklist: ["/blacklist-detail", "blacklist-detail"],
+  dropout: ["/dropout-detail", "dropout-detail"],
+  teacher_student_list: [
+    "/student-lists/detail",
+    "/student-lists/evaluation",
+    "student-detail",
+    "student-evaluation",
+  ],
+};
+
+const isDetailTarget = (target, storageKey, customDetailRoutes) => {
+  if (!target) return false;
+
+  const targetPath =
+    typeof target === "string" ? target : target.path || "";
+  const targetName =
+    typeof target === "object" ? String(target.name || "") : "";
+
+  if (!targetPath && !targetName) return false;
+
+  // 1. Custom detail routes passed via options
+  if (customDetailRoutes) {
+    if (typeof customDetailRoutes === "function") {
+      return customDetailRoutes(target);
+    }
+    const routes = Array.isArray(customDetailRoutes)
+      ? customDetailRoutes
+      : [customDetailRoutes];
+    if (routes.some((r) => targetPath.startsWith(r) || targetName === r)) {
+      return true;
+    }
+  }
+
+  // 2. Predefined routes from map
+  const mapped = DETAIL_ROUTES_MAP[storageKey];
+  if (mapped && mapped.some((r) => targetPath.startsWith(r) || targetName === r)) {
+    return true;
+  }
+
+  // 3. Fallback heuristic: check if target is a detail/review/evaluation view
+  const lowerPath = targetPath.toLowerCase();
+  const lowerName = targetName.toLowerCase();
+  return (
+    lowerPath.includes("detail") ||
+    lowerPath.includes("review") ||
+    lowerPath.includes("evaluation") ||
+    lowerName.includes("detail") ||
+    lowerName.includes("review") ||
+    lowerName.includes("evaluation")
+  );
+};
+
 export function useTableFilterSync(
   storageKey,
   filterRefs = {},
@@ -18,13 +83,44 @@ export function useTableFilterSync(
   ];
 
   // --------------------------------------------------
+  // Navigation Source Tracking
+  // --------------------------------------------------
+
+  const getPreviousRoute = () => {
+    try {
+      const fromPath = sessionStorage.getItem("last_nav_path");
+      const fromName = sessionStorage.getItem("last_nav_name");
+      return { path: fromPath || "", name: fromName || "" };
+    } catch {
+      return null;
+    }
+  };
+
+  const isComingFromDetail = () => {
+    const prevRoute = getPreviousRoute();
+    if (!prevRoute || !prevRoute.path) return true;
+    // Same page reload / query change
+    if (prevRoute.path === route.path) return true;
+
+    return isDetailTarget(prevRoute, storageKey, options.detailRoutes);
+  };
+
+  const isFromDetail = isComingFromDetail();
+
+  // --------------------------------------------------
   // Session Storage
   // --------------------------------------------------
 
   const getSavedFilters = () => {
+    if (!isFromDetail) {
+      try {
+        sessionStorage.removeItem(sessionKey);
+      } catch {}
+      return {};
+    }
+
     try {
       const saved = sessionStorage.getItem(sessionKey);
-
       return saved ? JSON.parse(saved) : {};
     } catch {
       return {};
@@ -51,6 +147,27 @@ export function useTableFilterSync(
   };
 
   // --------------------------------------------------
+  // Route Leave Guard: Clear when navigating to other page
+  // --------------------------------------------------
+
+  try {
+    onBeforeRouteLeave((to) => {
+      const isGoingToDetail = isDetailTarget(
+        to,
+        storageKey,
+        options.detailRoutes
+      );
+      if (!isGoingToDetail) {
+        try {
+          sessionStorage.removeItem(sessionKey);
+        } catch {}
+      }
+    });
+  } catch (err) {
+    // Safe fallback if called outside route component context
+  }
+
+  // --------------------------------------------------
   // Helpers
   // --------------------------------------------------
 
@@ -64,6 +181,10 @@ export function useTableFilterSync(
     ignoreDefaults.includes(value);
 
   const getInitialPage = () => {
+    if (!isFromDetail) {
+      return 1;
+    }
+
     const routePage = Number(route.query.page);
     const savedPage = Number(savedFilters.page);
 
@@ -80,6 +201,15 @@ export function useTableFilterSync(
   const restoreFilters = () => {
     Object.entries(filterRefs).forEach(([key, filterRef]) => {
       if (!isValidRef(filterRef)) return;
+
+      if (!isFromDetail) {
+        if (key === "scoreLevel" || key === "resultStatus") {
+          filterRef.value = "all";
+        } else {
+          filterRef.value = "";
+        }
+        return;
+      }
 
       const queryValue = route.query[key];
       const savedValue = savedFilters[key];

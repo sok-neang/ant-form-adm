@@ -758,7 +758,7 @@ watch(searchQuery, () => {
   clearTimeout(searchTimeout);
   searchTimeout = setTimeout(() => {
     loadSubmissions(1);
-  }, 500); // 500ms debounce
+  }, 500); 
 });
 
 watch([selectedShift, selectedTrack], () => {

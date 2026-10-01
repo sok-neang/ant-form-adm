@@ -196,7 +196,11 @@ const promoteStatus = async (status, payload = {}) => {
     }
   } catch (error) {
     console.error("Error updating status:", error);
-    toast.error(error?.response?.data?.message || "");
+    if (error?.response?.data?.message.includes('must have evaluation scores')) {
+      toast.error("សិស្សត្រូវមានពិន្ទុវាយតម្លៃគ្រប់មុខវិជ្ជាសិន។");
+    } else {
+      toast.error(error?.response?.data?.message || "មានបញ្ហាប្រព័ន្ធ");
+    }
   } finally {
     isUpdating.value = false;
   }

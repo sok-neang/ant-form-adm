@@ -466,12 +466,19 @@ router.beforeEach(async (to) => {
   return true;
 });
 
-router.afterEach((to) => {
+router.afterEach((to, from) => {
   const title = to.meta.title;
 
   document.title = title
     ? `${title} | ANT Form Management`
     : "ANT Form Management";
+
+  if (from && from.path) {
+    try {
+      sessionStorage.setItem("last_nav_path", from.path);
+      sessionStorage.setItem("last_nav_name", String(from.name || ""));
+    } catch {}
+  }
 });
 
 export default router
