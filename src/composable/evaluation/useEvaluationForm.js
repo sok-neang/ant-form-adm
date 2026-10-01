@@ -140,6 +140,27 @@ export const useEvaluationForm = (submissionId) => {
         mergedSubmission = { ...evalData, ...mergedSubmission };
       }
 
+      if (mergedSubmission && mergedSubmission.id) {
+        const rawStatus = String(mergedSubmission.status || "").toUpperCase().trim();
+        const disallowed = [
+          "BLACKLIST",
+          "BLACKLISTED",
+          "DROPOUT",
+          "DROP_OUT",
+          "SUBMIT",
+          "SUBMITTED",
+        ];
+        if (disallowed.includes(rawStatus)) {
+          submission.value = null;
+          student.value = null;
+          evaluations.value = [];
+          forms.value = createEmptyEvaluationForm();
+          originalForms.value = createEmptyEvaluationForm();
+          error.value = "មិនមានទិន្នន័យ";
+          return;
+        }
+      }
+
       submission.value = mergedSubmission;
       student.value = mergedStudent;
       evaluations.value = mergedEvaluations;

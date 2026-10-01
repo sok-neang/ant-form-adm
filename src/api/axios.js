@@ -99,8 +99,8 @@ api.interceptors.response.use(
 
     // Handle 403 Forbidden: Privilege violation / unauthorized module access
     if (error.response?.status === 403) {
-      if (typeof window !== "undefined" && window.location.pathname !== "/403") {
-        window.location.href = "/403";
+      if (typeof window !== "undefined" && window.location.pathname !== "/404") {
+        window.location.href = "/404";
       }
       return Promise.reject(error);
     }

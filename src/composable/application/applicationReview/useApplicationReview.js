@@ -16,6 +16,7 @@ export function useApplicationReview() {
     if (!id) return;
     
     loading.value = true;
+    application.value = null;
     try {
       const response = await submissionService.getById(id);
       let appData = response.data?.success
@@ -33,11 +34,26 @@ export function useApplicationReview() {
       }
 
       if (appData) {
-        const rawStatus = String(appData.status || "").toUpperCase();
-        const isBlacklist = ["BLACKLIST", "BLACKLISTED"].includes(rawStatus) || Boolean(appData.blacklistReason || appData.blacklistedAt || appData.blacklist);
-        const isDropout = ["DROPOUT", "DROP_OUT"].includes(rawStatus) || Boolean(appData.dropoutReason || appData.droppedOutAt || appData.dropout);
+        const rawStatus = String(appData.status || "").toUpperCase().trim();
+        const isBlacklist = ["BLACKLIST", "BLACKLISTED"].includes(rawStatus);
+        const isDropout = ["DROPOUT", "DROP_OUT"].includes(rawStatus);
 
         if (isBlacklist || isDropout) {
+          application.value = null;
+          return;
+        }
+
+        // Must be in applicant stage
+        const validApplicantStatuses = [
+          "SUBMIT",
+          "SUBMITTED",
+          "SHORTLIST",
+          "SHORTLISTED",
+          "FAILED_SHORTLIST",
+          "FAIL",
+          "FAILED",
+        ];
+        if (!validApplicantStatuses.includes(rawStatus)) {
           application.value = null;
           return;
         }

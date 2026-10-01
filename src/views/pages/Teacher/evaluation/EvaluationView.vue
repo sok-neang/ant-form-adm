@@ -40,7 +40,7 @@
     </div>
 
     <!-- MAIN EVALUATION CONTENT -->
-    <div v-else class="row g-4">
+    <div v-else-if="submission && submission.id" class="row g-4">
       <!-- LEFT COLUMN: EVALUATION FORM -->
       <div class="col-lg-7 col-xl-8">
         <div class="card border-0 rounded-4 shadow-sm bg-white px-4 py-md-3 px-md-5 h-100">
@@ -258,6 +258,26 @@
               </div>
             </div>
           </div>
+        </div>
+    <!-- DATA NOT FOUND STATE -->
+    <div v-else class="container-fluid py-5 text-center d-flex flex-column align-items-center justify-content-center" style="min-height: 520px;">
+      <div class="p-4 p-md-5 text-center">
+        <div class="py-10 text-center">
+          <div class="empty-icon mb-4">
+            <i class="bi bi-search fs-1"></i>
+          </div>
+          <h5 class="fw-bold mb-2">មិនមានទិន្នន័យ</h5>
+          <p class="text-muted mb-0">មិនអាចរកឃើញទិន្នន័យដែលអ្នកកំពុងស្វែងរកទេ។</p>
+        </div>
+        <div>
+          <button
+            type="button"
+            class="btn btn-primary mt-4 px-4 py-2 rounded-3 d-inline-flex align-items-center gap-2"
+            @click="goBack"
+          >
+            <i class="bi bi-arrow-left"></i>
+            <span>ត្រឡប់ក្រោយ</span>
+          </button>
         </div>
       </div>
     </div>
@@ -641,5 +661,18 @@ onMounted(() => {
 .banner-score {
   font-size: 2.75rem;
   letter-spacing: -0.5px;
+}
+
+.empty-icon {
+  width: 100px;
+  height: 100px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(var(--bs-primary-rgb, 38, 98, 217), 0.08);
+  color: var(--bs-primary, #2662d9);
+  border-radius: 50%;
+  font-size: 25px;
 }
 </style>

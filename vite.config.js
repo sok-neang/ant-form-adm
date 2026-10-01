@@ -17,12 +17,12 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://ant-form-backend.production.rms.publicvm.com',
+        target: 'https://web-api-registration.ant.com.kh',
         changeOrigin: true,
         secure: false,
       },
       '/uploads': {
-        target: 'https://ant-form-backend.production.rms.publicvm.com',
+        target: 'https://web-api-registration.ant.com.kh',
         changeOrigin: true,
         secure: false,
       },

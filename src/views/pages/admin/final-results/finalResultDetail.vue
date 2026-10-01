@@ -1,5 +1,6 @@
 <template>
   <DetailStudent
+    :key="$route.fullPath"
     :allowed-statuses="['PASS', 'PASSED', 'RESERVED', 'RESERVE', 'FAIL', 'FAILED', 'FAILED_EVALUATION']"
     @loaded="onDataLoaded"
   >

@@ -367,11 +367,11 @@ const router = createRouter({
       ],
     },
     {
-      path: "/403",
+      path: "/404",
       name: "forbidden",
       component: ForbiddenView,
       meta: {
-        title: "គ្មានសិទ្ធិចូលប្រើប្រាស់",
+        title: "មិនស្គាល់ទំព័រ",
         requiresAuth: true,
       },
     },
@@ -380,9 +380,7 @@ const router = createRouter({
       name: "not-found",
       component: NotFoundView,
       meta: { 
-        title: "មិនស្គាល់ទំព័រ",
-        // requiresAuth: true,
-        // roles: ["SUPER_ADMIN", "ADMIN", "TEACHER"],
+        title: "មិនស្គាល់ទំព័រ"
       },
     },
     {

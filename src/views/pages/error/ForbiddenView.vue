@@ -2,14 +2,14 @@
   <div class="forbidden-page d-flex align-items-center justify-content-center p-3">
     <div class="forbidden-card text-center p-2 py-5 rounded-4 ">
       
-      <img :src="forbiddenImage" alt="" width="400">
+      <img :src="notFoundImage" alt="" width="400">
 
       <h2 class="fw-bold text-dark mb-2">
-        គ្មានសិទ្ធិចូលប្រើប្រាស់
+        មិនមានទំព័រនេះទេ
       </h2>
 
       <p class="text-muted mb-4 fs-6 lh-base px-md-3">
-        លោកអ្នកមិនមានសិទ្ធិ ឬតួនាទីគ្រប់គ្រាន់ដើម្បីចូលទៅកាន់ទំព័រនេះឡើយ។
+        ទំព័រដែលលោកអ្នកកំពុងស្វែងរកមិនមាននៅលើប្រព័ន្ធទេ។
       </p>
 
       <!-- Action Buttons -->
@@ -29,7 +29,7 @@
 <script setup>
 import { useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/useAuthStore";
-import forbiddenImage from "@/assets/images/auth/403.png";
+import notFoundImage from "@/assets/images/auth/404.png";
 
 const router = useRouter();
 const authStore = useAuthStore();

@@ -1,6 +1,6 @@
 <template>
   <DetailStudent
-    :key="detailStudentKey"
+    :key="`${detailStudentKey}_${$route.fullPath}`"
     :allowed-statuses="['SHORTLIST', 'SHORTLISTED', 'PASS', 'PASSED', 'RESERVED', 'RESERVE', 'FAILED_EVALUATION', 'FAIL', 'FAILED']"
     @loaded="onDataLoaded"
   >

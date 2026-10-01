@@ -679,16 +679,8 @@ const isBlacklistOrDropout = computed(() => {
     return true;
   }
 
-  const s = String(submission.value?.status || "").toUpperCase();
+  const s = String(submission.value?.status || "").toUpperCase().trim();
   if (["BLACKLIST", "BLACKLISTED", "DROPOUT", "DROP_OUT"].includes(s)) {
-    return true;
-  }
-
-  if (
-    submission.value?.blacklistReason ||
-    submission.value?.blacklistedAt ||
-    submission.value?.blacklist
-  ) {
     return true;
   }
 
@@ -702,7 +694,7 @@ const computedBannerBg = computed(() => {
   return bannerDetailBg;
 });
 
-// ID from prop or router params
+// ID from prop or router params 
 const activeId = computed(() => {
   return props.submissionId || route.params.id || route.params.submissionId;
 });
@@ -792,28 +784,12 @@ watch(activeId, (newId) => {
 const checkStatusAllowed = (sub) => {
   if (!sub || typeof sub !== "object") return false;
 
-  const rawStatus = String(sub.status || "").toUpperCase();
+  const rawStatus = String(sub.status || "").toUpperCase().trim();
+  if (!rawStatus) return false;
 
-  const isBlacklist =
-    ["BLACKLIST", "BLACKLISTED"].includes(rawStatus) ||
-    Boolean(sub.blacklistReason || sub.blacklistedAt || sub.blacklist);
-
-  const isDropout =
-    ["DROPOUT", "DROP_OUT"].includes(rawStatus) ||
-    Boolean(sub.dropoutReason || sub.droppedOutAt || sub.dropout);
-
-  const isShortlist =
-    ["SHORTLIST", "SHORTLISTED"].includes(rawStatus) ||
-    [
-      "PASS",
-      "PASSED",
-      "RESERVED",
-      "RESERVE",
-      "FAIL",
-      "FAILED",
-      "FAILED_EVALUATION",
-    ].includes(rawStatus);
-
+  const isBlacklist = ["BLACKLIST", "BLACKLISTED"].includes(rawStatus);
+  const isDropout = ["DROPOUT", "DROP_OUT"].includes(rawStatus);
+  const isShortlist = ["SHORTLIST", "SHORTLISTED"].includes(rawStatus);
   const isFinalResult = [
     "PASS",
     "PASSED",
@@ -828,9 +804,9 @@ const checkStatusAllowed = (sub) => {
   let expectedList = [];
   if (props.allowedStatuses) {
     if (Array.isArray(props.allowedStatuses)) {
-      expectedList = props.allowedStatuses.map((s) => String(s).toUpperCase());
+      expectedList = props.allowedStatuses.map((s) => String(s).toUpperCase().trim());
     } else if (typeof props.allowedStatuses === "string" && props.allowedStatuses) {
-      expectedList = [props.allowedStatuses.toUpperCase()];
+      expectedList = [props.allowedStatuses.toUpperCase().trim()];
     }
   }
 
@@ -870,7 +846,7 @@ const checkStatusAllowed = (sub) => {
   if (routePath.includes("shortlist") || routeName.includes("shortlist")) {
     if (isBlacklist || isDropout) return false;
     if (rawStatus === "SUBMIT" || rawStatus === "SUBMITTED") return false;
-    return isShortlist;
+    return isShortlist || isFinalResult;
   }
 
   // Final result route
@@ -891,7 +867,7 @@ const checkStatusAllowed = (sub) => {
   if (routePath.includes("student-lists") || routeName.includes("student")) {
     if (isBlacklist || isDropout) return false;
     if (rawStatus === "SUBMIT" || rawStatus === "SUBMITTED") return false;
-    return true;
+    return isShortlist || isFinalResult;
   }
 
   return true;
@@ -902,6 +878,9 @@ const fetchData = async () => {
   if (!targetId) return;
   loading.value = true;
   internalNotFound.value = false;
+  submission.value = null;
+  student.value = null;
+  evaluations.value = [];
   try {
     const [evalRes, subRes] = await Promise.allSettled([
       evaluationService.getBySubmissionId(targetId),
@@ -932,6 +911,11 @@ const fetchData = async () => {
       submission.value = null;
       student.value = null;
       evaluations.value = [];
+      emit("loaded", {
+        submission: null,
+        student: null,
+        evaluations: [],
+      });
       return;
     }
 
@@ -941,6 +925,11 @@ const fetchData = async () => {
       submission.value = null;
       student.value = null;
       evaluations.value = [];
+      emit("loaded", {
+        submission: null,
+        student: null,
+        evaluations: [],
+      });
       return;
     }
 
@@ -1013,6 +1002,11 @@ const fetchData = async () => {
     submission.value = null;
     student.value = null;
     evaluations.value = [];
+    emit("loaded", {
+      submission: null,
+      student: null,
+      evaluations: [],
+    });
   } finally {
     loading.value = false;
   }
