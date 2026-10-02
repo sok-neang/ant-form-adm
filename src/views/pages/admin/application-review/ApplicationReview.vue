@@ -1878,9 +1878,7 @@ const submitActionModal = async () => {
 
 const getEducationLevel = (lvl) => {
   if (lvl === "BACHELOR") return "បរិញ្ញាបត្រ";
-  if (lvl === "ASSOCIATE") return "បរិញ្ញាបត្ររង";
-  if (lvl === "HIGH_SCHOOL") return "មធ្យមសិក្សាទុតិយភូមិ";
-  if (lvl === "MASTER") return "អនុបណ្ឌិត";
+  if (lvl === "MASTER") return "បរិញ្ញាបត្រជាន់ខ្ពស់";
   return lvl || "-";
 };
 
